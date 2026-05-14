@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>总览大屏 - 数据大屏 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* 数据大屏专用样式 */
+.page-dashboard { height: 100%; }
+.dash-layout { display: flex; gap: 12px; height: 100%; min-height: 600px; }
+.dash-left { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+.dash-center { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.dash-right { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  transition: box-shadow .3s, border-color .3s, transform .2s;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0.25;
+}
+.card:hover { box-shadow: 0 4px 24px rgba(22,119,255,0.1); border-color: var(--border-medium); }
+.card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.card-title::before { content: ""; display: inline-block; width: 3px; height: 14px; background: var(--primary); border-radius: 2px; }
+.card-title .subtitle { font-size: 12px; color: var(--text-muted); font-weight: 400; margin-left: auto; }
+.card-title.alert-title::before { background: var(--status-red); }
+.card-title.warn-title::before { background: var(--status-orange); }
+.card-title.info-title::before { background: var(--status-blue); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { text-align: left; padding: 7px 8px; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border-subtle); background: rgba(22,119,255,0.03); }
+.data-table td { padding: 7px 8px; color: var(--text-secondary); border-bottom: 1px solid rgba(22,119,255,0.03); }
+.data-table tr:hover td { background: rgba(22,119,255,0.02); color: var(--text-primary); }
+.tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 11px; }
+.tag-red { background: rgba(245,34,45,0.1); color: var(--status-red); border: 1px solid rgba(245,34,45,0.15); }
+.tag-orange { background: rgba(250,140,22,0.1); color: var(--status-orange); border: 1px solid rgba(250,140,22,0.15); }
+.tag-yellow { background: rgba(250,219,20,0.1); color: var(--status-yellow); border: 1px solid rgba(250,219,20,0.15); }
+.tag-green { background: rgba(82,196,26,0.1); color: var(--status-green); border: 1px solid rgba(82,196,26,0.15); }
+.tag-blue { background: rgba(22,119,255,0.1); color: var(--primary-light); border: 1px solid rgba(22,119,255,0.15); }
+
+.stat-list { display: flex; flex-direction: column; gap: 8px; }
+.stat-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(22,119,255,0.04); }
+.stat-row:last-child { border-bottom: none; }
+.stat-name { font-size: 12px; color: var(--text-secondary); }
+.stat-bar-wrap { flex: 1; margin: 0 10px; height: 5px; background: rgba(22,119,255,0.06); border-radius: 3px; overflow: hidden; }
+.stat-bar { height: 100%; border-radius: 3px; transition: width .6s ease; }
+.stat-bar.green { background: linear-gradient(90deg, var(--status-green), #95de64); }
+.stat-bar.yellow { background: linear-gradient(90deg, var(--status-yellow), #fff566); }
+.stat-bar.orange { background: linear-gradient(90deg, var(--status-orange), #ffc53d); }
+.stat-bar.red { background: linear-gradient(90deg, var(--status-red), #ff7875); }
+.stat-bar.blue { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+.stat-num { font-size: 12px; font-weight: 700; color: var(--text-primary); min-width: 28px; text-align: right; }
+
+.gis-map {
+  flex: 1; min-height: 0;
+  background: linear-gradient(135deg, #081424, #060f1c);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  position: relative; overflow: hidden;
+}
+.gis-map::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 25% 35%, rgba(22,119,255,0.06) 0%, transparent 45%), radial-gradient(circle at 75% 65%, rgba(22,119,255,0.04) 0%, transparent 40%);
+  pointer-events: none;
+}
+.gis-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(22,119,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(22,119,255,0.04) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+
+.gis-zone {
+  position: absolute; border-radius: var(--radius-md); border-style: solid; border-width: 1px;
+  display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all .3s;
+}
+.gis-zone:hover { box-shadow: 0 0 20px currentColor; transform: scale(1.02); z-index: 10; }
+.gis-zone-label { background: rgba(8,16,31,0.9); padding: 2px 8px; border-radius: 4px; white-space: nowrap; pointer-events: none; }
+.zone-hazard { border-color: rgba(245,34,45,0.35); background: rgba(245,34,45,0.04); color: rgba(255,130,130,0.8); }
+.zone-prod { border-color: rgba(22,119,255,0.3); background: rgba(22,119,255,0.04); color: rgba(100,170,255,0.8); }
+.zone-utility { border-color: rgba(54,207,201,0.25); background: rgba(54,207,201,0.03); color: rgba(100,220,210,0.7); }
+.zone-storage { border-color: rgba(82,196,26,0.25); background: rgba(82,196,26,0.03); color: rgba(130,220,100,0.7); }
+
+.gis-pipe { position: absolute; height: 3px; background: linear-gradient(90deg, rgba(22,119,255,0.2), rgba(22,119,255,0.4), rgba(22,119,255,0.2)); border-radius: 2px; }
+.gis-pipe-hazard { background: linear-gradient(90deg, rgba(245,34,45,0.2), rgba(245,34,45,0.5), rgba(245,34,45,0.2)); }
+
+.gis-point { position: absolute; width: 14px; height: 14px; border-radius: 50%; cursor: pointer; z-index: 5; border: 2px solid var(--bg-deep); }
+.gis-point::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 1px solid currentColor; opacity: 0; }
+.gis-point.green { background: var(--status-green); color: var(--status-green); box-shadow: 0 0 10px var(--status-green); }
+.gis-point.yellow { background: var(--status-yellow); color: var(--status-yellow); box-shadow: 0 0 10px var(--status-yellow); }
+.gis-point.orange { background: var(--status-orange); color: var(--status-orange); box-shadow: 0 0 10px var(--status-orange); }
+.gis-point.red { background: var(--status-red); color: var(--status-red); box-shadow: 0 0 10px var(--status-red); animation: blinkRed 0.8s infinite; }
+.gis-point.green::after, .gis-point.red::after { animation: gisPing 1.5s infinite; }
+
+@keyframes blinkRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes gisPing { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(3); opacity: 0; } }
+
+.gis-legend { position: absolute; bottom: 12px; left: 12px; background: rgba(6,12,24,0.92); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 14px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; }
+.gis-legend-item { display: flex; align-items: center; gap: 6px; color: var(--text-muted); }
+.gis-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.device-status-panel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.device-param-card { background: rgba(22,119,255,0.03); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; text-align: center; position: relative; transition: all .2s; }
+.device-param-card:hover { border-color: var(--border-medium); background: rgba(22,119,255,0.06); }
+.device-param-name { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+.device-param-value { font-size: 22px; font-weight: 800; line-height: 1.2; }
+.device-param-unit { font-size: 11px; color: var(--text-muted); margin-left: 2px; font-weight: 400; }
+.device-param-tag { font-size: 10px; margin-top: 4px; padding: 1px 6px; border-radius: 4px; display: inline-block; }
+
+.param-green { color: var(--status-green); }
+.param-green .device-param-tag { background: rgba(82,196,26,0.12); color: var(--status-green); border: 1px solid rgba(82,196,26,0.2); }
+.param-yellow { color: var(--status-yellow); }
+.param-yellow .device-param-tag { background: rgba(250,219,20,0.12); color: var(--status-yellow); border: 1px solid rgba(250,219,20,0.2); }
+.param-yellow-flash { animation: flashYellow 1.2s infinite; }
+.param-orange { color: var(--status-orange); }
+.param-orange .device-param-tag { background: rgba(250,140,22,0.12); color: var(--status-orange); border: 1px solid rgba(250,140,22,0.2); }
+.param-orange-flash { animation: flashOrange 1s infinite; }
+.param-red { color: var(--status-red); }
+.param-red .device-param-tag { background: rgba(245,34,45,0.12); color: var(--status-red); border: 1px solid rgba(245,34,45,0.2); }
+.param-red-flash { animation: flashRed 0.8s infinite; }
+
+@keyframes flashYellow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes flashOrange { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes flashRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.safety-layer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.safety-layer-card { background: rgba(22,119,255,0.03); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; display: flex; align-items: center; gap: 10px; transition: all .2s; }
+.safety-layer-card:hover { border-color: var(--border-medium); }
+.slayer-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.slayer-icon.green { background: rgba(82,196,26,0.1); color: var(--status-green); }
+.slayer-icon.yellow { background: rgba(250,219,20,0.1); color: var(--status-yellow); }
+.slayer-icon.orange { background: rgba(250,140,22,0.1); color: var(--status-orange); }
+.slayer-icon.red { background: rgba(245,34,45,0.1); color: var(--status-red); }
+.slayer-info { flex: 1; }
+.slayer-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.slayer-status { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.slayer-detail { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+.ai-alert-card { background: rgba(245,34,45,0.03); border: 1px solid rgba(245,34,45,0.15); border-radius: var(--radius-md); padding: 12px; margin-bottom: 10px; position: relative; transition: all .2s; cursor: pointer; }
+.ai-alert-card:hover { border-color: rgba(245,34,45,0.3); background: rgba(245,34,45,0.05); }
+.ai-alert-card::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; background: var(--status-red); border-radius: 0 2px 2px 0; }
+.ai-alert-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.ai-alert-title { font-size: 13px; font-weight: 600; color: var(--status-red); display: flex; align-items: center; gap: 6px; }
+.ai-alert-time { font-size: 11px; color: var(--text-muted); }
+.ai-alert-body { font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 8px; }
+.ai-alert-suggestion { background: rgba(22,119,255,0.05); border: 1px dashed var(--border-subtle); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+.ai-alert-suggestion strong { color: var(--primary-light); }
+.ai-alert-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.ai-alert-badge.critical { background: rgba(245,34,45,0.12); color: var(--status-red); }
+.ai-alert-badge.warning { background: rgba(250,140,22,0.12); color: var(--status-orange); }
+.ai-alert-badge.notice { background: rgba(250,219,20,0.12); color: var(--status-yellow); }
+
+.op-monitor-card { background: rgba(22,119,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px; margin-bottom: 8px; cursor: pointer; transition: all .2s; }
+.op-monitor-card:hover { border-color: var(--border-medium); background: rgba(22,119,255,0.04); }
+.op-monitor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.op-monitor-type { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.op-monitor-status { font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+.op-monitor-status.running { background: rgba(22,119,255,0.12); color: var(--primary-light); }
+.op-monitor-status.pending { background: rgba(250,219,20,0.12); color: var(--status-yellow); }
+.op-monitor-meta { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+.op-monitor-video { width: 100%; height: 70px; background: var(--bg-deep); border-radius: var(--radius-sm); border: 1px dashed var(--border-subtle); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 11px; margin-top: 6px; }
+
+.person-loc-list { display: flex; flex-direction: column; gap: 6px; }
+.person-loc-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: rgba(22,119,255,0.02); border-radius: var(--radius-sm); font-size: 12px; }
+.person-loc-name { color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+.person-loc-area { color: var(--text-muted); font-size: 11px; }
+</style>
+</head>
+<body class="page-dashboard">
+<div class="dash-layout">
+  <aside class="dash-left">
+    <div class="card">
+      <div class="card-title">重大危险源 <span class="subtitle">26处</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div style="text-align:center;padding:8px;background:rgba(245,34,45,0.05);border-radius:var(--radius-sm);border:1px solid rgba(245,34,45,0.1);">
+          <div style="font-size:18px;font-weight:800;color:var(--status-red);">2</div>
+          <div style="font-size:11px;color:var(--text-muted);">一级</div>
+        </div>
+        <div style="text-align:center;padding:8px;background:rgba(250,140,22,0.05);border-radius:var(--radius-sm);border:1px solid rgba(250,140,22,0.1);">
+          <div style="font-size:18px;font-weight:800;color:var(--status-orange);">4</div>
+          <div style="font-size:11px;color:var(--text-muted);">二级</div>
+        </div>
+        <div style="text-align:center;padding:8px;background:rgba(250,219,20,0.05);border-radius:var(--radius-sm);border:1px solid rgba(250,219,20,0.1);">
+          <div style="font-size:18px;font-weight:800;color:var(--status-yellow);">8</div>
+          <div style="font-size:11px;color:var(--text-muted);">三级</div>
+        </div>
+        <div style="text-align:center;padding:8px;background:rgba(82,196,26,0.05);border-radius:var(--radius-sm);border:1px solid rgba(82,196,26,0.1);">
+          <div style="font-size:18px;font-weight:800;color:var(--status-green);">12</div>
+          <div style="font-size:11px;color:var(--text-muted);">四级</div>
+        </div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>名称</th><th>级别</th><th>介质</th></tr></thead>
+        <tbody>
+          <tr><td>液氨储罐A区</td><td><span class="tag tag-red">一级</span></td><td>液氨</td></tr>
+          <tr><td>甲醇储罐B区</td><td><span class="tag tag-orange">二级</span></td><td>甲醇</td></tr>
+          <tr><td>丙烯球罐C区</td><td><span class="tag tag-orange">二级</span></td><td>丙烯</td></tr>
+          <tr><td>苯储罐D区</td><td><span class="tag tag-yellow">三级</span></td><td>苯</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">重点监管工艺 <span class="subtitle">8类</span></div>
+      <div class="stat-list">
+        <div class="stat-row"><span class="stat-name">加氢工艺</span><div class="stat-bar-wrap"><div class="stat-bar blue" style="width:85%"></div></div><span class="stat-num">6</span></div>
+        <div class="stat-row"><span class="stat-name">氧化工艺</span><div class="stat-bar-wrap"><div class="stat-bar blue" style="width:72%"></div></div><span class="stat-num">4</span></div>
+        <div class="stat-row"><span class="stat-name">氯化工艺</span><div class="stat-bar-wrap"><div class="stat-bar blue" style="width:60%"></div></div><span class="stat-num">3</span></div>
+        <div class="stat-row"><span class="stat-name">硝化工艺</span><div class="stat-bar-wrap"><div class="stat-bar yellow" style="width:45%"></div></div><span class="stat-num">2</span></div>
+        <div class="stat-row"><span class="stat-name">聚合工艺</span><div class="stat-bar-wrap"><div class="stat-bar green" style="width:35%"></div></div><span class="stat-num">2</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">重点监管危化品 <span class="subtitle">74种</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+        <span class="tag tag-red">液氨</span><span class="tag tag-orange">甲醇</span><span class="tag tag-orange">丙烯</span>
+        <span class="tag tag-yellow">苯</span><span class="tag tag-yellow">甲苯</span><span class="tag tag-yellow">二甲苯</span>
+        <span class="tag tag-green">硫酸</span><span class="tag tag-green">盐酸</span><span class="tag tag-blue">+66种</span>
+      </div>
+    </div>
+  </aside>
+
+  <section class="dash-center">
+    <div class="gis-map">
+      <div class="gis-grid"></div>
+      <div class="gis-zone zone-prod" style="left:6%;top:8%;width:30%;height:28%;">
+        <span class="gis-zone-label">&#9881; 生产装置A区</span>
+      </div>
+      <div class="gis-zone zone-prod" style="left:40%;top:6%;width:26%;height:26%;">
+        <span class="gis-zone-label">&#9881; 生产装置B区</span>
+      </div>
+      <div class="gis-zone zone-utility" style="left:70%;top:10%;width:22%;height:22%;">
+        <span class="gis-zone-label">&#128268; 公用工程</span>
+      </div>
+      <div class="gis-zone zone-hazard" style="left:8%;top:50%;width:34%;height:36%;">
+        <span class="gis-zone-label">&#9888; 储罐区（重大危险源）</span>
+      </div>
+      <div class="gis-zone zone-storage" style="left:48%;top:48%;width:42%;height:40%;">
+        <span class="gis-zone-label">&#128230; 装卸 / 仓储</span>
+      </div>
+      <div class="gis-pipe" style="left:36%;top:22%;width:4%;transform:rotate(35deg);"></div>
+      <div class="gis-pipe" style="left:66%;top:20%;width:4%;transform:rotate(-25deg);"></div>
+      <div class="gis-pipe gis-pipe-hazard" style="left:25%;top:42%;width:8%;transform:rotate(80deg);"></div>
+      <div class="gis-pipe" style="left:42%;top:45%;width:6%;transform:rotate(15deg);"></div>
+      <div class="gis-point green" style="left:15%;top:18%;"></div>
+      <div class="gis-point green" style="left:24%;top:24%;"></div>
+      <div class="gis-point yellow" style="left:48%;top:16%;"></div>
+      <div class="gis-point green" style="left:56%;top:20%;"></div>
+      <div class="gis-point orange" style="left:76%;top:18%;"></div>
+      <div class="gis-point red" style="left:18%;top:60%;"></div>
+      <div class="gis-point yellow" style="left:28%;top:68%;"></div>
+      <div class="gis-point green" style="left:36%;top:62%;"></div>
+      <div class="gis-point green" style="left:58%;top:58%;"></div>
+      <div class="gis-point green" style="left:72%;top:66%;"></div>
+      <div class="gis-legend">
+        <div class="gis-legend-item"><span class="gis-legend-dot" style="background:var(--status-green);"></span>正常运行</div>
+        <div class="gis-legend-item"><span class="gis-legend-dot" style="background:var(--status-yellow);"></span>注意</div>
+        <div class="gis-legend-item"><span class="gis-legend-dot" style="background:var(--status-orange);"></span>预警</div>
+        <div class="gis-legend-item"><span class="gis-legend-dot" style="background:var(--status-red);"></span>危险/报警</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">关键装置实时工艺参数 <span class="subtitle">超限即变色，红/橙/黄闪烁提示</span></div>
+      <div class="device-status-panel">
+        <div class="device-param-card param-green">
+          <div class="device-param-name">R101反应釜压力</div>
+          <div class="device-param-value">2.4<span class="device-param-unit">MPa</span></div>
+          <div class="device-param-tag">正常</div>
+        </div>
+        <div class="device-param-card param-yellow param-yellow-flash">
+          <div class="device-param-name">R101反应釜温度</div>
+          <div class="device-param-value">142<span class="device-param-unit">°C</span></div>
+          <div class="device-param-tag">注意</div>
+        </div>
+        <div class="device-param-card param-green">
+          <div class="device-param-name">T201储罐液位</div>
+          <div class="device-param-value">68<span class="device-param-unit">%</span></div>
+          <div class="device-param-tag">正常</div>
+        </div>
+        <div class="device-param-card param-green">
+          <div class="device-param-name">P301进料流量</div>
+          <div class="device-param-value">45.2<span class="device-param-unit">m³/h</span></div>
+          <div class="device-param-tag">正常</div>
+        </div>
+        <div class="device-param-card param-red param-red-flash">
+          <div class="device-param-name">F101裂解炉温度</div>
+          <div class="device-param-value">845<span class="device-param-unit">°C</span></div>
+          <div class="device-param-tag">报警</div>
+        </div>
+        <div class="device-param-card param-orange param-orange-flash">
+          <div class="device-param-name">液氨储罐A1压力</div>
+          <div class="device-param-value">3.85<span class="device-param-unit">MPa</span></div>
+          <div class="device-param-tag">预警</div>
+        </div>
+        <div class="device-param-card param-green">
+          <div class="device-param-name">T202储罐液位</div>
+          <div class="device-param-value">52<span class="device-param-unit">%</span></div>
+          <div class="device-param-tag">正常</div>
+        </div>
+        <div class="device-param-card param-yellow param-yellow-flash">
+          <div class="device-param-name">P302出料流量</div>
+          <div class="device-param-value">38.6<span class="device-param-unit">m³/h</span></div>
+          <div class="device-param-tag">注意</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">关键装置安全保护层实时状态</div>
+      <div class="safety-layer-grid">
+        <div class="safety-layer-card">
+          <div class="slayer-icon green">&#9881;</div>
+          <div class="slayer-info">
+            <div class="slayer-name">BPCS系统</div>
+            <div class="slayer-status">正常运行</div>
+            <div class="slayer-detail">控制回路: 86个 | 自控率: 97.2%</div>
+          </div>
+        </div>
+        <div class="safety-layer-card">
+          <div class="slayer-icon yellow">&#128274;</div>
+          <div class="slayer-info">
+            <div class="slayer-name">SIS安全联锁</div>
+            <div class="slayer-status">投用率 98.2%</div>
+            <div class="slayer-detail">联锁回路: 42个 | 旁路: 1个</div>
+          </div>
+        </div>
+        <div class="safety-layer-card">
+          <div class="slayer-icon green">&#9650;</div>
+          <div class="slayer-info">
+            <div class="slayer-name">安全阀/泄放系统</div>
+            <div class="slayer-status">正常待命</div>
+            <div class="slayer-detail">安全阀: 28个 | 在线: 28个</div>
+          </div>
+        </div>
+        <div class="safety-layer-card">
+          <div class="slayer-icon green">&#128293;</div>
+          <div class="slayer-info">
+            <div class="slayer-name">尾气/火炬系统</div>
+            <div class="slayer-status">正常运行</div>
+            <div class="slayer-detail">火炬在线 | 尾气处理: 正常</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="dash-right">
+    <div class="card" style="border-color:rgba(245,34,45,0.15);">
+      <div class="card-title alert-title">AI引擎实时报警分析 <span class="subtitle">3条未处理</span></div>
+      <div class="ai-alert-card">
+        <div class="ai-alert-header">
+          <div class="ai-alert-title">
+            <span style="animation:blinkRed 0.8s infinite;">&#9888;</span>
+            乙烯裂解炉F-101温度超限
+          </div>
+          <span class="ai-alert-badge critical">紧急</span>
+        </div>
+        <div class="ai-alert-time">2分钟前 | 装置B区</div>
+        <div class="ai-alert-body">
+          裂解炉F-101出口温度持续超限3分钟，当前值 <b style="color:var(--status-red);">845°C</b>，设定上限 820°C。SIS联锁未动作，BPCS调节阀开度已达上限。
+        </div>
+        <div class="ai-alert-suggestion">
+          <strong>AI建议：</strong>建议立即核查热电偶校准状态，确认燃料气调节阀FV-201实际开度，必要时手动触发SIS紧急停车联锁。
+        </div>
+      </div>
+      <div class="ai-alert-card">
+        <div class="ai-alert-header">
+          <div class="ai-alert-title" style="color:var(--status-orange);">
+            <span style="animation:blinkOrange 1s infinite;">&#9888;</span>
+            液氨储罐A1压力超高
+          </div>
+          <span class="ai-alert-badge warning">预警</span>
+        </div>
+        <div class="ai-alert-time">5分钟前 | 储罐区</div>
+        <div class="ai-alert-body">
+          液氨储罐A1压力 <b style="color:var(--status-orange);">3.85 MPa</b>，超过高高限 3.5 MPa。进料阀门FV-101开度偏大，泄压阀PV-201未动作。
+        </div>
+        <div class="ai-alert-suggestion">
+          <strong>AI建议：</strong>立即降低FV-101开度至65%以下，检查PV-201泄压阀状态，确认罐顶安全阀备用状态。
+        </div>
+      </div>
+      <div class="ai-alert-card" style="border-color:rgba(250,219,20,0.15);">
+        <div class="ai-alert-header">
+          <div class="ai-alert-title" style="color:var(--status-yellow);">
+            <span style="animation:flashYellow 1.2s infinite;">&#9888;</span>
+            公用工程循环水温度异常
+          </div>
+          <span class="ai-alert-badge notice">注意</span>
+        </div>
+        <div class="ai-alert-time">12分钟前 | 公用工程</div>
+        <div class="ai-alert-body">
+          循环水回水温度 <b style="color:var(--status-yellow);">42°C</b>，超出正常范围 35±3°C。冷却塔风机C-301运行频率偏低。
+        </div>
+        <div class="ai-alert-suggestion">
+          <strong>AI建议：</strong>提高冷却塔风机频率至85%以上，检查循环水泵P-401运行状态。
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title warn-title">现场作业监控 <span class="subtitle">当前 5 项作业</span></div>
+      <div class="op-monitor-card">
+        <div class="op-monitor-header">
+          <span class="op-monitor-type">&#128295; 动火作业 #DH-20250503-003</span>
+          <span class="op-monitor-status running">进行中</span>
+        </div>
+        <div class="op-monitor-meta">&#128205; 装置A区反应釜R101周边 | 作业人: 张三等3人</div>
+        <div class="op-monitor-video">&#127909; 作业现场同步视频</div>
+      </div>
+      <div class="op-monitor-card">
+        <div class="op-monitor-header">
+          <span class="op-monitor-type">&#129520; 受限空间作业 #SX-20250503-001</span>
+          <span class="op-monitor-status running">进行中</span>
+        </div>
+        <div class="op-monitor-meta">&#128205; T201储罐内部 | 作业人: 李四等2人</div>
+        <div class="op-monitor-video">&#127909; 作业现场同步视频</div>
+      </div>
+      <div class="op-monitor-card">
+        <div class="op-monitor-header">
+          <span class="op-monitor-type">&#128737; 高处作业 #GC-20250503-002</span>
+          <span class="op-monitor-status pending">待开始</span>
+        </div>
+        <div class="op-monitor-meta">&#128205; 管廊P301支架 | 计划: 14:00</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title info-title">人员定位 <span class="subtitle">厂区 128 人</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <div style="flex:1;text-align:center;padding:6px;background:rgba(22,119,255,0.04);border-radius:var(--radius-sm);">
+          <div style="font-size:16px;font-weight:700;color:var(--primary-light);">42</div>
+          <div style="font-size:10px;color:var(--text-muted);">生产区</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:6px;background:rgba(245,34,45,0.04);border-radius:var(--radius-sm);">
+          <div style="font-size:16px;font-weight:700;color:var(--status-red);">18</div>
+          <div style="font-size:10px;color:var(--text-muted);">储罐区</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:6px;background:rgba(82,196,26,0.04);border-radius:var(--radius-sm);">
+          <div style="font-size:16px;font-weight:700;color:var(--status-green);">35</div>
+          <div style="font-size:10px;color:var(--text-muted);">办公区</div>
+        </div>
+      </div>
+      <div class="person-loc-list">
+        <div class="person-loc-item"><span class="person-loc-name">&#128100; 张安全</span><span class="person-loc-area">装置A区</span></div>
+        <div class="person-loc-item"><span class="person-loc-name">&#128100; 李工程师</span><span class="person-loc-area">储罐区</span></div>
+        <div class="person-loc-item"><span class="person-loc-name">&#128100; 王班长</span><span class="person-loc-area">中控室</span></div>
+        <div class="person-loc-item"><span class="person-loc-name">&#128100; 赵操作</span><span class="person-loc-area">装卸区</span></div>
+      </div>
+      <div class="op-monitor-video" style="margin-top:8px;height:60px;">&#127909; 调取周边视频</div>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

@@ -112,14 +112,6 @@
   display: flex; flex-direction: column; align-items: center;
   padding: 8px 0; gap: 4px;
 }
-.sidebar-l1 .l1-toggle {
-  width: 48px; height: 32px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-muted); cursor: pointer;
-  border-radius: var(--radius-sm); font-size: 12px;
-  margin-bottom: 8px;
-}
-.sidebar-l1 .l1-toggle:hover { color: var(--text-secondary); background: rgba(22,119,255,0.06); }
 .l1-item {
   width: 48px; height: 48px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -134,40 +126,8 @@
 .l1-item.active::before { content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 24px; background: var(--primary); border-radius: 0 2px 2px 0; }
 .l1-item.active .l1-icon { transform: scale(1.1); }
 
-.sidebar-l2 {
-  width: var(--sidebar-l2); flex-shrink: 0;
-  background: var(--bg-base);
-  border-right: 1px solid var(--border-subtle);
-  display: flex; flex-direction: column;
-  transition: width .3s, opacity .3s;
-  overflow-y: auto;
-}
-.sidebar-l2.collapsed { width: 0; opacity: 0; overflow: hidden; border: none; }
-.l2-header {
-  padding: 14px 16px;
-  font-size: 15px; font-weight: 700;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.l2-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm); }
-.l2-toggle:hover { color: var(--text-secondary); background: rgba(22,119,255,0.1); }
-.l2-list { padding: 8px; display: flex; flex-direction: column; gap: 2px; }
-.l2-item {
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary); font-size: 13px; cursor: pointer;
-  display: flex; align-items: center; gap: 8px;
-  transition: all .2s; white-space: nowrap;
-}
-.l2-item:hover { background: rgba(22,119,255,0.08); color: var(--text-primary); }
-.l2-item.active { background: rgba(22,119,255,0.15); color: #fff; border-left: 3px solid var(--primary); }
-.l2-item .l2-icon { font-size: 15px; width: 18px; text-align: center; }
-
-.content-area { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 12px; position: relative; }
-.page { display: none; animation: fadeIn .25s ease; }
-.page.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.content-area { flex: 1; overflow: hidden; position: relative; }
+.content-area iframe { width: 100%; height: 100%; border: none; }
 </style>
 </head>
 <body>
@@ -242,7 +202,6 @@
 <div class="main-container">
   <!-- 左侧一级菜单 -->
   <aside class="sidebar-l1" id="sidebarL1">
-    <div class="l1-toggle" id="l1Toggle" title="展开/折叠菜单">&#9654;</div>
     <div class="l1-item active" data-page="dashboard" title="数据大屏">
       <span class="l1-icon">&#128200;</span>
       <span class="l1-label">数据大屏</span>
@@ -277,161 +236,21 @@
     </div>
   </aside>
 
-  <!-- 左侧二级菜单 -->
-  <aside class="sidebar-l2" id="sidebarL2">
-    <div class="l2-header">
-      <span id="l2Title">数据大屏</span>
-      <span class="l2-toggle" id="l2Toggle" title="折叠">&#9664;</span>
-    </div>
-    <div class="l2-list" id="l2List"></div>
-  </aside>
-
-  <!-- 内容区域：iframe嵌入子页面 -->
+  <!-- 内容区域：iframe嵌入二级页面 -->
   <main class="content-area">
     <iframe id="pageFrame" src="pages/dashboard.html" style="width:100%;height:100%;border:none;"></iframe>
   </main>
 </div>
 
 <script>
-// ==================== 二级菜单数据 ====================
-const menuData = {
-  dashboard: {
-    title: "数据大屏",
-    items: [
-      { icon: "&#128200;", label: "总览大屏" },
-      { icon: "&#127757;", label: "厂区地图" },
-      { icon: "&#9888;", label: "报警中心" },
-      { icon: "&#9881;", label: "装置监控" },
-      { icon: "&#128658;", label: "应急调度" },
-      { icon: "&#128202;", label: "统计分析" }
-    ]
-  },
-  workspace: {
-    title: "工作平台",
-    items: [
-      { icon: "&#128193;", label: "基础档案" },
-      { icon: "&#9888;", label: "重大危险源" },
-      { icon: "&#128295;", label: "特殊作业" },
-      { icon: "&#127909;", label: "视频监控" },
-      { icon: "&#128694;", label: "安全巡检" },
-      { icon: "&#128736;", label: "隐患排查" },
-      { icon: "&#128101;", label: "承包商" },
-      { icon: "&#127891;", label: "安全培训" },
-      { icon: "&#128658;", label: "应急管理" }
-    ]
-  },
-  "ai-staff": {
-    title: "数字员工",
-    items: [
-      { icon: "&#129302;", label: "报警诊断" },
-      { icon: "&#129302;", label: "异常工况诊断" },
-      { icon: "&#129302;", label: "作业风险评估" },
-      { icon: "&#129302;", label: "设备故障预测" },
-      { icon: "&#129302;", label: "泄漏扩散模拟" },
-      { icon: "&#129302;", label: "应急辅助决策" },
-      { icon: "&#128200;", label: "报告生成" }
-    ]
-  },
-  knowledge: {
-    title: "知识库",
-    items: [
-      { icon: "&#127970;", label: "公司知识库" },
-      { icon: "&#128187;", label: "项目知识库" },
-      { icon: "&#128101;", label: "部门知识库" },
-      { icon: "&#128100;", label: "个人知识库" },
-      { icon: "&#128279;", label: "共享知识库" },
-      { icon: "&#129302;", label: "智能分析" }
-    ]
-  },
-  experts: {
-    title: "专家智库",
-    items: [
-      { icon: "&#9878;", label: "安全法规库" },
-      { icon: "&#128203;", label: "标准规范库" },
-      { icon: "&#9989;", label: "检查清单库" },
-      { icon: "&#9888;", label: "安全隐患库" },
-      { icon: "&#128680;", label: "事故案例库" },
-      { icon: "&#128172;", label: "政策问答库" },
-      { icon: "&#127775;", label: "知识百科库" }
-    ]
-  },
-  connector: {
-    title: "连接器",
-    items: [
-      { icon: "&#128225;", label: "DCS系统" },
-      { icon: "&#127909;", label: "视频监控" },
-      { icon: "&#128100;", label: "人员定位" },
-      { icon: "&#128268;", label: "GDS检测" },
-      { icon: "&#128274;", label: "SIS联锁" },
-      { icon: "&#128295;", label: "作业票系统" }
-    ]
-  },
-  news: {
-    title: "安全资讯",
-    items: [
-      { icon: "&#128220;", label: "全部资讯" },
-      { icon: "&#128680;", label: "事故通报" },
-      { icon: "&#9878;", label: "政策法规" },
-      { icon: "&#128200;", label: "行业动态" },
-      { icon: "&#128161;", label: "安全技术" }
-    ]
-  },
-  settings: {
-    title: "设置",
-    items: [
-      { icon: "&#128100;", label: "用户管理" },
-      { icon: "&#128272;", label: "角色权限" },
-      { icon: "&#9881;", label: "系统配置" },
-      { icon: "&#128210;", label: "日志审计" },
-      { icon: "&#128190;", label: "数据备份" }
-    ]
-  }
-};
-
-let l2Collapsed = false;
-
-// 渲染二级菜单
-function renderL2(page) {
-  const data = menuData[page];
-  if (!data) return;
-  document.getElementById("l2Title").innerHTML = data.title;
-  const list = document.getElementById("l2List");
-  list.innerHTML = data.items.map((item, i) =>
-    `<div class="l2-item ${i===0?'active':''}" data-index="${i}">
-      <span class="l2-icon">${item.icon}</span>${item.label}
-     </div>`
-  ).join("");
-  // 二级菜单点击事件
-  list.querySelectorAll(".l2-item").forEach(el => {
-    el.addEventListener("click", () => {
-      list.querySelectorAll(".l2-item").forEach(e => e.classList.remove('active'));
-      el.classList.add('active');
-    });
-  });
-}
-
-// 导航切换逻辑
+// 一级菜单切换逻辑
 document.querySelectorAll('.l1-item').forEach(item => {
   item.addEventListener('click', function() {
     const page = this.dataset.page;
     document.querySelectorAll('.l1-item').forEach(i => i.classList.remove('active'));
     this.classList.add('active');
     document.getElementById('pageFrame').src = 'pages/' + page + '.html';
-    document.getElementById('l2Title').textContent = this.title;
-    renderL2(page);
   });
-});
-
-// 二级菜单折叠/展开
-document.getElementById('l1Toggle').addEventListener('click', () => {
-  l2Collapsed = !l2Collapsed;
-  document.getElementById('sidebarL2').classList.toggle('collapsed', l2Collapsed);
-  document.getElementById('l1Toggle').innerHTML = l2Collapsed ? "&#9654;" : "&#9664;";
-});
-
-// 初始化
-document.addEventListener('DOMContentLoaded', function() {
-  renderL2('dashboard');
 });
 
 // 时钟

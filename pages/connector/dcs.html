@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCS系统 - 连接器 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* 连接器主页 - 单栏布局 */
+.page-connector { padding: 12px; }
+.con-main { display: flex; flex-direction: column; gap: 12px; }
+
+/* 系统网格 */
+.con-system-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.con-system-card {
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all .2s;
+  display: flex; align-items: center; gap: 12px;
+}
+.con-system-card:hover { border-color: var(--primary); }
+.con-system-card.active { border-color: var(--primary); background: rgba(22,119,255,0.08); }
+.con-system-icon { width: 44px; height: 44px; border-radius: var(--radius-md); background: rgba(22,119,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.con-system-info { flex: 1; }
+.con-system-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.con-system-meta { font-size: 12px; color: var(--text-muted); }
+.con-status-badge { padding: 2px 10px; border-radius: 12px; font-size: 11px; }
+.con-status-badge.online { background: rgba(82,196,26,0.15); color: var(--status-green); }
+.con-status-badge.offline { background: rgba(74,106,138,0.15); color: var(--text-muted); }
+
+/* 数据监控 */
+.con-data-list { display: flex; flex-direction: column; gap: 8px; }
+.con-data-item { padding: 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+.con-data-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+.con-data-value { font-size: 20px; font-weight: 700; color: var(--primary-light); }
+.con-data-bar { height: 4px; background: rgba(22,119,255,0.2); border-radius: 2px; overflow: hidden; }
+.con-data-bar-fill { height: 100%; background: var(--status-green); border-radius: 2px; transition: width .6s; }
+.con-data-meta { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+</style>
+</head>
+<body class="page-connector">
+<div class="con-main">
+  <!-- 数据源系统 -->
+  <div class="card">
+    <div class="card-title">数据源系统</div>
+    <div class="con-system-grid">
+      <div class="con-system-card active">
+        <div class="con-system-icon">&#128202;</div>
+        <div class="con-system-info">
+          <div class="con-system-name">DCS分布控制系统</div>
+          <div class="con-system-meta">采集点位: 2456</div>
+        </div>
+        <div class="con-status-badge online">在线</div>
+      </div>
+      <div class="con-system-card">
+        <div class="con-system-icon">&#127909;</div>
+        <div class="con-system-info">
+          <div class="con-system-name">视频监控系统</div>
+          <div class="con-system-meta">摄像头: 86</div>
+        </div>
+        <div class="con-status-badge online">在线</div>
+      </div>
+      <div class="con-system-card">
+        <div class="con-system-icon">&#128161;</div>
+        <div class="con-system-info">
+          <div class="con-system-name">GDS气体检测系统</div>
+          <div class="con-system-meta">探测器: 128</div>
+        </div>
+        <div class="con-status-badge online">在线</div>
+      </div>
+      <div class="con-system-card">
+        <div class="con-system-icon">&#128737;</div>
+        <div class="con-system-info">
+          <div class="con-system-name">SIS安全联锁系统</div>
+          <div class="con-system-meta">联锁点: 56</div>
+        </div>
+        <div class="con-status-badge online">在线</div>
+      </div>
+      <div class="con-system-card">
+        <div class="con-system-icon">&#128203;</div>
+        <div class="con-system-info">
+          <div class="con-system-name">人员定位系统</div>
+          <div class="con-system-meta">定位卡: 156</div>
+        </div>
+        <div class="con-status-badge online">在线</div>
+      </div>
+      <div class="con-system-card">
+        <div class="con-system-icon">&#128196;</div>
+        <div class="con-system-info">
+          <div class="con-system-name">作业票系统</div>
+          <div class="con-system-meta">作业票: 128</div>
+        </div>
+        <div class="con-status-badge online">在线</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 实时数据 -->
+  <div class="card">
+    <div class="card-title">实时数据监控</div>
+    <div class="con-data-list">
+      <div class="con-data-item">
+        <div class="con-data-header"><span>装置运行率</span><span class="con-data-value">98.5%</span></div>
+        <div class="con-data-bar"><div class="con-data-bar-fill" style="width:98.5%"></div></div>
+        <div class="con-data-meta">采样周期: 1s</div>
+      </div>
+      <div class="con-data-item">
+        <div class="con-data-header"><span>SIS联锁投用率</span><span class="con-data-value">100%</span></div>
+        <div class="con-data-bar"><div class="con-data-bar-fill" style="width:100%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

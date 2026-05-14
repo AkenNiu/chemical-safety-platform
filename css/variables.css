@@ -43,9 +43,7 @@
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
-
-
-/* ==================== 浅色主题 ==================== */
+}
 [data-theme="light"] {
   /* 背景色 - 浅色 */
   --bg-deep: #f0f2f5;
@@ -70,6 +68,4 @@
   --status-yellow: #d48806;
   --status-orange: #d46b08;
   --status-red: #cf1322;
-}
-
 }

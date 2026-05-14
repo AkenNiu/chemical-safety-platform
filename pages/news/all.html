@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全部资讯 - 安全资讯 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* 安全资讯主页 - 单栏布局 */
+.page-news { padding: 12px; }
+.news-main { display: flex; flex-direction: column; gap: 12px; }
+
+/* 分类标签 */
+.news-cats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.news-cat-btn { padding: 8px 16px; background: rgba(22,119,255,0.08); border: 1px solid var(--border-subtle); border-radius: 20px; font-size: 13px; cursor: pointer; transition: all .2s; }
+.news-cat-btn:hover { border-color: var(--primary); }
+.news-cat-btn.active { background: rgba(22,119,255,0.15); color: var(--primary-light); border-color: var(--primary); }
+
+/* 关键词 */
+.news-keywords { display: flex; gap: 8px; flex-wrap: wrap; }
+.news-keyword { padding: 4px 12px; background: rgba(22,119,255,0.08); border: 1px solid var(--border-subtle); border-radius: 20px; font-size: 12px; cursor: pointer; }
+.news-keyword:hover { border-color: var(--primary); }
+
+/* 资讯列表 */
+.news-list { display: flex; flex-direction: column; gap: 10px; }
+.news-item { padding: 16px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); cursor: pointer; transition: all .2s; }
+.news-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+.news-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.news-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.5; }
+.news-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 16px; }
+.news-tag { padding: 2px 8px; background: rgba(22,119,255,0.1); border-radius: 4px; font-size: 11px; color: var(--primary-light); margin-right: 8px; }
+</style>
+</head>
+<body class="page-news">
+<div class="news-main">
+  <!-- 分类和关键词 -->
+  <div class="card">
+    <div class="card-title">资讯分类</div>
+    <div class="news-cats">
+      <div class="news-cat-btn active">全部资讯</div>
+      <div class="news-cat-btn">事故通报</div>
+      <div class="news-cat-btn">政策发布</div>
+      <div class="news-cat-btn">行业动态</div>
+      <div class="news-cat-btn">安全技术</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">关键词订阅</div>
+    <div class="news-keywords">
+      <div class="news-keyword">氟化</div>
+      <div class="news-keyword">氯气</div>
+      <div class="news-keyword">爆炸</div>
+      <div class="news-keyword">泄漏</div>
+      <div class="news-keyword">应急管理</div>
+    </div>
+  </div>
+
+  <!-- 资讯列表 -->
+  <div class="news-list">
+    <div class="news-item">
+      <div class="news-title">应急管理部发布2024年危险化学品安全监管工作要点</div>
+      <div class="news-desc">近日，应急管理部印发《关于做好2024年危险化学品安全监管工作的通知》，明确...</div>
+      <div class="news-meta">
+        <span class="news-tag">政策</span>
+        <span>来源: 应急管理部</span>
+        <span>2024-03-15</span>
+      </div>
+    </div>
+    <div class="news-item">
+      <div class="news-title">某化工企业发生一起反应釜爆炸事故</div>
+      <div class="news-desc">2024年3月10日，某地化工企业反应釜发生爆炸事故，造成人员伤亡...</div>
+      <div class="news-meta">
+        <span class="news-tag" style="background:rgba(245,34,45,0.1);color:var(--status-red);">事故</span>
+        <span>来源: 安全事故通报</span>
+        <span>2024-03-12</span>
+      </div>
+    </div>
+    <div class="news-item">
+      <div class="news-title">危化品安全生产重大事故隐患判定标准更新</div>
+      <div class="news-desc">为进一步提高危化品企业安全生产水平，应急管理部对重大事故隐患判定标准进行了...</div>
+      <div class="news-meta">
+        <span class="news-tag">政策</span>
+        <span>来源: 政策发布</span>
+        <span>2024-03-08</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

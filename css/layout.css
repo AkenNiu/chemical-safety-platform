@@ -219,43 +219,6 @@
 }
 .l1-item.active .l1-icon { transform: scale(1.1); }
 
-/* ==================== 左侧二级菜单 ==================== */
-.sidebar-l2 {
-  width: var(--sidebar-l2); flex-shrink: 0;
-  background: var(--bg-base);
-  border-right: 1px solid var(--border-subtle);
-  display: flex; flex-direction: column;
-  transition: width .3s, opacity .3s;
-  overflow-y: auto;
-}
-.sidebar-l2.collapsed { width: 0; opacity: 0; overflow: hidden; border: none; }
-.l2-header {
-  padding: 14px 16px;
-  font-size: 15px; font-weight: 700;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.l2-toggle {
-  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
-  color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm);
-}
-.l2-toggle:hover { color: var(--text-secondary); background: rgba(22,119,255,0.1); }
-.l2-list { padding: 8px; display: flex; flex-direction: column; gap: 2px; }
-.l2-item {
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary); font-size: 13px; cursor: pointer;
-  display: flex; align-items: center; gap: 8px;
-  transition: all .2s; white-space: nowrap;
-}
-.l2-item:hover { background: rgba(22,119,255,0.08); color: var(--text-primary); }
-.l2-item.active {
-  background: rgba(22,119,255,0.15);
-  color: #fff; border-left: 3px solid var(--primary);
-}
-.l2-item .l2-icon { font-size: 15px; width: 18px; text-align: center; }
-
 /* ==================== 内容区域 ==================== */
 .content-area {
   flex: 1; overflow-y: auto; overflow-x: hidden;

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公司知识库 - 知识库 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* 知识库主页 - 单栏布局 */
+.page-knowledge { padding: 12px; }
+.know-main { display: flex; flex-direction: column; gap: 12px; }
+.know-search { display: flex; gap: 8px; margin-bottom: 8px; }
+.know-search input { flex: 1; background: rgba(22,119,255,0.05); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 14px; color: var(--text-primary); font-size: 13px; }
+.know-search input:focus { border-color: var(--primary); outline: none; }
+
+/* 知识空间快捷入口 */
+.know-spaces { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.know-space-btn { padding: 8px 16px; background: rgba(22,119,255,0.08); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 13px; cursor: pointer; transition: all .2s; }
+.know-space-btn:hover { border-color: var(--primary); }
+.know-space-btn.active { background: rgba(22,119,255,0.15); color: var(--primary-light); border-color: var(--primary); }
+
+/* 文档列表 */
+.know-doc-list { display: flex; flex-direction: column; gap: 8px; }
+.know-doc-item { padding: 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); cursor: pointer; transition: all .2s; }
+.know-doc-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+.know-doc-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.know-doc-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 16px; margin-bottom: 8px; }
+.know-doc-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.know-tag { padding: 2px 8px; background: rgba(22,119,255,0.1); border-radius: 4px; font-size: 11px; color: var(--primary-light); }
+</style>
+</head>
+<body class="page-knowledge">
+<div class="know-main">
+  <!-- 搜索栏 -->
+  <div class="know-search">
+    <input type="text" placeholder="搜索知识文档..." />
+    <button class="btn btn-primary">搜索</button>
+  </div>
+
+  <!-- 知识空间 -->
+  <div class="card">
+    <div class="card-title">知识空间</div>
+    <div class="know-spaces">
+      <div class="know-space-btn active">&#128218; 公司知识库</div>
+      <div class="know-space-btn">&#128193; 项目知识库</div>
+      <div class="know-space-btn">&#128101; 部门知识库</div>
+      <div class="know-space-btn">&#128100; 个人知识库</div>
+      <div class="know-space-btn">&#128279; 共享知识库</div>
+    </div>
+  </div>
+
+  <!-- 文档列表 -->
+  <div class="card">
+    <div class="card-title">最近更新文档</div>
+    <div class="know-doc-list">
+      <div class="know-doc-item">
+        <div class="know-doc-title">&#128196; 安全生产责任制</div>
+        <div class="know-doc-meta"><span>更新: 2024-01-15</span><span>浏览: 1256次</span></div>
+        <div class="know-doc-tags"><span class="know-tag">责任制</span><span class="know-tag">制度文件</span></div>
+      </div>
+      <div class="know-doc-item">
+        <div class="know-doc-title">&#128196; 氟化工艺操作规程</div>
+        <div class="know-doc-meta"><span>更新: 2024-02-20</span><span>浏览: 892次</span></div>
+        <div class="know-doc-tags"><span class="know-tag">操作规程</span><span class="know-tag">氟化工艺</span></div>
+      </div>
+      <div class="know-doc-item">
+        <div class="know-doc-title">&#128196; 应急处置卡 - 氟化氢泄漏</div>
+        <div class="know-doc-meta"><span>更新: 2024-03-01</span><span>浏览: 634次</span></div>
+        <div class="know-doc-tags"><span class="know-tag">应急预案</span><span class="know-tag">泄漏处置</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

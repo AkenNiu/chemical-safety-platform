@@ -6,89 +6,56 @@
 <title>设置 - SMAP平台</title>
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/common.css">
-<link rel="stylesheet" href="../css/layout.css">
-<style>
-/* 设置主页 - 单栏布局 */
-.page-settings { padding: 12px; }
-.set-main { display: flex; flex-direction: column; gap: 12px; }
-
-/* 设置标签 */
-.set-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 12px; }
-.set-tab { padding: 8px 16px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm); transition: all .2s; }
-.set-tab:hover { color: var(--text-secondary); background: rgba(22,119,255,0.05); }
-.set-tab.active { color: var(--primary-light); background: rgba(22,119,255,0.1); }
-
-/* 表格 */
-.set-table { width: 100%; border-collapse: collapse; }
-.set-table th, .set-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-subtle); font-size: 13px; }
-.set-table th { color: var(--text-muted); font-weight: 500; background: rgba(22,119,255,0.03); }
-.set-table td { color: var(--text-secondary); }
-.set-table tr:hover td { background: rgba(22,119,255,0.02); }
-.status-normal { color: var(--status-green); }
-.status-disabled { color: var(--text-muted); }
-</style>
+<link rel="stylesheet" href="../css/l2-frame.css">
 </head>
-<body class="page-settings">
-<div class="set-main">
-  <!-- 设置标签 -->
-  <div class="set-tabs">
-    <div class="set-tab active">&#128100; 用户管理</div>
-    <div class="set-tab">&#128274; 角色权限</div>
-    <div class="set-tab">&#9881; 系统配置</div>
-    <div class="set-tab">&#128220; 日志审计</div>
-    <div class="set-tab">&#128451; 数据备份</div>
-  </div>
-
-  <!-- 用户管理 -->
-  <div class="card">
-    <div class="card-title">用户管理</div>
-    <table class="set-table">
-      <thead>
-        <tr>
-          <th>用户名</th>
-          <th>角色</th>
-          <th>部门</th>
-          <th>最后登录</th>
-          <th>状态</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>admin</td>
-          <td>系统管理员</td>
-          <td>信息部</td>
-          <td>2024-03-15 10:30</td>
-          <td><span class="status-normal">正常</span></td>
-          <td><button class="btn btn-ghost">编辑</button></td>
-        </tr>
-        <tr>
-          <td>zhangsan</td>
-          <td>安全总监</td>
-          <td>安全部</td>
-          <td>2024-03-15 09:15</td>
-          <td><span class="status-normal">正常</span></td>
-          <td><button class="btn btn-ghost">编辑</button></td>
-        </tr>
-        <tr>
-          <td>wangwei</td>
-          <td>操作员</td>
-          <td>生产部</td>
-          <td>2024-03-14 18:20</td>
-          <td><span class="status-normal">正常</span></td>
-          <td><button class="btn btn-ghost">编辑</button></td>
-        </tr>
-        <tr>
-          <td>lisi</td>
-          <td>值班员</td>
-          <td>生产部</td>
-          <td>2024-03-10 08:00</td>
-          <td><span class="status-disabled">禁用</span></td>
-          <td><button class="btn btn-ghost">编辑</button></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+<body>
+<div class="l2-container">
+  <aside class="sidebar-l2" id="sidebarL2">
+    <div class="l2-header">
+      <span id="l2Title">设置</span>
+      <span class="l2-toggle" id="l2Toggle" title="折叠">&#9664;</span>
+    </div>
+    <div class="l2-list" id="l2List"></div>
+  </aside>
+  <main class="l2-content">
+    <iframe id="l2Frame" src="settings/users.html"></iframe>
+  </main>
 </div>
+<script>
+const menuData = [
+  { icon: "&#128100;", label: "用户管理", page: "settings/users.html" },
+  { icon: "&#128272;", label: "角色权限", page: "settings/roles.html" },
+  { icon: "&#9881;", label: "系统配置", page: "settings/system.html" },
+  { icon: "&#128210;", label: "日志审计", page: "settings/logs.html" },
+  { icon: "&#128190;", label: "数据备份", page: "settings/backup.html" }
+];
+
+let l2Collapsed = false;
+const list = document.getElementById('l2List');
+const frame = document.getElementById('l2Frame');
+
+function renderMenu() {
+  list.innerHTML = menuData.map((item, i) =>
+    `<div class="l2-item ${i === 0 ? 'active' : ''}" data-index="${i}">
+      <span class="l2-icon">${item.icon}</span>${item.label}
+    </div>`
+  ).join('');
+  list.querySelectorAll('.l2-item').forEach(el => {
+    el.addEventListener('click', () => {
+      list.querySelectorAll('.l2-item').forEach(e => e.classList.remove('active'));
+      el.classList.add('active');
+      frame.src = menuData[el.dataset.index].page;
+    });
+  });
+}
+
+document.getElementById('l2Toggle').addEventListener('click', () => {
+  l2Collapsed = !l2Collapsed;
+  document.getElementById('sidebarL2').classList.toggle('collapsed', l2Collapsed);
+  document.getElementById('l2Toggle').innerHTML = l2Collapsed ? '&#9654;' : '&#9664;';
+});
+
+renderMenu();
+</script>
 </body>
 </html>
