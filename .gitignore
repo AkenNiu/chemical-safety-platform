@@ -1,0 +1,23 @@
+# 临时文件
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# 备份文件
+*.bak
+*.bak2
+*.bak3
+
+# 压缩包
+*.zip
+*.rar
+*.7z
+
+# Excel文件（如果不需要）
+*.xlsx
+*.xls
+
+# 其他
+*.pptx
+*.docx

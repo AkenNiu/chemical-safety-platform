@@ -1,0 +1,25 @@
+
+.page-experts { padding: 12px; }
+.exp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.exp-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+.exp-card-title {
+  font-size: 14px; font-weight: 600;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.exp-item {
+  padding: 8px 10px;
+  background: rgba(22,119,255,0.05);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  font-size: 12px;
+  display: flex; justify-content: space-between;
+  cursor: pointer;
+}
+.exp-item:hover { background: rgba(22,119,255,0.1); }
+.exp-count { color: var(--text-muted); }

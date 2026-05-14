@@ -1,0 +1,75 @@
+/* ==================== CSS变量定义 ==================== */
+:root {
+  /* 主色调 */
+  --primary: #1677FF;
+  --primary-light: #4096FF;
+  --primary-dark: #0958D9;
+  --primary-glow: rgba(22,119,255,0.35);
+
+  /* 背景色 */
+  --bg-deep: #040b14;
+  --bg-base: #08101f;
+  --bg-card: #0c182b;
+  --bg-card-hover: #101f38;
+  --bg-elevated: #142440;
+
+  /* 边框色 */
+  --border-subtle: rgba(22,119,255,0.1);
+  --border-medium: rgba(22,119,255,0.2);
+  --border-strong: rgba(22,119,255,0.4);
+  --border: rgba(22,119,255,0.25); /* 通用边框，深色主题 */
+
+  /* 文字色 */
+  --text-primary: #e8f4ff;
+  --text-secondary: #8cb4db;
+  --text-muted: #4a6a8a;
+
+  /* 状态色 */
+  --status-green: #52c41a;
+  --status-yellow: #fadb14;
+  --status-orange: #fa8c16;
+  --status-red: #f5222d;
+  --status-blue: #1677FF;
+
+  /* 字体 */
+  --font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, system-ui, sans-serif;
+
+  /* 布局变量 */
+  --sidebar-l1: 64px;
+  --sidebar-l2: 210px;
+  --topbar-h: 64px;
+
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+
+/* ==================== 浅色主题 ==================== */
+[data-theme="light"] {
+  /* 背景色 - 浅色 */
+  --bg-deep: #f0f2f5;
+  --bg-base: #f5f7fa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0f5ff;
+  --bg-elevated: #ffffff;
+
+  /* 边框 - 浅色背景下需要更明显的边框 */
+  --border-subtle: rgba(0,0,0,0.06);
+  --border-medium: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.2);
+  --border: rgba(0,0,0,0.15);
+
+  /* 文字色 - 浅色 */
+  --text-primary: #1a1a2e;
+  --text-secondary: #555;
+  --text-muted: #999;
+
+  /* 状态色 - 浅色背景下保持原色但微调 */
+  --status-green: #389e0d;
+  --status-yellow: #d48806;
+  --status-orange: #d46b08;
+  --status-red: #cf1322;
+}
+
+}

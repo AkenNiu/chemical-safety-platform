@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设置 - SMAP平台</title>
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/layout.css">
+<style>
+/* 设置主页 - 单栏布局 */
+.page-settings { padding: 12px; }
+.set-main { display: flex; flex-direction: column; gap: 12px; }
+
+/* 设置标签 */
+.set-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 12px; }
+.set-tab { padding: 8px 16px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm); transition: all .2s; }
+.set-tab:hover { color: var(--text-secondary); background: rgba(22,119,255,0.05); }
+.set-tab.active { color: var(--primary-light); background: rgba(22,119,255,0.1); }
+
+/* 表格 */
+.set-table { width: 100%; border-collapse: collapse; }
+.set-table th, .set-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-subtle); font-size: 13px; }
+.set-table th { color: var(--text-muted); font-weight: 500; background: rgba(22,119,255,0.03); }
+.set-table td { color: var(--text-secondary); }
+.set-table tr:hover td { background: rgba(22,119,255,0.02); }
+.status-normal { color: var(--status-green); }
+.status-disabled { color: var(--text-muted); }
+</style>
+</head>
+<body class="page-settings">
+<div class="set-main">
+  <!-- 设置标签 -->
+  <div class="set-tabs">
+    <div class="set-tab active">&#128100; 用户管理</div>
+    <div class="set-tab">&#128274; 角色权限</div>
+    <div class="set-tab">&#9881; 系统配置</div>
+    <div class="set-tab">&#128220; 日志审计</div>
+    <div class="set-tab">&#128451; 数据备份</div>
+  </div>
+
+  <!-- 用户管理 -->
+  <div class="card">
+    <div class="card-title">用户管理</div>
+    <table class="set-table">
+      <thead>
+        <tr>
+          <th>用户名</th>
+          <th>角色</th>
+          <th>部门</th>
+          <th>最后登录</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>admin</td>
+          <td>系统管理员</td>
+          <td>信息部</td>
+          <td>2024-03-15 10:30</td>
+          <td><span class="status-normal">正常</span></td>
+          <td><button class="btn btn-ghost">编辑</button></td>
+        </tr>
+        <tr>
+          <td>zhangsan</td>
+          <td>安全总监</td>
+          <td>安全部</td>
+          <td>2024-03-15 09:15</td>
+          <td><span class="status-normal">正常</span></td>
+          <td><button class="btn btn-ghost">编辑</button></td>
+        </tr>
+        <tr>
+          <td>wangwei</td>
+          <td>操作员</td>
+          <td>生产部</td>
+          <td>2024-03-14 18:20</td>
+          <td><span class="status-normal">正常</span></td>
+          <td><button class="btn btn-ghost">编辑</button></td>
+        </tr>
+        <tr>
+          <td>lisi</td>
+          <td>值班员</td>
+          <td>生产部</td>
+          <td>2024-03-10 08:00</td>
+          <td><span class="status-disabled">禁用</span></td>
+          <td><button class="btn btn-ghost">编辑</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>
