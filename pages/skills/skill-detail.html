@@ -498,6 +498,9 @@ html, body { overflow: auto !important; height: auto !important; }
   cursor: pointer;
   transition: all .2s;
   flex-shrink: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }
 .skill-toc-item:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
 .skill-toc-item.active {
@@ -510,6 +513,18 @@ html, body { overflow: auto !important; height: auto !important; }
   height: 16px;
   background: rgba(255,255,255,0.1);
   flex-shrink: 0;
+}
+/* 固定导航 */
+.skill-toc-fixed {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 960px;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border-radius: 12px;
 }
 </style>
 </head>
@@ -578,7 +593,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- ==================== 锚点导航 ==================== -->
-<div class="skill-toc">
+<div id="skillToc" class="skill-toc">
   <a class="skill-toc-item active" href="#tags">🏷️ 标签</a>
   <a class="skill-toc-item" href="#io">🔌 输入/输出</a>
   <a class="skill-toc-item" href="#md">📝 技能定义</a>
@@ -589,6 +604,39 @@ html, body { overflow: auto !important; height: auto !important; }
   <span class="skill-toc-divider"></span>
   <a class="skill-toc-item" href="#evolution">🚀 迭代记录</a>
 </div>
+
+<script>
+// Skill详情页 - 滚动固定导航
+(function() {
+  var toc = document.getElementById('skillToc');
+  if (!toc) return;
+  var origTop = toc.offsetTop;
+  var fixedClass = 'skill-toc-fixed';
+  
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > origTop) {
+      toc.classList.add(fixedClass);
+    } else {
+      toc.classList.remove(fixedClass);
+    }
+  });
+  
+  // 点击smooth scroll
+  toc.querySelectorAll('a').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var href = this.getAttribute('href');
+      if (href && href.charAt(0) === '#') {
+        var el = document.querySelector(href);
+        if (el) {
+          e.preventDefault();
+          var top = el.offsetTop - 70;
+          window.scrollTo({top: top, behavior: 'smooth'});
+        }
+      }
+    });
+  });
+})();
+</script>
 
 <!-- ==================== 2. 标签 ==================== -->
 <div class="skill-section" id="tags">

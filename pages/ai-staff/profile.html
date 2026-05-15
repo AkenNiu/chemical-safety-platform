@@ -378,6 +378,9 @@ html, body { overflow: auto !important; height: auto !important; }
   cursor: pointer;
   transition: all .2s;
   flex-shrink: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }
 .staff-toc-item:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
 .staff-toc-item.active {
@@ -390,6 +393,18 @@ html, body { overflow: auto !important; height: auto !important; }
   height: 16px;
   background: rgba(255,255,255,0.1);
   flex-shrink: 0;
+}
+/* 固定导航 */
+.staff-toc-fixed {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 960px;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border-radius: 12px;
 }
 </style>
 </head>
@@ -429,7 +444,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- 锚点导航 -->
-<div class="staff-toc">
+<div id="staffToc" class="staff-toc">
   <a class="staff-toc-item active" href="#task">🎯 当前任务</a>
   <a class="staff-toc-item" href="#skills">🛠️ 拥有的技能</a>
   <a class="staff-toc-item" href="#queue">📋 等待队列</a>
@@ -441,6 +456,39 @@ html, body { overflow: auto !important; height: auto !important; }
   <a class="staff-toc-item" href="#evolution">🚀 升级迭代</a>
   <a class="staff-toc-item" href="#tech">⚙️ 技术分析</a>
 </div>
+
+<script>
+// 数字员工详情页 - 滚动固定导航
+(function() {
+  var toc = document.getElementById('staffToc');
+  if (!toc) return;
+  var origTop = toc.offsetTop;
+  var fixedClass = 'staff-toc-fixed';
+  
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > origTop) {
+      toc.classList.add(fixedClass);
+    } else {
+      toc.classList.remove(fixedClass);
+    }
+  });
+  
+  // 点击smooth scroll
+  toc.querySelectorAll('a').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      var href = this.getAttribute('href');
+      if (href && href.charAt(0) === '#') {
+        var el = document.querySelector(href);
+        if (el) {
+          e.preventDefault();
+          var top = el.offsetTop - 70;
+          window.scrollTo({top: top, behavior: 'smooth'});
+        }
+      }
+    });
+  });
+})();
+</script>
 
 <!-- 2. 当前任务 -->
 <div class="staff-current-task" id="task">
