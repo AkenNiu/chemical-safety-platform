@@ -474,6 +474,43 @@ html, body { overflow: auto !important; height: auto !important; }
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
+
+/* ========== 锚点导航 ========== */
+.skill-toc {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+}
+.skill-toc::-webkit-scrollbar { display: none; }
+.skill-toc-item {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.skill-toc-item:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.skill-toc-item.active {
+  background: var(--skill-accent-dim);
+  color: var(--skill-accent-light);
+  font-weight: 500;
+}
+.skill-toc-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
 </style>
 </head>
 <body class="page-skill-detail">
@@ -540,8 +577,21 @@ html, body { overflow: auto !important; height: auto !important; }
   </div>
 </div>
 
+<!-- ==================== 锚点导航 ==================== -->
+<div class="skill-toc">
+  <a class="skill-toc-item active" href="#tags">🏷️ 标签</a>
+  <a class="skill-toc-item" href="#io">🔌 输入/输出</a>
+  <a class="skill-toc-item" href="#md">📝 技能定义</a>
+  <span class="skill-toc-divider"></span>
+  <a class="skill-toc-item" href="#ref">📊 引用统计</a>
+  <a class="skill-toc-item" href="#staff">👥 关联员工</a>
+  <a class="skill-toc-item" href="#token">⚡ Token分析</a>
+  <span class="skill-toc-divider"></span>
+  <a class="skill-toc-item" href="#evolution">🚀 迭代记录</a>
+</div>
+
 <!-- ==================== 2. 标签 ==================== -->
-<div class="skill-section">
+<div class="skill-section" id="tags">
   <div class="section-title">🏷️ 技能标签</div>
   <div class="skill-tags">
     <span class="skill-tag cat">报警诊断</span>
@@ -556,7 +606,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- ==================== 3. 输入 / 输出 ==================== -->
-<div class="skill-section">
+<div class="skill-section" id="io">
   <div class="section-title">🔌 输入 / 输出定义</div>
   <div class="skill-io-grid">
     <!-- 输入 -->
@@ -635,7 +685,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- ==================== 4. 技能内容预览（MD 文件） ==================== -->
-<div class="skill-md-section">
+<div class="skill-md-section" id="md">
   <div class="skill-md-header">
     <div class="section-title" style="margin-bottom:0;">📝 技能定义文件</div>
     <div style="display:flex;align-items:center;gap:12px;">
@@ -700,7 +750,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- ==================== 5. 引用次数（扩展展示） ==================== -->
-<div class="skill-section">
+<div class="skill-section" id="ref">
   <div class="section-title">📊 引用统计</div>
   <div class="skill-ref-bar">
     <div class="skill-ref-item">
@@ -726,7 +776,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- ==================== 6. 关联的数字员工 ==================== -->
-<div class="skill-section">
+<div class="skill-section" id="staff">
   <div class="section-title">👥 关联数字员工</div>
   <div class="skill-staff-grid">
     <div class="skill-staff-item" onclick="location.href='../ai-staff/profile.html'">
@@ -763,7 +813,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- ==================== 7. Token 消耗分析 ==================== -->
-<div class="skill-section">
+<div class="skill-section" id="token">
   <div class="section-title">⚡ Token 消耗分析</div>
   <div class="skill-token-grid">
     <div class="skill-token-card">
@@ -790,7 +840,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- ==================== 8. 迭代记录 ==================== -->
-<div class="skill-section">
+<div class="skill-section" id="evolution">
   <div class="section-title">🚀 技能迭代记录</div>
   <div class="skill-evolution-timeline">
     <div class="evo-item">

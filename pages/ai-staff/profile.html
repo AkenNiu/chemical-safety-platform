@@ -354,6 +354,43 @@ html, body { overflow: auto !important; height: auto !important; }
 .tech-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
 .tech-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
 .tech-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); border-radius: 2px; }
+
+/* 锚点导航 */
+.staff-toc {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+}
+.staff-toc::-webkit-scrollbar { display: none; }
+.staff-toc-item {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.staff-toc-item:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.staff-toc-item.active {
+  background: rgba(139,92,246,0.15);
+  color: #a78bfa;
+  font-weight: 500;
+}
+.staff-toc-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
 </style>
 </head>
 <body class="page-staff-detail">
@@ -391,8 +428,22 @@ html, body { overflow: auto !important; height: auto !important; }
   </div>
 </div>
 
+<!-- 锚点导航 -->
+<div class="staff-toc">
+  <a class="staff-toc-item active" href="#task">🎯 当前任务</a>
+  <a class="staff-toc-item" href="#skills">🛠️ 拥有的技能</a>
+  <a class="staff-toc-item" href="#queue">📋 等待队列</a>
+  <span class="staff-toc-divider"></span>
+  <a class="staff-toc-item" href="#output">📦 今日成果</a>
+  <a class="staff-toc-item" href="#collab">🤝 协作员工</a>
+  <a class="staff-toc-item" href="#stats">📊 任务数据</a>
+  <span class="staff-toc-divider"></span>
+  <a class="staff-toc-item" href="#evolution">🚀 升级迭代</a>
+  <a class="staff-toc-item" href="#tech">⚙️ 技术分析</a>
+</div>
+
 <!-- 2. 当前任务 -->
-<div class="staff-current-task">
+<div class="staff-current-task" id="task">
   <div class="section-title">🎯 当前任务</div>
   <div class="current-task-main">
     <div class="current-task-icon">🔍</div>
@@ -408,7 +459,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- 2.5 拥有的技能 -->
-<div class="staff-queue">
+<div class="staff-queue" id="skills">
   <div class="section-title">🛠️ 拥有的技能 <span>(7)</span></div>
   <div class="queue-grid">
     <div class="queue-item" onclick="location.href='../skills/skill-detail.html'" style="cursor:pointer;">
@@ -439,7 +490,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- 3. 等待队列 -->
-<div class="staff-queue">
+<div class="staff-queue" id="queue">
   <div class="section-title">📋 等待队列 <span>(3)</span></div>
   <div class="queue-grid">
     <div class="queue-item">
@@ -458,7 +509,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- 4. 今日成果 -->
-<div class="staff-output">
+<div class="staff-output" id="output">
   <div class="section-title">📦 今日成果</div>
   <div class="output-grid">
     <div class="output-item">
@@ -489,7 +540,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- 5. 协作员工 -->
-<div class="staff-collab">
+<div class="staff-collab" id="collab">
   <div class="section-title">🤝 协作员工</div>
   <div class="collab-grid">
     <div class="collab-item">
@@ -540,7 +591,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- 6. 任务数据 -->
-<div class="staff-task-data">
+<div class="staff-task-data" id="stats">
   <div class="section-title">📊 任务数据（今日）</div>
   <div class="task-data-grid">
     <div class="task-data-card">
@@ -563,7 +614,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- 7. 升级迭代 -->
-<div class="staff-evolution">
+<div class="staff-evolution" id="evolution">
   <div class="section-title">🚀 升级迭代记录</div>
   <div class="evolution-timeline">
     <div class="evolution-item">
@@ -623,7 +674,7 @@ html, body { overflow: auto !important; height: auto !important; }
 </div>
 
 <!-- 9. 技术分析 -->
-<div class="staff-tech">
+<div class="staff-tech" id="tech">
   <div class="section-title">⚙️ 技术分析</div>
   <div class="tech-grid">
     <div class="tech-item">
