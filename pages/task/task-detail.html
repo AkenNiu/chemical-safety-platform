@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务详情 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* ========== 基础 ========== */
+html, body { overflow: auto !important; height: auto !important; }
+.td-page { padding: 0 24px 40px; background: var(--bg-dark); min-height: 100vh; color: var(--text-primary); }
+
+/* ========== 顶部栏 ========== */
+.td-header {
+  position: sticky; top: 0; z-index: 50;
+  padding: 14px 0 12px;
+  background: var(--bg-dark);
+  border-bottom: 1px solid var(--border-subtle);
+  margin: 0 -24px 16px; padding-left: 24px; padding-right: 24px;
+}
+.td-header-top { display: flex; align-items: center; justify-content: space-between; }
+.td-back { font-size: 13px; color: var(--primary-light); cursor: pointer; }
+.td-back:hover { color: #fff; }
+.td-back::before { content: "← 返回"; margin-right: 8px; }
+.td-title-wrap { flex: 1; margin: 0 16px; }
+.td-title { font-size: 16px; font-weight: 700; color: #fff; }
+.td-type { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.td-status { padding: 3px 12px; border-radius: 14px; font-size: 11px; }
+.td-status.progress { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.td-status.done { background: rgba(34,197,94,0.15); color: #22c55e; }
+.td-status.pending { background: rgba(251,146,60,0.15); color: #fb923c; }
+
+/* ========== 基本信息行 ========== */
+.td-info-row {
+  display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.td-info-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.td-info-label { color: var(--text-muted); }
+.td-info-value { color: var(--text-primary); font-weight: 500; }
+.td-info-value.high { color: #ef4444; }
+.td-info-value.medium { color: #fb923c; }
+.td-info-value.low { color: #60a5fa; }
+.td-info-dot { width: 6px; height: 6px; border-radius: 50%; }
+.td-info-dot.green { background: #22c55e; }
+.td-info-dot.orange { background: #fb923c; }
+.td-info-dot.red { background: #ef4444; }
+.td-info-dot.blue { background: #60a5fa; }
+
+/* ========== 当前状态 ========== */
+.td-current {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 16px;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,256,0.3);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.td-current-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.td-current-avatar.r1 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.td-current-info { flex: 1; }
+.td-current-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+.td-current-status { font-size: 11px; color: var(--primary-light); display: flex; align-items: center; gap: 6px; }
+.td-current-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--primary-light); animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.td-current-progress { display: flex; align-items: center; gap: 10px; flex: 1; max-width: 200px; }
+.td-current-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.td-current-bar-fill { height: 100%; background: var(--primary); border-radius: 2px; }
+.td-current-percent { font-size: 11px; color: var(--text-muted); }
+
+/* ========== 两列布局 ========== */
+.td-body { display: flex; gap: 20px; align-items: flex-start; }
+.td-left { flex: 1; min-width: 0; }
+.td-right { width: 340px; flex-shrink: 0; }
+.td-right-sticky { position: sticky; top: 60px; }
+.td-right .td-section { margin-bottom: 14px; }
+.td-right .td-section-head { font-size: 12px; margin-bottom: 6px; }
+
+/* ========== 区块 ========== */
+.td-section { margin-bottom: 16px; }
+.td-section-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #fff; }
+.td-section-head span { font-size: 14px; }
+
+/* ========== 任务描述 ========== */
+.td-desc-box {
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+}
+.td-desc-group { margin-bottom: 14px; }
+.td-desc-group:last-child { margin-bottom: 0; }
+.td-desc-label { font-size: 11px; color: var(--primary-light); font-weight: 600; margin-bottom: 6px; }
+.td-desc-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.td-desc-text ul { margin: 4px 0 0 0; padding-left: 16px; }
+.td-desc-text li { margin-bottom: 4px; }
+.td-sop-step { display: flex; gap: 8px; margin-bottom: 6px; }
+.td-sop-num { width: 18px; height: 18px; border-radius: 50%; background: rgba(139,92,246,0.2); color: #a78bfa; font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.td-sop-text { font-size: 12px; color: var(--text-secondary); }
+
+/* ========== 触发原因 ========== */
+.td-trigger {
+  padding: 12px 14px;
+  background: rgba(139,92,246,0.08);
+  border: 1px solid rgba(139,92,256,0.2);
+  border-radius: 8px;
+  font-size: 12px;
+}
+.td-trigger-label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.td-trigger-reason { color: #a78bfa; }
+
+/* ========== 参与人员 ========== */
+.td-parti-row { display: flex; gap: 32px; }
+.td-parti-col { flex: 1; }
+.td-parti-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.td-parti-card {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+}
+.td-parti-avatar { width: 24px; height: 24px; border-radius: 50%; font-size: 10px; color: #fff; display: flex; align-items: center; justify-content: center; }
+.td-parti-avatar.human { background: linear-gradient(135deg, #64748b, #94a3b8); }
+.td-parti-avatar.r1 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.td-parti-avatar.r2 { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+.td-parti-avatar.r3 { background: linear-gradient(135deg, #10b981, #34d399); }
+.td-parti-name { font-size: 12px; color: var(--text-primary); }
+.td-parti-role { font-size: 10px; color: var(--text-muted); }
+
+/* ========== 产出物 ========== */
+.td-output-list { display: flex; flex-direction: column; gap: 6px; }
+.td-output-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.td-output-item:hover { border-color: rgba(139,92,246,0.4); }
+.td-output-icon { font-size: 16px; }
+.td-output-info { flex: 1; }
+.td-output-name { font-size: 12px; color: var(--text-primary); }
+.td-output-meta { font-size: 10px; color: var(--text-muted); }
+.td-output-meta .by { color: var(--primary-light); }
+
+/* ========== 任务依赖 ========== */
+.td-dep-row { display: flex; gap: 16px; }
+.td-dep-col { flex: 1; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+.td-dep-title { font-size: 11px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+.td-dep-list { display: flex; flex-direction: column; gap: 4px; }
+.td-dep-item { font-size: 11px; color: var(--text-secondary); }
+.td-dep-item .link { color: var(--primary-light); cursor: pointer; }
+.td-dep-item .link:hover { text-decoration: underline; }
+.td-dep-item.empty { color: var(--text-muted); font-style: italic; }
+
+/* ========== 时间线 ========== */
+.td-timeline { display: flex; flex-direction: column; }
+.td-timeline-item { display: flex; gap: 10px; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); position: relative; cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+.td-timeline-item:hover { background: rgba(139,92,246,0.08); }
+.td-timeline-item:last-child { border-bottom: none; }
+.td-timeline-item.has-detail::after { content: "›"; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); }
+.td-timeline-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); margin-top: 4px; flex-shrink: 0; }
+.td-timeline-item:not(:last-child)::before { content: ""; position: absolute; left: 15px; top: 22px; bottom: -8px; width: 2px; background: rgba(255,255,255,0.06); }
+.td-timeline-time { font-size: 10px; color: var(--text-muted); width: 40px; flex-shrink: 0; }
+.td-timeline-content { font-size: 11px; color: var(--text-secondary); flex: 1; padding-right: 16px; }
+.td-timeline-content .actor { color: var(--primary-light); }
+.td-tl-badge { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 5px; font-size: 9px; white-space: nowrap; margin-top: 1px; }
+.td-tl-badge img { width: 12px; height: 12px; }
+.td-tl-badge.alert { background: rgba(251,146,60,0.12); color: #fb923c; }
+.td-tl-badge.script { background: rgba(139,92,246,0.12); color: #a78bfa; }
+.td-tl-badge.file { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.td-tl-badge.data { background: rgba(16,185,129,0.12); color: #34d399; }
+.td-tl-badge.search { background: rgba(234,179,8,0.12); color: #fbbf24; }
+.td-tl-badge.report { background: rgba(34,197,94,0.12); color: #22c55e; }
+</style>
+</head>
+<body class="td-page">
+
+<!-- ========== 顶部 ========== -->
+<div class="td-header">
+  <div class="td-header-top">
+    <div class="td-back" onclick="history.back()"></div>
+    <div class="td-title-wrap">
+      <div class="td-title">F-101温度异常报警诊断</div>
+      <div class="td-type">履约任务 · 报警管理任务清单</div>
+    </div>
+    <span class="td-status progress">进行中</span>
+  </div>
+</div>
+
+<!-- ========== 基本信息行 ========== -->
+<div class="td-info-row">
+  <div class="td-info-item">
+    <span class="td-info-label">创建：</span>
+    <span class="td-info-value">14:20</span>
+  </div>
+  <div class="td-info-item">
+    <span class="td-info-label">截止：</span>
+    <span class="td-info-value">18:00</span>
+  </div>
+  <div class="td-info-item">
+    <span class="td-info-label">优先级：</span>
+    <span class="td-info-value high">高</span>
+  </div>
+  <div class="td-info-item">
+    <span class="td-info-label">负责人：</span>
+    <span class="td-info-value">张工程师</span>
+  </div>
+  <div class="td-info-item">
+    <span class="td-info-dot green"></span>
+    <span class="td-info-value">小安</span>
+    <span class="td-info-value" style="color:var(--text-muted)">进行中</span>
+  </div>
+  <div class="td-info-item">
+    <span class="td-info-dot orange"></span>
+    <span class="td-info-value">小库</span>
+    <span class="td-info-value" style="color:var(--text-muted)">待命</span>
+  </div>
+</div>
+
+<!-- ========== 当前进行中 ========== -->
+<div class="td-current">
+  <div class="td-current-avatar r1">安</div>
+  <div class="td-current-info">
+    <div class="td-current-name">小安 正在分析温度曲线...</div>
+    <div class="td-current-status">步骤2：调取温度曲线分析趋势</div>
+  </div>
+  <div class="td-current-progress">
+    <div class="td-current-bar"><div class="td-current-bar-fill" style="width:65%"></div></div>
+    <div class="td-current-percent">65%</div>
+  </div>
+</div>
+
+<!-- ========== 两列主体 ========== -->
+<div class="td-body">
+  <!-- ===== 左侧栏 ===== -->
+  <div class="td-left">
+
+    <!-- ========== 任务描述（SOP流程） ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>📋</span> 任务描述</div>
+      <div class="td-desc-box">
+        <div class="td-desc-group">
+          <div class="td-desc-label">📝 SOP流程</div>
+          <div class="td-sop-step">
+            <div class="td-sop-num">1</div>
+            <div class="td-sop-text">获取GDS报警详情，确认报警点位和阈值</div>
+          </div>
+          <div class="td-sop-step">
+            <div class="td-sop-num">2</div>
+            <div class="td-sop-text">调取F-101温度曲线，分析温度变化趋势</div>
+          </div>
+          <div class="td-sop-step">
+            <div class="td-sop-num">3</div>
+            <div class="td-sop-text">检索相关操作规范，查明温度超限原因</div>
+          </div>
+          <div class="td-sop-step">
+            <div class="td-sop-num">4</div>
+            <div class="td-sop-text">生成分析报告，标注风险等级和处理建议</div>
+          </div>
+          <div class="td-sop-step">
+            <div class="td-sop-num">5</div>
+            <div class="td-sop-text">输出报告，更新任务状态</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 参与人员 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>👥</span> 参与人员 <span style="font-weight:400;color:var(--text-muted)">(2人)</span></div>
+      <div class="td-parti-row">
+        <div class="td-parti-col">
+          <div class="td-parti-list">
+            <div class="td-parti-card">
+              <div class="td-parti-avatar human">张</div>
+              <div class="td-parti-name">张工程师</div>
+              <div class="td-parti-role">负责人</div>
+            </div>
+            <div class="td-parti-card">
+              <div class="td-parti-avatar human">李</div>
+              <div class="td-parti-name">李工程师</div>
+              <div class="td-parti-role">协助</div>
+            </div>
+          </div>
+        </div>
+        <div class="td-parti-col">
+          <div class="td-parti-list">
+            <div class="td-parti-card">
+              <div class="td-parti-avatar r1">安</div>
+              <div class="td-parti-name">小安</div>
+              <div class="td-parti-role">诊断分析</div>
+            </div>
+            <div class="td-parti-card">
+              <div class="td-parti-avatar r2">库</div>
+              <div class="td-parti-name">小库</div>
+              <div class="td-parti-role">规范检索</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 任务依赖 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>🔗</span> 任务依赖</div>
+      <div class="td-dep-row">
+        <div class="td-dep-col">
+          <div class="td-dep-title">⬅️ 前置</div>
+          <div class="td-dep-list">
+            <div class="td-dep-item"><span class="link">B区储罐风险评估</span></div>
+            <div class="td-dep-item"><span class="link">A1液氨储罐压力报警</span></div>
+          </div>
+        </div>
+        <div class="td-dep-col">
+          <div class="td-dep-title">➡️ 后续</div>
+          <div class="td-dep-list">
+            <div class="td-dep-item"><span class="link">隐患整改工单</span></div>
+            <div class="td-dep-item"><span class="link">月度报警分析报告</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 执行记录 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>📜</span> 执行记录</div>
+      <div class="td-timeline">
+        <div class="td-timeline-item" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot"></div>
+          <div class="td-timeline-time">14:20</div>
+          <div class="td-timeline-content">任务创建，<span class="actor">GDS报警</span>触发</div>
+          <span class="td-tl-badge alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>报警触发</span>
+        </div>
+        <div class="td-timeline-item has-detail" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot" style="background:var(--primary-light)"></div>
+          <div class="td-timeline-time">14:21</div>
+          <div class="td-timeline-content"><span class="actor">小安</span>开始分析温度曲线</div>
+          <span class="td-tl-badge script"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>分析脚本</span>
+        </div>
+        <div class="td-timeline-item has-detail" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot" style="background:#06b6d4"></div>
+          <div class="td-timeline-time">14:25</div>
+          <div class="td-timeline-content"><span class="actor">小库</span>检索相关规范</div>
+          <span class="td-tl-badge search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>规范检索</span>
+        </div>
+        <div class="td-timeline-item has-detail" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot" style="background:#22c55e"></div>
+          <div class="td-timeline-time">14:35</div>
+          <div class="td-timeline-content"><span class="actor">小安</span>生成分析报告</div>
+          <span class="td-tl-badge report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>PDF报告</span>
+        </div>
+        <div class="td-timeline-item has-detail" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot" style="background:#22c55e"></div>
+          <div class="td-timeline-time">14:40</div>
+          <div class="td-timeline-content"><span class="actor">小库</span>完成规范补充</div>
+          <span class="td-tl-badge file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 3v6"/></svg>Excel</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ===== /左侧栏 ===== -->
+
+  <!-- ===== 右侧栏 ===== -->
+  <div class="td-right">
+    <div class="td-right-sticky">
+
+      <!-- ========== 触发原因 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>⚡</span> 触发原因</div>
+        <div class="td-trigger">
+          <div class="td-trigger-label">由GDS报警自动触发</div>
+          <div class="td-trigger-reason">F-101反应釜温度超过85℃，持续3分钟</div>
+        </div>
+      </div>
+
+      <!-- ========== 输入要求 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📥</span> 输入要求</div>
+        <div class="td-desc-box">
+          <div class="td-desc-text">
+            <ul>
+              <li>F-101反应釜过去2小时内的温度趋势数据（温度、设定值、偏差）</li>
+              <li>GDS报警记录（报警时间、报警值、持续时长）</li>
+              <li>F-101的操作规程文档</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 输出要求 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📤</span> 输出要求</div>
+        <div class="td-desc-box">
+          <div class="td-desc-text">
+            <ul>
+              <li>温度异常分析报告（PDF格式），包含：异常原因、持续时间、风险等级</li>
+              <li>处理建议（是否需要停机、降温速率建议）</li>
+              <li>相关规范条款引用</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 产出物 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📦</span> 产出物 <span style="font-weight:400;color:var(--text-muted)">(2个)</span></div>
+        <div class="td-output-list">
+          <div class="td-output-item">
+            <span class="td-output-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+            <div class="td-output-info">
+              <div class="td-output-name">F-101温度分析报告.pdf</div>
+              <div class="td-output-meta">14:35 · <span class="by">小安</span> 生成</div>
+            </div>
+          </div>
+          <div class="td-output-item">
+            <span class="td-output-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 3v6"/></svg></span>
+            <div class="td-output-info">
+              <div class="td-output-name">报警处理记录.xlsx</div>
+              <div class="td-output-meta">14:40 · <span class="by">小库</span> 生成</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- ===== /右侧栏 ===== -->
+</div>
+<!-- ========== /两列主体 ========== -->
+
+</body>
+</html>

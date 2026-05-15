@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的任务 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* ========== 基础 ========== */
+html, body { overflow: auto !important; height: auto !important; }
+.tc-page { padding: 0 24px 40px; background: var(--bg-dark); min-height: 100vh; color: var(--text-primary); }
+
+/* ========== 顶部栏 ========== */
+.tc-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0 12px;
+  margin-bottom: 20px; padding-right: 24px; padding-left: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.tc-topbar-title { font-size: 20px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+.tc-topbar-title span { font-size: 24px; }
+.tc-back { font-size: 13px; color: var(--primary-light); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.tc-back:hover { color: #fff; }
+
+/* ========== 筛选栏 ========== */
+.tc-filters {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px;
+}
+.tc-filter-group { display: flex; align-items: center; gap: 6px; }
+.tc-filter-label { font-size: 12px; color: var(--text-muted); }
+.tc-filter-select {
+  padding: 5px 12px; border-radius: 8px; font-size: 12px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle);
+  color: var(--text-primary); outline: none; cursor: pointer;
+}
+.tc-filter-select:focus { border-color: var(--primary); }
+.tc-filter-keyword { flex: 1; position: relative; max-width: 200px; }
+.tc-filter-keyword input { width: 100%; padding: 5px 12px 5px 30px; border-radius: 8px; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-primary); outline: none; }
+.tc-filter-keyword input:focus { border-color: var(--primary); }
+.tc-filter-keyword input::placeholder { color: var(--text-muted); }
+.tc-filter-keyword::before { content: "🔍"; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 11px; }
+.tc-filter-stats { display: flex; align-items: center; gap: 16px; margin-left: auto; }
+.tc-filter-stat { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.tc-filter-stat-num { font-size: 14px; font-weight: 700; }
+.tc-filter-stat-num.red { color: #ef4444; }
+.tc-filter-stat-num.orange { color: #fb923c; }
+.tc-filter-stat-num.green { color: #22c55e; }
+.tc-filter-stat-num.blue { color: #60a5fa; }
+.tc-filter-stat-label { color: var(--text-muted); }
+
+/* ========== 子 Tab ========== */
+.tc-sub-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+.tc-sub-tab { padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: all .2s; color: var(--text-muted); background: transparent; border: none; }
+.tc-sub-tab:hover { color: var(--text-secondary); }
+.tc-sub-tab.active { color: #fff; background: rgba(255,255,255,0.1); }
+
+/* ========== 任务列表 ========== */
+.tc-task-list { display: flex; flex-direction: column; gap: 8px; }
+.tc-task-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  transition: all .2s;
+  cursor: pointer;
+}
+.tc-task-item:hover { border-color: rgba(139,92,246,0.4); }
+.tc-task-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.tc-task-dot.red { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.4); }
+.tc-task-dot.orange { background: #fb923c; }
+.tc-task-dot.green { background: #22c55e; }
+.tc-task-dot.blue { background: #60a5fa; }
+.tc-task-info { flex: 1; min-width: 0; }
+.tc-task-name { font-size: 13px; color: var(--text-primary); margin-bottom: 3px; font-weight: 500; }
+.tc-task-meta { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 12px; }
+.tc-task-tag { font-size: 10px; padding: 2px 8px; border-radius: 8px; flex-shrink: 0; margin-left: 8px; }
+.tc-task-tag.high { background: rgba(239,68,68,0.12); color: #ef4444; }
+.tc-task-tag.medium { background: rgba(251,146,60,0.12); color: #fb923c; }
+.tc-task-tag.low { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.tc-task-tag.done { background: rgba(34,197,94,0.12); color: #22c55e; }
+.tc-task-tag.progress { background: rgba(139,92,246,0.12); color: #a78bfa; }
+.tc-task-assignee { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.tc-task-assignee .avatar-mini { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #a78bfa); display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; }
+.tc-task-assignee .avatar-mini.robot { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+
+/* ========== 统计摘要 ========== */
+.tc-summary { display: flex; gap: 12px; margin-bottom: 20px; }
+.tc-summary-card {
+  flex: 1; padding: 16px; border-radius: 10px;
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  display: flex; align-items: center; gap: 12px;
+}
+.tc-summary-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.tc-summary-icon.red { background: rgba(239,68,68,0.12); }
+.tc-summary-icon.orange { background: rgba(251,146,60,0.12); }
+.tc-summary-icon.green { background: rgba(34,197,94,0.12); }
+.tc-summary-icon.blue { background: rgba(96,165,250,0.12); }
+.tc-summary-content { flex: 1; }
+.tc-summary-num { font-size: 22px; font-weight: 700; color: #fff; }
+.tc-summary-label { font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body class="tc-page">
+
+<!-- ========== 顶部栏 ========== -->
+<div class="tc-topbar">
+  <div class="tc-topbar-title"><span>👤</span> 我的任务</div>
+  <div class="tc-back" onclick="location.href='task-center.html'">← 返回任务中心</div>
+</div>
+
+<!-- ========== 筛选栏 ========== -->
+<div class="tc-filters">
+  <div class="tc-filter-group">
+    <span class="tc-filter-label">关键词</span>
+    <div class="tc-filter-keyword">
+      <input type="text" placeholder="搜索任务...">
+    </div>
+  </div>
+  <div class="tc-filter-group">
+    <span class="tc-filter-label">状态</span>
+    <select class="tc-filter-select">
+      <option>全部</option>
+      <option>进行中</option>
+      <option>待处理</option>
+      <option>已完成</option>
+      <option>未完成</option>
+    </select>
+  </div>
+  <div class="tc-filter-group">
+    <span class="tc-filter-label">人员</span>
+    <select class="tc-filter-select">
+      <option>全部</option>
+      <option>小安</option>
+      <option>小研</option>
+      <option>小巡</option>
+      <option>小报</option>
+    </select>
+  </div>
+  <div class="tc-filter-stats">
+    <div class="tc-filter-stat"><span class="tc-filter-stat-num orange">3</span><span class="tc-filter-stat-label">待处理</span></div>
+    <div class="tc-filter-stat"><span class="tc-filter-stat-num green">4</span><span class="tc-filter-stat-label">已完成</span></div>
+    <div class="tc-filter-stat"><span class="tc-filter-stat-num blue">3</span><span class="tc-filter-stat-label">进行中</span></div>
+  </div>
+</div>
+
+<!-- ========== 子 Tab ========== -->
+<div class="tc-sub-tabs">
+  <button class="tc-sub-tab active" onclick="switchMyTab(this, 'received')">别人给我的 (5)</button>
+  <button class="tc-sub-tab" onclick="switchMyTab(this, 'created')">我创建的 (7)</button>
+</div>
+
+<!-- 别人给我的任务 -->
+<div class="tc-task-list" id="myReceived">
+  <div class="tc-task-item" onclick="location.href='task-detail.html'">
+    <div class="tc-task-dot red"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">报警诊断报告确认</div>
+      <div class="tc-task-meta">
+        <span>截止 15:00</span>
+        <span>来自 小安</span>
+      </div>
+    </div>
+    <span class="tc-task-tag high">紧急</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini">安</span>
+    </div>
+  </div>
+  <div class="tc-task-item" onclick="location.href='task-detail.html'">
+    <div class="tc-task-dot red"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">B区储罐设计参数补充</div>
+      <div class="tc-task-meta">
+        <span>截止 17:00</span>
+        <span>来自 小研</span>
+      </div>
+    </div>
+    <span class="tc-task-tag high">紧急</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">研</span>
+    </div>
+  </div>
+  <div class="tc-task-item">
+    <div class="tc-task-dot orange"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">A区装置日常巡检结果审核</div>
+      <div class="tc-task-meta">
+        <span>截止 16:00</span>
+        <span>来自 小巡</span>
+      </div>
+    </div>
+    <span class="tc-task-tag medium">待处理</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">巡</span>
+    </div>
+  </div>
+  <div class="tc-task-item">
+    <div class="tc-task-dot blue"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">隐患整改方案审核</div>
+      <div class="tc-task-meta">
+        <span>截止 明天 12:00</span>
+        <span>来自 小报</span>
+      </div>
+    </div>
+    <span class="tc-task-tag progress">进行中</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">报</span>
+    </div>
+  </div>
+  <div class="tc-task-item">
+    <div class="tc-task-dot blue"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">危化品出入库台账核对</div>
+      <div class="tc-task-meta">
+        <span>截止 明天 10:00</span>
+        <span>来自 小库</span>
+      </div>
+    </div>
+    <span class="tc-task-tag progress">进行中</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">库</span>
+    </div>
+  </div>
+</div>
+
+<!-- 我创建的任务 -->
+<div class="tc-task-list" id="myCreated" style="display:none;">
+  <div class="tc-task-item">
+    <div class="tc-task-dot orange"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">临时检查F-101反应釜温度传感器</div>
+      <div class="tc-task-meta">
+        <span>截止 18:00</span>
+        <span>分配给 小巡</span>
+      </div>
+    </div>
+    <span class="tc-task-tag medium">待处理</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">巡</span>
+    </div>
+  </div>
+  <div class="tc-task-item">
+    <div class="tc-task-dot green"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">本周安全工作周报</div>
+      <div class="tc-task-meta">
+        <span>截止 周五 16:00</span>
+        <span>分配给 小报</span>
+      </div>
+    </div>
+    <span class="tc-task-tag done">���完成</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">报</span>
+    </div>
+  </div>
+  <div class="tc-task-item">
+    <div class="tc-task-dot green"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">5月月度安全运行报告</div>
+      <div class="tc-task-meta">
+        <span>截止 5月31日</span>
+        <span>分配给 小报</span>
+      </div>
+    </div>
+    <span class="tc-task-tag done">已完成</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">报</span>
+    </div>
+  </div>
+  <div class="tc-task-item">
+    <div class="tc-task-dot green"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">华兴化工5月巡查报告</div>
+      <div class="tc-task-meta">
+        <span>截止 昨天</span>
+        <span>分配给 小报</span>
+      </div>
+    </div>
+    <span class="tc-task-tag done">已完成</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">报</span>
+    </div>
+  </div>
+  <div class="tc-task-item">
+    <div class="tc-task-dot blue"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">园区安全风险评估</div>
+      <div class="tc-task-meta">
+        <span>截止 6月15日</span>
+        <span>分配给 小研</span>
+      </div>
+    </div>
+    <span class="tc-task-tag progress">进行中</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">研</span>
+    </div>
+  </div>
+  <div class="tc-task-item">
+    <div class="tc-task-dot green"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">新星化工现场检查</div>
+      <div class="tc-task-meta">
+        <span>截止 5月10日</span>
+        <span>分配给 小巡</span>
+      </div>
+    </div>
+    <span class="tc-task-tag done">已完成</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">巡</span>
+    </div>
+  </div>
+  <div class="tc-task-item">
+    <div class="tc-task-dot orange"></div>
+    <div class="tc-task-info">
+      <div class="tc-task-name">恒岳化工隐患复查</div>
+      <div class="tc-task-meta">
+        <span>截止 下周一</span>
+        <span>分配给 小巡</span>
+      </div>
+    </div>
+    <span class="tc-task-tag medium">待处理</span>
+    <div class="tc-task-assignee">
+      <span class="avatar-mini robot">巡</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchMyTab(btn, type) {
+  document.querySelectorAll('.tc-sub-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('myReceived').style.display = type === 'received' ? '' : 'none';
+  document.getElementById('myCreated').style.display = type === 'created' ? '' : 'none';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>步骤执行详情 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* ========== 基础 ========== */
+html, body { overflow: auto !important; height: auto !important; }
+.td-page { padding: 0 24px 40px; background: var(--bg-dark); min-height: 100vh; color: var(--text-primary); }
+
+/* ========== 顶部 ========== */
+.td-header { position: sticky; top: 0; z-index: 50; padding: 14px 0 12px; background: var(--bg-dark); border-bottom: 1px solid var(--border-subtle); margin: 0 -24px 16px; padding-left: 24px; padding-right: 24px; }
+.td-header-top { display: flex; align-items: center; justify-content: space-between; }
+.td-back { font-size: 13px; color: var(--primary-light); cursor: pointer; }
+.td-back::before { content: "← 返回"; margin-right: 8px; }
+.td-title-wrap { flex: 1; margin: 0 16px; }
+.td-title { font-size: 16px; font-weight: 700; color: #fff; }
+.td-type { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.td-status { padding: 3px 12px; border-radius: 14px; font-size: 11px; }
+.td-status.progress { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.td-status.done { background: rgba(34,197,94,0.15); color: #22c55e; }
+.td-status.pending { background: rgba(251,146,60,0.15); color: #fb923c; }
+.td-status.error { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+/* ========== 步骤信息行 ========== */
+.td-info-row { display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+.td-info-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.td-info-label { color: var(--text-muted); }
+.td-info-value { color: var(--text-primary); font-weight: 500; }
+
+/* ========== 执行者卡片 ========== */
+.td-executor {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.td-executor-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #fff; flex-shrink: 0; }
+.td-executor-avatar.r1 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.td-executor-avatar.r2 { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+.td-executor-avatar.r3 { background: linear-gradient(135deg, #10b981, #34d399); }
+.td-executor-avatar.human { background: linear-gradient(135deg, #64748b, #94a3b8); }
+.td-executor-info { flex: 1; }
+.td-executor-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+.td-executor-role { font-size: 11px; color: var(--text-muted); }
+.td-executor-right { text-align: right; }
+.td-executor-time { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+.td-executor-dur { font-size: 10px; color: var(--text-muted); }
+
+/* ========== 进度条（进行中步骤） ========== */
+.td-progress-box {
+  padding: 14px 16px;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.3);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.td-progress-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.td-progress-label { font-size: 12px; color: var(--primary-light); }
+.td-progress-pct { font-size: 12px; color: #a78bfa; font-weight: 600; }
+.td-progress-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+.td-progress-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); border-radius: 3px; transition: width 0.3s; }
+.td-progress-sub { font-size: 10px; color: var(--text-muted); margin-top: 6px; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.td-progress-sub .live { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--primary-light); animation: pulse 1.5s infinite; margin-right: 4px; vertical-align: middle; }
+
+/* ========== 两列布局 ========== */
+.td-body { display: flex; gap: 20px; align-items: flex-start; }
+.td-left { flex: 1; min-width: 0; }
+.td-right { width: 340px; flex-shrink: 0; }
+.td-right-sticky { position: sticky; top: 60px; }
+.td-right .td-section { margin-bottom: 14px; }
+.td-right .td-section-head { font-size: 12px; margin-bottom: 6px; }
+
+/* ========== 区块 ========== */
+.td-section { margin-bottom: 16px; }
+.td-section-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #fff; }
+
+/* ========== 步骤详情描述 ========== */
+.td-desc-box { padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; }
+.td-desc-text { font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+
+/* ========== 输入数据 ========== */
+.td-data-list { display: flex; flex-direction: column; gap: 8px; }
+.td-data-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  transition: background 0.15s, border-color 0.15s;
+  cursor: default;
+}
+.td-data-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+.td-data-icon { margin-top: 1px; flex-shrink: 0; width: 18px; height: 18px; }
+.td-data-icon svg { width: 18px; height: 18px; }
+.td-data-info { flex: 1; min-width: 0; }
+.td-data-name { font-size: 12px; color: var(--text-primary); margin-bottom: 2px; word-break: break-all; }
+.td-data-meta { font-size: 10px; color: var(--text-muted); }
+.td-data-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(96,165,250,0.12); color: #60a5fa; flex-shrink: 0; }
+
+/* ========== 输出结果 ========== */
+.td-result-box {
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+}
+.td-result-summary { font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+.td-result-summary strong { color: var(--text-primary); font-weight: 600; }
+.td-result-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 6px; }
+.td-result-tag.normal { background: rgba(34,197,94,0.15); color: #22c55e; }
+.td-result-tag.warning { background: rgba(251,146,60,0.15); color: #fb923c; }
+.td-result-tag.danger { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+/* ========== 产出文件 ========== */
+.td-output-list { display: flex; flex-direction: column; gap: 6px; }
+.td-output-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  transition: background 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+.td-output-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(139,92,246,0.3); }
+.td-output-icon { flex-shrink: 0; width: 20px; height: 20px; }
+.td-output-icon svg { width: 20px; height: 20px; }
+.td-output-info { flex: 1; }
+.td-output-name { font-size: 12px; color: var(--text-primary); }
+.td-output-meta { font-size: 10px; color: var(--text-muted); }
+.td-output-size { font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+
+/* ========== 执行日志 ========== */
+.td-log-list { display: flex; flex-direction: column; }
+.td-log-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+  transition: background 0.15s;
+  cursor: default;
+}
+.td-log-item:hover { background: rgba(139,92,246,0.06); }
+.td-log-item:last-child { border-bottom: none; }
+.td-log-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.td-log-dot.success { background: #22c55e; }
+.td-log-dot.running { background: var(--primary-light); }
+.td-log-dot.info { background: #60a5fa; }
+.td-log-dot.warning { background: #fb923c; }
+.td-log-dot.error { background: #ef4444; }
+.td-log-time { font-size: 10px; color: var(--text-muted); width: 48px; flex-shrink: 0; margin-top: 1px; }
+.td-log-msg { font-size: 11px; color: var(--text-secondary); line-height: 1.5; flex: 1; min-width: 0; }
+.td-log-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  white-space: nowrap;
+  margin-top: 1px;
+}
+.td-log-badge.file { background: rgba(96,165,250,0.1); color: #60a5fa; }
+.td-log-badge.script { background: rgba(139,92,246,0.1); color: #a78bfa; }
+.td-log-badge.data { background: rgba(16,185,129,0.1); color: #34d399; }
+.td-log-badge.alert { background: rgba(251,146,60,0.1); color: #fb923c; }
+.td-log-badge.report { background: rgba(34,197,94,0.1); color: #22c55e; }
+.td-log-badge img { width: 14px; height: 14px; }
+
+/* ========== 错误信息（失败步骤） ========== */
+.td-error-box {
+  padding: 14px 16px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.td-error-title { font-size: 12px; color: #ef4444; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.td-error-msg { font-size: 11px; color: var(--text-secondary); line-height: 1.6; }
+.td-error-stack { margin-top: 8px; padding: 8px 10px; background: rgba(0,0,0,0.3); border-radius: 6px; font-family: monospace; font-size: 10px; color: var(--text-muted); word-break: break-all; }
+.td-error-action { margin-top: 10px; display: flex; gap: 8px; }
+.td-error-btn { padding: 6px 14px; border-radius: 6px; font-size: 11px; cursor: pointer; border: none; }
+.td-error-btn.retry { background: rgba(239,68,68,0.2); color: #ef4444; }
+.td-error-btn.skip { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+</style>
+</head>
+<body class="td-page">
+
+<!-- ========== 顶部 ========== -->
+<div class="td-header">
+  <div class="td-header-top">
+    <div class="td-back" onclick="history.back()"></div>
+    <div class="td-title-wrap">
+      <div class="td-title">步骤2：调取温度曲线分析趋势</div>
+      <div class="td-type">F-101温度异常报警诊断 · 履约任务</div>
+    </div>
+    <span class="td-status progress">进行中</span>
+  </div>
+</div>
+
+<!-- ========== 步骤信息行 ========== -->
+<div class="td-info-row">
+  <div class="td-info-item"><span class="td-info-label">步骤：</span><span class="td-info-value">2 / 5</span></div>
+  <div class="td-info-item"><span class="td-info-label">开始：</span><span class="td-info-value">14:21</span></div>
+  <div class="td-info-item"><span class="td-info-label">耗时：</span><span class="td-info-value">4分32秒</span></div>
+  <div class="td-info-item"><span class="td-info-label">前置步骤：</span><span class="td-info-value" style="color:#22c55e">已完成</span></div>
+</div>
+
+<!-- ========== 执行者 ========== -->
+<div class="td-executor">
+  <div class="td-executor-avatar r1">安</div>
+  <div class="td-executor-info">
+    <div class="td-executor-name">小安</div>
+    <div class="td-executor-role">报警诊断数字员工 · 自动执行</div>
+  </div>
+  <div class="td-executor-right">
+    <div class="td-executor-time">14:21 开始</div>
+    <div class="td-executor-dur">已耗时 4分32秒</div>
+  </div>
+</div>
+
+<!-- ========== 实时进度 ========== -->
+<div class="td-progress-box">
+  <div class="td-progress-head">
+    <span class="td-progress-label">执行进度</span>
+    <span class="td-progress-pct">65%</span>
+  </div>
+  <div class="td-progress-bar"><div class="td-progress-fill" style="width:65%"></div></div>
+  <div class="td-progress-sub"><span class="live"></span>正在采集 F-101 反应釜温度数据（DCS系统）...</div>
+</div>
+
+<!-- ========== 两列主体 ========== -->
+<div class="td-body">
+  <!-- ===== 左侧栏 ===== -->
+  <div class="td-left">
+
+    <!-- ========== 步骤描述 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>📋</span> 步骤说明</div>
+      <div class="td-desc-box">
+        <div class="td-desc-text">
+          调取 F-101 反应釜近 2 小时内的温度趋势数据，包括实际温度值、设定值和偏差值。通过分析温度曲线变化趋势，判断当前异常是偶发波动还是持续上升趋势，为后续诊断提供数据支撑。
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 执行日志 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>📝</span> 执行日志 <span style="font-weight:400;color:var(--text-muted)">(6条)</span></div>
+      <div class="td-log-list">
+        <!-- 连接系统 -->
+        <div class="td-log-item">
+          <div class="td-log-dot success"></div>
+          <div class="td-log-time">14:21</div>
+          <div class="td-log-msg">步骤开始，连接 DCS 系统数据接口</div>
+          <span class="td-log-badge data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            API连接
+          </span>
+        </div>
+        <!-- 数据拉取 -->
+        <div class="td-log-item">
+          <div class="td-log-dot success"></div>
+          <div class="td-log-time">14:21</div>
+          <div class="td-log-msg">DCS 接口连接成功，开始拉取温度数据</div>
+          <span class="td-log-badge data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            数据拉取
+          </span>
+        </div>
+        <!-- 数据校验 -->
+        <div class="td-log-item">
+          <div class="td-log-dot info"></div>
+          <div class="td-log-time">14:23</div>
+          <div class="td-log-msg">已获取 720 条温度记录（14:00~14:20），数据完整</div>
+          <span class="td-log-badge data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            数据校验
+          </span>
+        </div>
+        <!-- 执行分析脚本 -->
+        <div class="td-log-item">
+          <div class="td-log-dot info"></div>
+          <div class="td-log-time">14:24</div>
+          <div class="td-log-msg">开始趋势分析，计算移动平均和偏差值</div>
+          <span class="td-log-badge script">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            分析脚本
+          </span>
+        </div>
+        <!-- 触发告警 -->
+        <div class="td-log-item">
+          <div class="td-log-dot warning"></div>
+          <div class="td-log-time">14:25</div>
+          <div class="td-log-msg">检测到持续上升趋势，偏差超过阈值，标记为高风险</div>
+          <span class="td-log-badge alert">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            风险告警
+          </span>
+        </div>
+        <!-- 生成文件 -->
+        <div class="td-log-item">
+          <div class="td-log-dot running"></div>
+          <div class="td-log-time">14:25</div>
+          <div class="td-log-msg">正在生成温度趋势图...</div>
+          <span class="td-log-badge file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            趋势图
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ===== /左侧栏 ===== -->
+
+  <!-- ===== 右侧栏 ===== -->
+  <div class="td-right">
+    <div class="td-right-sticky">
+
+      <!-- ========== 输入数据 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📥</span> 输入数据 <span style="font-weight:400;color:var(--text-muted)">(2项)</span></div>
+        <div class="td-data-list">
+          <div class="td-data-item">
+            <div class="td-data-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-6"/></svg>
+            </div>
+            <div class="td-data-info">
+              <div class="td-data-name">F-101温度传感器 · 2小时趋势数据</div>
+              <div class="td-data-meta">来源：DCS系统 · 采样间隔 10秒 · 720条记录</div>
+            </div>
+            <span class="td-data-tag">DCS</span>
+          </div>
+          <div class="td-data-item">
+            <div class="td-data-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="td-data-info">
+              <div class="td-data-name">F-101温度传感器 · 报警阈值配置</div>
+              <div class="td-data-meta">来源：GDS系统 · 报警上限 85℃ · 高高报警 90℃</div>
+            </div>
+            <span class="td-data-tag">GDS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 输出结果 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📤</span> 输出结果</div>
+        <div class="td-result-box">
+          <div class="td-result-summary">
+            <strong>分析结论：</strong>F-101 反应釜温度自 14:05 起持续上升，当前温度 87.3℃，设定值 80℃。偏差 7.3℃，
+            超出正常波动范围（±2℃）。趋势为持续上升，预计 10 分钟内可能触发高高报警（90℃）。<span class="td-result-tag danger">高风险</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 产出文件 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📦</span> 产出文件</div>
+        <div class="td-output-list">
+          <div class="td-output-item">
+            <div class="td-output-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 3v6"/></svg>
+            </div>
+            <div class="td-output-info">
+              <div class="td-output-name">F-101_温度趋势_2h.png</div>
+              <div class="td-output-meta">温度趋势图 · 含设定值和偏差曲线</div>
+            </div>
+            <span class="td-output-size">1.2MB</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- ===== /右侧栏 ===== -->
+</div>
+<!-- ========== /两列主体 ========== -->
+
+</body>
+</html>

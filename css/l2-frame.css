@@ -95,6 +95,23 @@
   text-align: center;
 }
 
+/* L2 菜单分隔线 */
+.l2-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 8px 12px;
+}
+
+/* L2 菜单分组标题 */
+.l2-header-title {
+  padding: 16px 12px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* L2 iframe 内容区域 */
 .l2-content {
   flex: 1;

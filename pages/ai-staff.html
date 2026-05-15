@@ -24,13 +24,16 @@
 <script>
 const menuData = [
   { icon: "&#129302;", label: "智能体市场", page: "ai-staff/market.html" },
-  { icon: "&#129302;", label: "报警诊断", page: "ai-staff/alarm-diag.html" },
-  { icon: "&#129302;", label: "异常工况诊断", page: "ai-staff/abnormal-diag.html" },
-  { icon: "&#129302;", label: "作业风险评估", page: "ai-staff/risk-assess.html" },
-  { icon: "&#129302;", label: "设备故障预测", page: "ai-staff/fault-predict.html" },
-  { icon: "&#129302;", label: "泄漏扩散模拟", page: "ai-staff/leak-sim.html" },
-  { icon: "&#129302;", label: "应急辅助决策", page: "ai-staff/emergency-decision.html" },
-  { icon: "&#128200;", label: "报告生成", page: "ai-staff/report-gen.html" }
+  { icon: "&#128100;", label: "我的数字员工", page: "ai-staff/roster.html" },
+  { type: "divider" },
+  { icon: "📌", label: "常用", isHeader: true },
+  { icon: "🔔", label: "报警诊断", page: "ai-staff/alarm-diag.html" },
+  { icon: "⚠️", label: "异常工况诊断", page: "ai-staff/abnormal-diag.html" },
+  { icon: "⚖️", label: "作业风险评估", page: "ai-staff/risk-assess.html" },
+  { icon: "🔧", label: "设备故障预测", page: "ai-staff/fault-predict.html" },
+  { icon: "💥", label: "泄漏扩散模拟", page: "ai-staff/leak-sim.html" },
+  { icon: "🚨", label: "应急辅助决策", page: "ai-staff/emergency-decision.html" },
+  { icon: "📊", label: "报告生成", page: "ai-staff/report-gen.html" }
 ];
 
 let l2Collapsed = false;
@@ -38,11 +41,15 @@ const list = document.getElementById('l2List');
 const frame = document.getElementById('l2Frame');
 
 function renderMenu() {
-  list.innerHTML = menuData.map((item, i) =>
-    `<div class="l2-item ${i === 0 ? 'active' : ''}" data-index="${i}">
-      <span class="l2-icon">${item.icon}</span>${item.label}
-    </div>`
-  ).join('');
+  list.innerHTML = menuData.map((item, i) => {
+    if (item.type === 'divider') {
+      return '<div class="l2-divider"></div>';
+    }
+    if (item.isHeader) {
+      return '<div class="l2-header-title">' + item.label + '</div>';
+    }
+    return '<div class="l2-item ' + (i === 0 ? 'active' : '') + '" data-index="' + i + '"><span class="l2-icon">' + item.icon + '</span>' + item.label + '</div>';
+  }).join('');
   list.querySelectorAll('.l2-item').forEach(el => {
     el.addEventListener('click', () => {
       list.querySelectorAll('.l2-item').forEach(e => e.classList.remove('active'));

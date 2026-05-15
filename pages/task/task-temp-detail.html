@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>临时任务详情 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* ========== 基础 ========== */
+html, body { overflow: auto !important; height: auto !important; }
+.td-page { padding: 0 24px 40px; background: var(--bg-dark); min-height: 100vh; color: var(--text-primary); }
+
+/* ========== 顶部 ========== */
+.td-header { position: sticky; top: 0; z-index: 50; padding: 14px 0 12px; background: var(--bg-dark); border-bottom: 1px solid var(--border-subtle); margin: 0 -24px 16px; padding-left: 24px; padding-right: 24px; }
+.td-header-top { display: flex; align-items: center; justify-content: space-between; }
+.td-back { font-size: 13px; color: var(--primary-light); cursor: pointer; }
+.td-back::before { content: "← 返回"; margin-right: 8px; }
+.td-title-wrap { flex: 1; margin: 0 16px; }
+.td-title { font-size: 16px; font-weight: 700; color: #fff; }
+.td-type { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.td-status { padding: 3px 12px; border-radius: 14px; font-size: 11px; }
+.td-status.progress { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.td-status.done { background: rgba(34,197,94,0.15); color: #22c55e; }
+.td-status.pending { background: rgba(251,146,60,0.15); color: #fb923c; }
+
+/* ========== 基本信息 ========== */
+.td-info-row { display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+.td-info-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.td-info-label { color: var(--text-muted); }
+.td-info-value { color: var(--text-primary); font-weight: 500; }
+.td-info-dot { width: 6px; height: 6px; border-radius: 50%; }
+.td-info-dot.green { background: #22c55e; }
+.td-info-dot.orange { background: #fb923c; }
+
+/* ========== 两列布局 ========== */
+.td-body { display: flex; gap: 20px; align-items: flex-start; }
+.td-left { flex: 1; min-width: 0; }
+.td-right { width: 340px; flex-shrink: 0; }
+.td-right-sticky { position: sticky; top: 60px; }
+.td-right .td-section { margin-bottom: 14px; }
+.td-right .td-section-head { font-size: 12px; margin-bottom: 6px; }
+
+/* ========== 区块 ========== */
+.td-section { margin-bottom: 16px; }
+.td-section-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #fff; }
+
+/* ========== 任务描述 ========== */
+.td-desc-box { padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; }
+.td-desc-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.td-desc-text ul { margin: 4px 0 0 0; padding-left: 16px; }
+.td-desc-text li { margin-bottom: 4px; }
+
+/* ========== 创建人 ========== */
+.td-creator-row { display: flex; gap: 16px; margin-bottom: 16px; }
+.td-creator-card { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+.td-creator-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #64748b, #94a3b8); display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; }
+.td-creator-info { flex: 1; }
+.td-creator-name { font-size: 13px; font-weight: 600; color: #fff; }
+.td-creator-meta { font-size: 11px; color: var(--text-muted); }
+
+/* ========== 参与人 ========== */
+.td-parti-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.td-parti-card { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; }
+.td-parti-avatar { width: 24px; height: 24px; border-radius: 50%; font-size: 10px; color: #fff; display: flex; align-items: center; justify-content: center; }
+.td-parti-avatar.human { background: linear-gradient(135deg, #64748b, #94a3b8); }
+.td-parti-avatar.r1 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.td-parti-name { font-size: 12px; color: var(--text-primary); }
+.td-parti-role { font-size: 10px; color: var(--text-muted); }
+
+/* ========== 产出物（可选） ========== */
+.td-output-list { display: flex; flex-direction: column; gap: 6px; }
+.td-output-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+.td-output-icon { font-size: 16px; }
+.td-output-name { flex: 1; font-size: 12px; color: var(--text-primary); }
+.td-output-meta { font-size: 10px; color: var(--text-muted); }
+
+/* ========== 时间线 ========== */
+.td-timeline { display: flex; flex-direction: column; }
+.td-timeline-item { display: flex; gap: 10px; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); position: relative; cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+.td-timeline-item:hover { background: rgba(139,92,246,0.08); }
+.td-timeline-item:last-child { border-bottom: none; }
+.td-timeline-item.has-detail::after { content: "›"; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); }
+.td-timeline-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); margin-top: 4px; flex-shrink: 0; }
+.td-timeline-time { font-size: 10px; color: var(--text-muted); width: 40px; flex-shrink: 0; }
+.td-timeline-content { font-size: 11px; color: var(--text-secondary); flex: 1; padding-right: 16px; }
+.td-tl-badge { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 5px; font-size: 9px; white-space: nowrap; margin-top: 1px; }
+.td-tl-badge svg { width: 12px; height: 12px; }
+.td-tl-badge.create { background: rgba(96,165,250,0.12); color: #60a5fa; }
+.td-tl-badge.assign { background: rgba(139,92,246,0.12); color: #a78bfa; }
+.td-tl-badge.script { background: rgba(16,185,129,0.12); color: #34d399; }
+</style>
+</head>
+<body class="td-page">
+
+<!-- ========== 顶部 ========== -->
+<div class="td-header">
+  <div class="td-header-top">
+    <div class="td-back" onclick="history.back()"></div>
+    <div class="td-title-wrap">
+      <div class="td-title">临时检查F-101反应釜温度传感器</div>
+      <div class="td-type">临时任务 · 我创建的</div>
+    </div>
+    <span class="td-status progress">进行中</span>
+  </div>
+</div>
+
+<!-- ========== 基本信息 ========== -->
+<div class="td-info-row">
+  <div class="td-info-item"><span class="td-info-label">创建：</span><span class="td-info-value">14:20</span></div>
+  <div class="td-info-item"><span class="td-info-label">截止：</span><span class="td-info-value">18:00</span></div>
+  <div class="td-info-item"><span class="td-info-label">优先级：</span><span class="td-info-value">高</span></div>
+  <div class="td-info-item"><span class="td-info-dot orange"></span><span class="td-info-value">小巡</span><span class="td-info-value" style="color:var(--text-muted)">执行中</span></div>
+</div>
+
+<!-- ========== 两列主体 ========== -->
+<div class="td-body">
+  <!-- ===== 左侧栏 ===== -->
+  <div class="td-left">
+
+    <!-- ========== 创建人 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>👤</span> 创建人</div>
+      <div class="td-creator-row">
+        <div class="td-creator-card">
+          <div class="td-creator-avatar">张</div>
+          <div class="td-creator-info">
+            <div class="td-creator-name">张工程师</div>
+            <div class="td-creator-meta">今天 14:20 创建</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 任务描述 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>📋</span> 任务描述</div>
+      <div class="td-desc-box">
+        <div class="td-desc-text">
+          F-101反应釜的温度传感器显示异常，需要现场检查确认传感器工作状态是否正常。
+          <br><br>
+          检查内容：<br>
+          1. 确认传感器接线是否松动<br>
+          2. 校准传感器精度<br>
+          3. 测试报警阈值是否正常
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 分配给 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>🤖</span> 分配给</div>
+      <div class="td-parti-list">
+        <div class="td-parti-card">
+          <div class="td-parti-avatar r1">巡</div>
+          <div class="td-parti-name">小巡</div>
+          <div class="td-parti-role">执行中</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 执行记录 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>📜</span> 执行记录</div>
+      <div class="td-timeline">
+        <div class="td-timeline-item" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot"></div>
+          <div class="td-timeline-time">14:20</div>
+          <div class="td-timeline-content">张工程师 创建临时任务</div>
+          <span class="td-tl-badge create"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>创建任务</span>
+        </div>
+        <div class="td-timeline-item" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot"></div>
+          <div class="td-timeline-time">14:21</div>
+          <div class="td-timeline-content">分配给小巡执行</div>
+          <span class="td-tl-badge assign"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>分配</span>
+        </div>
+        <div class="td-timeline-item has-detail" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot" style="background:var(--primary-light)"></div>
+          <div class="td-timeline-time">14:22</div>
+          <div class="td-timeline-content">小巡 开始执行</div>
+          <span class="td-tl-badge script"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>巡检脚本</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ===== /左侧栏 ===== -->
+
+  <!-- ===== 右侧栏 ===== -->
+  <div class="td-right">
+    <div class="td-right-sticky">
+
+      <!-- ========== 触发原因 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>⚡</span> 触发原因</div>
+        <div style="padding:12px 14px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,256,0.2);border-radius:8px;font-size:12px;">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;">由人工创建</div>
+          <div style="color:#a78bfa;">张工程师手动创建临时巡检任务</div>
+        </div>
+      </div>
+
+      <!-- ========== 输入要求 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📥</span> 输入要求</div>
+        <div class="td-desc-box">
+          <div class="td-desc-text">
+            <ul>
+              <li>F-101反应釜温度传感器历史数据</li>
+              <li>传感器出厂参数与校准记录</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 输出要求 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📤</span> 输出要求</div>
+        <div class="td-desc-box">
+          <div class="td-desc-text">
+            <ul>
+              <li>传感器状态检查报告</li>
+              <li>校准结果记录</li>
+              <li>是否需要更换传感器的建议</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== 产出物 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📦</span> 产出物</div>
+        <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:14px;text-align:center;background:var(--bg-card);border:1px dashed var(--border-subtle);border-radius:8px;">
+          暂无产出物<br>
+          <span style="font-size:10px;color:var(--text-muted)">任务完成后自动生成</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- ===== /右侧栏 ===== -->
+</div>
+<!-- ========== /两列主体 ========== -->
+
+</body>
+</html>

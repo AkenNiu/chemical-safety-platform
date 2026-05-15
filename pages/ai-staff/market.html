@@ -3,157 +3,355 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>智能体市场 - 数字员工 - SMAP平台</title>
+<title>智能体市场 - SMAP平台</title>
 <link rel="stylesheet" href="../../css/variables.css">
 <link rel="stylesheet" href="../../css/common.css">
 <link rel="stylesheet" href="../../css/layout.css">
 <style>
-/* 数字员工主页 - 单栏布局 */
-.page-ai-staff { padding: 12px; }
-.ai-main { display: flex; flex-direction: column; gap: 12px; }
+/* 智能体市场页面 */
+.page-market { padding: 16px; background: var(--bg-dark); min-height: 100vh; overflow-y: auto; }
+html, body { overflow: auto !important; height: auto !important; }
+
+/* 顶部搜索栏 */
+.market-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.market-title { font-size: 20px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+.market-title-icon { font-size: 24px; }
+.market-actions { display: flex; gap: 10px; }
+.market-btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s; }
+.market-btn-search { background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-primary); }
+.market-btn-create { background: linear-gradient(135deg, #8b5cf6, #a78bfa); border: none; color: #fff; }
+.market-btn-create:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,92,246,0.4); }
+.market-search { position: relative; width: 240px; }
+.market-search input { width: 100%; padding: 8px 14px 8px 36px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 20px; color: var(--text-primary); font-size: 13px; outline: none; }
+.market-search input:focus { border-color: var(--primary); }
+.market-search input::placeholder { color: var(--text-muted); }
+.market-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); }
+
+/* 专题区 - 两个大卡片 */
+.market-topics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+.topic-featured { background: linear-gradient(135deg, #0066FF, #0044AA); border-radius: 16px; padding: 18px; cursor: pointer; transition: all .2s; position: relative; overflow: hidden; }
+.topic-featured:hover { transform: scale(1.01); }
+.topic-featured::after { content: ''; position: absolute; right: -30px; top: -30px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); }
+.topic-featured.orange { background: linear-gradient(135deg, #FF6B35, #D44E1A); }
+.topic-featured.orange::after { background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); }
+.topic-featured.green { background: linear-gradient(135deg, #10B981, #047857); }
+.topic-featured.green::after { background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); }
+.topic-featured-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.topic-featured-icon { font-size: 28px; }
+.topic-featured-title { font-size: 16px; font-weight: 700; color: #fff; }
+.topic-featured-desc { font-size: 11px; color: rgba(255,255,255,0.8); margin-bottom: 10px; }
+/* 专题内的员工头像 */
+.topic-featured-staffs { display: flex; align-items: center; margin-bottom: 10px; }
+.topic-featured-staffs-title { font-size: 10px; color: rgba(255,255,255,0.7); margin-right: 6px; }
+.topic-featured-avatars { display: flex; }
+.topic-featured-avatar { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; margin-left: -6px; overflow: hidden; }
+.topic-featured-avatar:first-child { margin-left: 0; }
+.topic-featured-avatar img { width: 100%; height: 100%; object-fit: cover; }
+/* 专题统计数据 */
+.topic-featured-stats { display: flex; gap: 10px; margin-bottom: 10px; }
+.topic-featured-stat { text-align: center; }
+.topic-featured-stat-value { font-size: 14px; font-weight: 700; color: #fff; }
+.topic-featured-stat-label { font-size: 9px; color: rgba(255,255,255,0.7); }
+/* 专题亮点 */
+.topic-featured-highlights { display: flex; gap: 4px; flex-wrap: wrap; }
+.topic-featured-highlight { padding: 3px 8px; background: rgba(255,255,255,0.15); border-radius: 10px; font-size: 9px; color: #fff; }
+.topic-categories { display: none; }
+
+/* 标签筛选 */
+.market-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px; overflow-x: auto; }
+.market-tab { padding: 8px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; transition: all .2s; color: var(--text-secondary); background: transparent; border: none; }
+.market-tab:hover { color: var(--text-primary); }
+.market-tab.active { background: var(--primary); color: #fff; }
+
+/* 智能体卡片网格 */
+.market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
 
 /* 智能体卡片 */
-.ai-agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-.ai-agent-card {
-  padding: 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all .2s;
-  display: flex; align-items: center; gap: 12px;
-}
-.ai-agent-card:hover { border-color: var(--primary); transform: translateY(-2px); }
-.ai-agent-card.active { border-color: var(--primary); background: rgba(22,119,255,0.08); }
-.ai-agent-avatar {
-  width: 48px; height: 48px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-}
-.ai-agent-info { flex: 1; }
-.ai-agent-name { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
-.ai-agent-desc { font-size: 12px; color: var(--text-muted); }
-.ai-agent-status { padding: 2px 10px; border-radius: 12px; font-size: 11px; }
-.ai-agent-status.online { background: rgba(82,196,26,0.15); color: var(--status-green); }
-.ai-agent-status.offline { background: rgba(74,106,138,0.15); color: var(--text-muted); }
+.agent-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 16px; transition: all .2s; position: relative; }
+.agent-card:hover { border-color: rgba(139,92,246,0.5); transform: translateY(-2px); }
+.agent-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.agent-avatar { width: 48px; height: 48px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+.agent-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.agent-info { flex: 1; min-width: 0; }
+.agent-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+.agent-intro { font-size: 12px; color: var(--text-muted); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.agent-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.agent-tag { padding: 2px 8px; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); border-radius: 10px; font-size: 10px; color: #a78bfa; }
+.agent-stats { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); }
+.agent-usage { font-size: 11px; color: var(--text-muted); }
+.agent-rating { font-size: 11px; color: #fbbf24; }
 
-/* 对话区域 */
-.ai-chat {
-  flex: 1;
-  display: flex; flex-direction: column;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  min-height: 400px;
-}
-.ai-chat-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.ai-chat-title { font-size: 14px; font-weight: 600; }
-.ai-chat-body {
-  flex: 1; padding: 16px; overflow-y: auto;
-  display: flex; flex-direction: column; gap: 12px;
-}
-.chat-msg { display: flex; gap: 10px; max-width: 80%; }
-.chat-msg.user { align-self: flex-end; flex-direction: row-reverse; }
-.chat-msg.ai { align-self: flex-start; }
-.chat-bubble { padding: 10px 14px; border-radius: var(--radius-md); font-size: 13px; line-height: 1.6; }
-.chat-msg.user .chat-bubble { background: var(--primary); color: #fff; }
-.chat-msg.ai .chat-bubble { background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
-.chat-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-.chat-avatar.ai { background: rgba(22,119,255,0.12); color: var(--primary-light); }
-.chat-avatar.user { background: var(--primary); color: #fff; }
-
-.ai-input-area { padding: 12px; border-top: 1px solid var(--border-subtle); display: flex; gap: 8px; }
-.ai-input-area input { flex: 1; background: rgba(22,119,255,0.05); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 14px; color: var(--text-primary); font-size: 13px; }
-.ai-input-area input:focus { border-color: var(--primary); outline: none; }
-
-/* 知识增强 */
-.knowledge-panel { display: flex; gap: 8px; flex-wrap: wrap; }
-.knowledge-item { padding: 6px 12px; background: rgba(22,119,255,0.08); border: 1px solid var(--border-subtle); border-radius: 20px; font-size: 12px; }
+/* 开发平台入口 */
+.market-footer { margin-top: 30px; padding: 20px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; display: flex; align-items: center; justify-content: space-between; }
+.market-footer-left { display: flex; align-items: center; gap: 14px; }
+.market-footer-icon { font-size: 32px; }
+.market-footer-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.market-footer-desc { font-size: 12px; color: var(--text-muted); }
+.market-footer-btn { padding: 10px 20px; background: linear-gradient(135deg, #06b6d4, #22d3ee); border: none; border-radius: 8px; color: #fff; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.market-footer-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(6,182,212,0.4); }
 </style>
 </head>
-<body class="page-ai-staff">
-<div class="ai-main">
-  <!-- 智能体市场 -->
-  <div class="card">
-    <div class="card-title">智能体市场</div>
-    <div class="ai-agent-grid">
-      <div class="ai-agent-card active">
-        <div class="ai-agent-avatar">&#128295;</div>
-        <div class="ai-agent-info">
-          <div class="ai-agent-name">报警诊断助手</div>
-          <div class="ai-agent-desc">专注报警分析与诊断</div>
-        </div>
-        <div class="ai-agent-status online">在线</div>
+<body class="page-market">
+<div class="market-header">
+  <div class="market-title">
+    <span class="market-title-icon">🏪</span>
+    智能体市场
+  </div>
+  <div class="market-actions">
+    <div class="market-search">
+      <span class="market-search-icon">🔍</span>
+      <input type="text" placeholder="搜索智能体...">
+    </div>
+    <button class="market-btn market-btn-create">➕ 创建智能体</button>
+  </div>
+</div>
+
+<!-- 专题区 - 两个大卡片 -->
+<div class="market-topics">
+  <!-- 安全诊断专题 -->
+  <div class="topic-featured">
+    <div class="topic-featured-header">
+      <span class="topic-featured-icon">🔔</span>
+      <span class="topic-featured-title">安全诊断</span>
+    </div>
+    <div class="topic-featured-desc">化工生产过程实时监控与异常分析</div>
+    <div class="topic-featured-staffs">
+      <span class="topic-featured-staffs-title">智能体:</span>
+      <div class="topic-featured-avatars">
+        <div class="topic-featured-avatar"><img src="../../assets/images/robot-1.png"></div>
+        <div class="topic-featured-avatar"><img src="../../assets/images/robot-2.png"></div>
+        <div class="topic-featured-avatar"><img src="../../assets/images/robot-4.png"></div>
+        <div class="topic-featured-avatar"><img src="../../assets/images/robot-7.png"></div>
       </div>
-      <div class="ai-agent-card">
-        <div class="ai-agent-avatar">&#128200;</div>
-        <div class="ai-agent-info">
-          <div class="ai-agent-name">异常工况诊断</div>
-          <div class="ai-agent-desc">工艺异常智能分析</div>
-        </div>
-        <div class="ai-agent-status online">在线</div>
-      </div>
-      <div class="ai-agent-card">
-        <div class="ai-agent-avatar">&#128736;</div>
-        <div class="ai-agent-info">
-          <div class="ai-agent-name">作业风险评估</div>
-          <div class="ai-agent-desc">作业票风险评估</div>
-        </div>
-        <div class="ai-agent-status online">在线</div>
-      </div>
-      <div class="ai-agent-card">
-        <div class="ai-agent-avatar">&#128657;</div>
-        <div class="ai-agent-info">
-          <div class="ai-agent-name">应急辅助决策</div>
-          <div class="ai-agent-desc">应急响应决策支持</div>
-        </div>
-        <div class="ai-agent-status online">在线</div>
-      </div>
-      <div class="ai-agent-card">
-        <div class="ai-agent-avatar">&#128196;</div>
-        <div class="ai-agent-info">
-          <div class="ai-agent-name">报告生成</div>
-          <div class="ai-agent-desc">智能报告生成</div>
-        </div>
-        <div class="ai-agent-status offline">离线</div>
-      </div>
+    </div>
+    <div class="topic-featured-stats">
+      <div class="topic-featured-stat"><div class="topic-featured-stat-value">8,558</div><div class="topic-featured-stat-label">累计调用</div></div>
+      <div class="topic-featured-stat"><div class="topic-featured-stat-value">2,134</div><div class="topic-featured-stat-label">解决问题</div></div>
+      <div class="topic-featured-stat"><div class="topic-featured-stat-value">97.2%</div><div class="topic-featured-stat-label">准确率</div></div>
+    </div>
+    <div class="topic-featured-highlights">
+      <span class="topic-featured-highlight">DCS/GDS/SIS接入</span>
+      <span class="topic-featured-highlight">根因分析</span>
+      <span class="topic-featured-highlight">实时预警</span>
     </div>
   </div>
-
-  <!-- AI对话区 -->
-  <div class="ai-chat">
-    <div class="ai-chat-header">
-      <div class="ai-chat-title">&#128295; 报警诊断助手</div>
-      <button class="btn btn-ghost">新建对话</button>
+  
+  <!-- 知识管理专题 -->
+  <div class="topic-featured orange">
+    <div class="topic-featured-header">
+      <span class="topic-featured-icon">📚</span>
+      <span class="topic-featured-title">知识管理</span>
     </div>
-    <div class="ai-chat-body">
-      <div class="chat-msg ai">
-        <div class="chat-avatar ai">&#129302;</div>
-        <div class="chat-bubble">您好！我是报警诊断助手，可以帮您分析报警原因、诊断异常工况。请告诉我需要诊断的报警信息。</div>
+    <div class="topic-featured-desc">企业知识库与法规文档智能检索</div>
+    <div class="topic-featured-staffs">
+      <span class="topic-featured-staffs-title">智能体:</span>
+      <div class="topic-featured-avatars">
+        <div class="topic-featured-avatar"><img src="../../assets/images/robot-5.png"></div>
+        <div class="topic-featured-avatar"><img src="../../assets/images/robot-6.png"></div>
       </div>
     </div>
-    <div class="ai-input-area">
-      <input type="text" placeholder="输入您的问题..." />
-      <button class="btn btn-primary">发送</button>
+    <div class="topic-featured-stats">
+      <div class="topic-featured-stat"><div class="topic-featured-stat-value">9,780</div><div class="topic-featured-stat-label">累计调用</div></div>
+      <div class="topic-featured-stat"><div class="topic-featured-stat-value">15,234</div><div class="topic-featured-stat-label">检索次数</div></div>
+      <div class="topic-featured-stat"><div class="topic-featured-stat-value">99.1%</div><div class="topic-featured-stat-label">匹配率</div></div>
     </div>
-  </div>
-
-  <!-- 知识增强 -->
-  <div class="card">
-    <div class="card-title">知识增强</div>
-    <div class="knowledge-panel">
-      <div class="knowledge-item">&#128218; 企业知识库 - 156份文档</div>
-      <div class="knowledge-item">&#128218; 专家智库 - 法规/标准/案例</div>
-      <div class="knowledge-item">&#128268; 实时数据 - DCS/GDS/SIS</div>
+    <div class="topic-featured-highlights">
+      <span class="topic-featured-highlight">企业知识库</span>
+      <span class="topic-featured-highlight">法规标准</span>
+      <span class="topic-featured-highlight">智能问答</span>
     </div>
   </div>
 </div>
+
+<!-- 标签筛选 -->
+<div class="market-tabs">
+  <button class="market-tab active">全部</button>
+  <button class="market-tab">推荐</button>
+  <button class="market-tab">热门</button>
+  <button class="market-tab">官方精选</button>
+  <button class="market-tab">企业必备</button>
+  <button class="market-tab">新品上架</button>
+  <button class="market-tab">我创建的</button>
+</div>
+
+<!-- 智能体卡片网格 -->
+<div class="market-grid">
+
+  <!-- 小安 -->
+  <div class="agent-card">
+    <div class="agent-card-header">
+      <div class="agent-avatar"><img src="../../assets/images/robot-1.png"></div>
+      <div class="agent-info">
+        <div class="agent-name">小安</div>
+        <div class="agent-intro">报警诊断专家，专注化工报警分析</div>
+      </div>
+    </div>
+    <div class="agent-tags">
+      <span class="agent-tag">报警诊断</span>
+      <span class="agent-tag">根因分析</span>
+    </div>
+    <div class="agent-stats">
+      <div class="agent-usage">2,847 次使用</div>
+      <div class="agent-rating">⭐ 4.9</div>
+    </div>
+  </div>
+
+  <!-- 小研 -->
+  <div class="agent-card">
+    <div class="agent-card-header">
+      <div class="agent-avatar"><img src="../../assets/images/robot-2.png"></div>
+      <div class="agent-info">
+        <div class="agent-name">小研</div>
+        <div class="agent-intro">风险评估师，AI安全风险评估</div>
+      </div>
+    </div>
+    <div class="agent-tags">
+      <span class="agent-tag">风险评估</span>
+      <span class="agent-tag">安全分析</span>
+    </div>
+    <div class="agent-stats">
+      <div class="agent-usage">1,523 次使用</div>
+      <div class="agent-rating">⭐ 4.8</div>
+    </div>
+  </div>
+
+  <!-- 小报 -->
+  <div class="agent-card">
+    <div class="agent-card-header">
+      <div class="agent-avatar"><img src="../../assets/images/robot-3.png"></div>
+      <div class="agent-info">
+        <div class="agent-name">小报</div>
+        <div class="agent-intro">报告生成专家，智能生成各类报告</div>
+      </div>
+    </div>
+    <div class="agent-tags">
+      <span class="agent-tag">报告生成</span>
+      <span class="agent-tag">可视化</span>
+    </div>
+    <div class="agent-stats">
+      <div class="agent-usage">986 次使用</div>
+      <div class="agent-rating">⭐ 4.7</div>
+    </div>
+  </div>
+
+  <!-- 小巡 -->
+  <div class="agent-card">
+    <div class="agent-card-header">
+      <div class="agent-avatar"><img src="../../assets/images/robot-4.png"></div>
+      <div class="agent-info">
+        <div class="agent-name">小巡</div>
+        <div class="agent-intro">智能巡检员，自动化点位巡检</div>
+      </div>
+    </div>
+    <div class="agent-tags">
+      <span class="agent-tag">智能巡检</span>
+      <span class="agent-tag">异常识别</span>
+    </div>
+    <div class="agent-stats">
+      <div class="agent-usage">3,215 次使用</div>
+      <div class="agent-rating">⭐ 4.9</div>
+    </div>
+  </div>
+
+  <!-- 小库 -->
+  <div class="agent-card">
+    <div class="agent-card-header">
+      <div class="agent-avatar"><img src="../../assets/images/robot-5.png"></div>
+      <div class="agent-info">
+        <div class="agent-name">小库</div>
+        <div class="agent-intro">知识检索员，智能匹配文档</div>
+      </div>
+    </div>
+    <div class="agent-tags">
+      <span class="agent-tag">知识检索</span>
+      <span class="agent-tag">法规库</span>
+    </div>
+    <div class="agent-stats">
+      <div class="agent-usage">4,102 次使用</div>
+      <div class="agent-rating">⭐ 4.8</div>
+    </div>
+  </div>
+
+  <!-- 小识 -->
+  <div class="agent-card">
+    <div class="agent-card-header">
+      <div class="agent-avatar"><img src="../../assets/images/robot-6.png"></div>
+      <div class="agent-info">
+        <div class="agent-name">小识</div>
+        <div class="agent-intro">智能问答助手，即时问答服务</div>
+      </div>
+    </div>
+    <div class="agent-tags">
+      <span class="agent-tag">智能问答</span>
+      <span class="agent-tag">对话</span>
+    </div>
+    <div class="agent-stats">
+      <div class="agent-usage">5,678 次使用</div>
+      <div class="agent-rating">⭐ 4.9</div>
+    </div>
+  </div>
+
+  <!-- 小审 -->
+  <div class="agent-card">
+    <div class="agent-card-header">
+      <div class="agent-avatar"><img src="../../assets/images/robot-7.png"></div>
+      <div class="agent-info">
+        <div class="agent-name">小审</div>
+        <div class="agent-intro">作业审批员，智能审核作业票</div>
+      </div>
+    </div>
+    <div class="agent-tags">
+      <span class="agent-tag">作业审批</span>
+      <span class="agent-tag">安全审核</span>
+    </div>
+    <div class="agent-stats">
+      <div class="agent-usage">1,892 次使用</div>
+      <div class="agent-rating">⭐ 4.7</div>
+    </div>
+  </div>
+
+  <!-- 第三方智能体 -->
+  <div class="agent-card">
+    <div class="agent-card-header">
+      <div class="agent-avatar"><img src="../../assets/images/robot-7.png"></div>
+      <div class="agent-info">
+        <div class="agent-name">安全巡查助手</div>
+        <div class="agent-intro">第三方开发的巡查助手</div>
+      </div>
+    </div>
+    <div class="agent-tags">
+      <span class="agent-tag">智能巡检</span>
+      <span class="agent-tag">第三方</span>
+    </div>
+    <div class="agent-stats">
+      <div class="agent-usage">156 次使用</div>
+      <div class="agent-rating">⭐ 4.5</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 开发平台入口 -->
+<div class="market-footer">
+  <div class="market-footer-left">
+    <div class="market-footer-icon">🖥️</div>
+    <div>
+      <div class="market-footer-title">开发平台</div>
+      <div class="market-footer-desc">打造专属智能体，发布到市场供他人使用</div>
+    </div>
+  </div>
+  <button class="market-footer-btn" onclick="window.open('#','_blank')">
+    进入开发平台 →
+  </button>
+</div>
+
+<script>
+document.querySelectorAll('.market-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.market-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
 </body>
 </html>

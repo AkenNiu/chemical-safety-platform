@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数字员工详情 - 小安 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* 数字员工详情页 */
+html, body { overflow: auto !important; height: auto !important; }
+.page-staff-detail { padding: 16px; background: var(--bg-dark); min-height: 100vh; overflow-y: auto; }
+.staff-detail-main { display: flex; flex-direction: column; gap: 14px; }
+
+/* ========== 1. 工牌区域 - 竖长比例 ========== */
+.staff-badge {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(139,92,246,0.3);
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 200px;
+}
+.staff-badge-left {
+  width: 220px;
+  flex-shrink: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(139,92,246,0.15) 0%, transparent 100%);
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.staff-badge-avatar {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+  box-shadow: 0 4px 30px rgba(139,92,246,0.5);
+  margin-bottom: 14px;
+  position: relative;
+}
+.staff-badge-status-dot {
+  position: absolute;
+  bottom: 6px; right: 6px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 3px solid #0f172a;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100%{opacity:1;box-shadow: 0 0 8px #22c55e;}
+  50%{opacity:0.7;box-shadow: 0 0 4px #22c55e;}
+}
+.staff-badge-name {
+  font-size: 24px; font-weight: 700;
+  background: linear-gradient(135deg, #fff, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 4px;
+}
+.staff-badge-role {
+  font-size: 12px; color: rgba(255,255,255,0.6);
+  margin-bottom: 10px;
+}
+.staff-badge-code {
+  font-size: 10px; color: rgba(255,255,255,0.35);
+  font-family: monospace;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+}
+.staff-badge-right {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.staff-badge-intro {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 14px;
+}
+.staff-badge-stats {
+  display: flex;
+  gap: 14px;
+}
+.staff-badge-stat {
+  text-align: center;
+}
+.staff-badge-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #8b5cf6;
+}
+.staff-badge-stat-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ========== 2. 当前任务 ========== */
+.staff-current-task {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+}
+.section-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.current-task-main {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.25);
+  border-radius: 12px;
+}
+.current-task-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.current-task-info { flex: 1; }
+.current-task-name { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.current-task-meta { font-size: 12px; color: var(--text-muted); }
+.current-task-progress { width: 100px; text-align: right; }
+.progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-bottom: 6px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); border-radius: 3px; }
+.progress-text { font-size: 12px; color: var(--text-muted); }
+
+/* ========== 3. 等待队列 ========== */
+.staff-queue {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 14px;
+}
+.queue-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+.queue-item {
+  padding: 12px;
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.queue-item-name { font-size: 12px; color: var(--text-primary); }
+.queue-item-time { font-size: 10px; color: var(--text-muted); }
+
+/* ========== 4. 今日成果 ========== */
+.staff-output {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+}
+.output-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+.output-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border-radius: 10px;
+}
+.output-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: rgba(96,165,250,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #60a5fa;
+  flex-shrink: 0;
+}
+.output-info { flex: 1; min-width: 0; }
+.output-name { font-size: 12px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.output-meta { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.output-status {
+  font-size: 10px; padding: 3px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.output-status.done { background: rgba(34,197,94,0.15); color: #22c55e; }
+.output-status.pending { background: rgba(251,146,60,0.15); color: #fb923c; }
+.output-status.doing { background: rgba(139,92,246,0.15); color: #a78bfa; }
+
+/* ========== 5. 协作员工 ========== */
+.staff-collab {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+}
+.collab-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+.collab-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px;
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.collab-item:hover { background: rgba(139,92,246,0.12); }
+.collab-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.collab-info { flex: 1; min-width: 0; }
+.collab-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.collab-role { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.collab-metrics { display: flex; gap: 4px; flex-wrap: wrap; }
+.collab-metric {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(96,165,250,0.15);
+  color: #60a5fa;
+}
+
+/* ========== 6. 任务数据 ========== */
+.staff-task-data {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+}
+.task-data-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+}
+.task-data-card {
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+.task-data-value { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.task-data-value.green { color: #22c55e; }
+.task-data-value.blue { color: #60a5fa; }
+.task-data-value.purple { color: #a78bfa; }
+.task-data-value.orange { color: #fb923c; }
+.task-data-label { font-size: 11px; color: var(--text-muted); }
+
+/* ========== 7. 升级迭代 ========== */
+.staff-evolution {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+}
+.evolution-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+.evolution-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, #8b5cf6, rgba(139,92,246,0.2));
+}
+.evolution-item {
+  position: relative;
+  padding-bottom: 16px;
+}
+.evolution-item:last-child { padding-bottom: 0; }
+.evolution-dot {
+  position: absolute;
+  left: -20px; top: 4px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  border: 3px solid var(--bg-dark);
+}
+.evolution-dot.current { background: #22c55e; box-shadow: 0 0 12px rgba(34,197,94,0.6); }
+.evolution-version { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.evolution-date { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
+.evolution-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.evolution-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 9px;
+  margin-right: 4px;
+}
+.evolution-tag.major { background: rgba(239,68,68,0.15); color: #ef4444; }
+.evolution-tag.minor { background: rgba(96,165,250,0.15); color: #60a5fa; }
+.evolution-tag.fix { background: rgba(34,197,94,0.15); color: #22c55e; }
+
+/* ========== 8. 失败记录 ========== */
+.staff-fail {
+  background: var(--bg-card);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 14px;
+  padding: 18px;
+}
+.fail-title { color: #ef4444 !important; }
+.fail-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px;
+  background: rgba(239,68,68,0.05);
+  border: 1px solid rgba(239,68,68,0.1);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.fail-item:last-child { margin-bottom: 0; }
+.fail-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(239,68,68,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #ef4444;
+  flex-shrink: 0;
+}
+.fail-info { flex: 1; }
+.fail-name { font-size: 12px; color: var(--text-primary); margin-bottom: 3px; }
+.fail-reason { font-size: 11px; color: #ef4444; margin-bottom: 2px; }
+.fail-time { font-size: 10px; color: var(--text-muted); }
+
+/* ========== 9. 技术分析 ========== */
+.staff-tech {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+}
+.tech-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.tech-item {
+  padding: 14px;
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  text-align: center;
+}
+.tech-value { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+.tech-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+.tech-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.tech-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); border-radius: 2px; }
+</style>
+</head>
+<body class="page-staff-detail">
+<div class="staff-detail-main">
+
+<!-- 1. 工牌 - 身份信息 -->
+<div class="staff-badge">
+  <div class="staff-badge-left">
+    <div class="staff-badge-avatar" style="background-size:cover;">
+      <img src="../../assets/images/robot-1.png" style="width:100%;height:100%;object-fit:cover;border-radius:90px;">
+      <div class="staff-badge-status-dot"></div>
+    </div>
+    <div class="staff-badge-name">小安</div>
+    <div class="staff-badge-role">报警诊断专员</div>
+    <div class="staff-badge-code">AI-STAFF-001 | V3.2.1</div>
+  </div>
+  <div class="staff-badge-right">
+    <div class="staff-badge-intro">
+      专注化工生产过程实时监控与异常分析，接入DCS/GDS/SIS数据，运用规则引擎+AI大模型混合技术自动识别报警根因。累计处理报警<span style="color:#8b5cf6;font-weight:600;">2,847次</span>，准确率<span style="color:#22c55e;font-weight:600;">96.8%</span>。
+    </div>
+    <div class="staff-badge-stats">
+      <div class="staff-badge-stat">
+        <div class="staff-badge-stat-value">7</div>
+        <div class="staff-badge-stat-label">技能标签</div>
+      </div>
+      <div class="staff-badge-stat">
+        <div class="staff-badge-stat-value">47</div>
+        <div class="staff-badge-stat-label">今日任务</div>
+      </div>
+      <div class="staff-badge-stat">
+        <div class="staff-badge-stat-value">96.8%</div>
+        <div class="staff-badge-stat-label">完成率</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. 当前任务 -->
+<div class="staff-current-task">
+  <div class="section-title">🎯 当前任务</div>
+  <div class="current-task-main">
+    <div class="current-task-icon">🔍</div>
+    <div class="current-task-info">
+      <div class="current-task-name">F-101温度异常诊断</div>
+      <div class="current-task-meta">来自：GDS报警 · 已运行 23秒</div>
+    </div>
+    <div class="current-task-progress">
+      <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+      <div class="progress-text">65%</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 等待队列 -->
+<div class="staff-queue">
+  <div class="section-title">📋 等待队列 <span>(3)</span></div>
+  <div class="queue-grid">
+    <div class="queue-item">
+      <div class="queue-item-name">T-2104 储罐液位高报分析</div>
+      <div class="queue-item-time">等待 2min</div>
+    </div>
+    <div class="queue-item">
+      <div class="queue-item-name">T-2105 SIS联锁触发诊断</div>
+      <div class="queue-item-time">等待 5min</div>
+    </div>
+    <div class="queue-item">
+      <div class="queue-item-name">T-2106 压力波动分析</div>
+      <div class="queue-item-time">等待 8min</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 今日成果 -->
+<div class="staff-output">
+  <div class="section-title">📦 今日成果</div>
+  <div class="output-grid">
+    <div class="output-item">
+      <div class="output-icon">📄</div>
+      <div class="output-info">
+        <div class="output-name">F-101诊断报告.docx</div>
+        <div class="output-meta">14:20 · 2.3MB</div>
+      </div>
+      <span class="output-status done">已完成</span>
+    </div>
+    <div class="output-item">
+      <div class="output-icon">📄</div>
+      <div class="output-info">
+        <div class="output-name">报警分析记录.xlsx</div>
+        <div class="output-meta">11:45 · 156KB</div>
+      </div>
+      <span class="output-status done">已完成</span>
+    </div>
+    <div class="output-item">
+      <div class="output-icon">📄</div>
+      <div class="output-info">
+        <div class="output-name">根因分析.pptx</div>
+        <div class="output-meta">09:30 · 4.1MB</div>
+      </div>
+      <span class="output-status doing">生成中</span>
+    </div>
+  </div>
+</div>
+
+<!-- 5. 协作员工 -->
+<div class="staff-collab">
+  <div class="section-title">🤝 协作员工</div>
+  <div class="collab-grid">
+    <div class="collab-item">
+      <div class="collab-avatar" style="background:linear-gradient(135deg,#06b6d4,#22d3ee)">🔬</div>
+      <div class="collab-info">
+        <div class="collab-name">小研</div>
+        <div class="collab-role">风险评估师</div>
+        <div class="collab-metrics">
+          <span class="collab-metric">合作 23 次</span>
+          <span class="collab-metric">完成 18 项</span>
+        </div>
+      </div>
+    </div>
+    <div class="collab-item">
+      <div class="collab-avatar" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">🔧</div>
+      <div class="collab-info">
+        <div class="collab-name">小巡</div>
+        <div class="collab-role">智能巡检</div>
+        <div class="collab-metrics">
+          <span class="collab-metric">合作 15 次</span>
+          <span class="collab-metric">完成 12 项</span>
+        </div>
+      </div>
+    </div>
+    <div class="collab-item">
+      <div class="collab-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6)">📚</div>
+      <div class="collab-info">
+        <div class="collab-name">小库</div>
+        <div class="collab-role">知识检索</div>
+        <div class="collab-metrics">
+          <span class="collab-metric">合作 31 次</span>
+          <span class="collab-metric">完成 28 项</span>
+        </div>
+      </div>
+    </div>
+    <div class="collab-item">
+      <div class="collab-avatar" style="background:linear-gradient(135deg,#64748b,#94a3b8)">👤</div>
+      <div class="collab-info">
+        <div class="collab-name">张工程师</div>
+        <div class="collab-role">人工确认</div>
+        <div class="collab-metrics">
+          <span class="collab-metric">合作 8 次</span>
+          <span class="collab-metric">完成 5 项</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 任务数据 -->
+<div class="staff-task-data">
+  <div class="section-title">📊 任务数据（今日）</div>
+  <div class="task-data-grid">
+    <div class="task-data-card">
+      <div class="task-data-value green">47</div>
+      <div class="task-data-label">任务总数</div>
+    </div>
+    <div class="task-data-card">
+      <div class="task-data-value purple">96.8%</div>
+      <div class="task-data-label">完成率</div>
+    </div>
+    <div class="task-data-card">
+      <div class="task-data-value blue">12s</div>
+      <div class="task-data-label">平均耗时</div>
+    </div>
+    <div class="task-data-card">
+      <div class="task-data-value orange">2.1K</div>
+      <div class="task-data-label">Token消耗</div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. 升级迭代 -->
+<div class="staff-evolution">
+  <div class="section-title">🚀 升级迭代记录</div>
+  <div class="evolution-timeline">
+    <div class="evolution-item">
+      <div class="evolution-dot current"></div>
+      <div class="evolution-version">V3.2.1 <span class="evolution-tag major">重大更新</span></div>
+      <div class="evolution-date">2026-05-10</div>
+      <div class="evolution-desc">新增多模态诊断能力，支持视频+图片输入；优化根因分析算法，推理速度提升40%。</div>
+    </div>
+    <div class="evolution-item">
+      <div class="evolution-dot"></div>
+      <div class="evolution-version">V3.1.0</div>
+      <div class="evolution-date">2026-04-15</div>
+      <div class="evolution-desc">接入SIS联锁诊断能力；新增报警关联分析；准确率从94.2%提升至96.8%。</div>
+    </div>
+    <div class="evolution-item">
+      <div class="evolution-dot"></div>
+      <div class="evolution-version">V3.0.5 <span class="evolution-tag fix">Bug修复</span></div>
+      <div class="evolution-date">2026-03-20</div>
+      <div class="evolution-desc">修复GDS数据延迟问题；优化时序分析算法；新增报警分级显示。</div>
+    </div>
+    <div class="evolution-item">
+      <div class="evolution-dot"></div>
+      <div class="evolution-version">V3.0.0</div>
+      <div class="evolution-date">2026-02-01</div>
+      <div class="evolution-desc">全新3.0架构上线，引入AI大模型能力替代规则引擎。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 8. 失败记录 -->
+<div class="staff-fail">
+  <div class="section-title fail-title">❌ 执行失败记录 (最近5条)</div>
+  <div class="fail-item">
+    <div class="fail-icon">⚠️</div>
+    <div class="fail-info">
+      <div class="fail-name">T-1087 报警诊断任务</div>
+      <div class="fail-reason">数据源超时：DCS连接中断超过30s</div>
+      <div class="fail-time">2026-05-13 14:23</div>
+    </div>
+  </div>
+  <div class="fail-item">
+    <div class="fail-icon">⚠️</div>
+    <div class="fail-info">
+      <div class="fail-name">T-0923 批量诊断任务</div>
+      <div class="fail-reason">Token超限：单次任务消耗超过限制</div>
+      <div class="fail-time">2026-05-12 09:15</div>
+    </div>
+  </div>
+  <div class="fail-item">
+    <div class="fail-icon">⚠️</div>
+    <div class="fail-info">
+      <div class="fail-name">T-0845 报警诊断任务</div>
+      <div class="fail-reason">模型推理失败：触发安全策略被拒绝</div>
+      <div class="fail-time">2026-05-10 16:45</div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. 技术分析 -->
+<div class="staff-tech">
+  <div class="section-title">⚙️ 技术分析</div>
+  <div class="tech-grid">
+    <div class="tech-item">
+      <div class="tech-value">128K</div>
+      <div class="tech-label">上下文窗口</div>
+      <div class="tech-bar"><div class="tech-fill" style="width:85%"></div></div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-value">2.1s</div>
+      <div class="tech-label">首字响应</div>
+      <div class="tech-bar"><div class="tech-fill" style="width:72%"></div></div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-value">98.2%</div>
+      <div class="tech-label">诊断准确率</div>
+      <div class="tech-bar"><div class="tech-fill" style="width:98%"></div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

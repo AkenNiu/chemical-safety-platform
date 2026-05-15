@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>履约任务详情 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* ========== 基础 ========== */
+html, body { overflow: auto !important; height: auto !important; }
+.td-page { padding: 0 24px 40px; background: var(--bg-dark); min-height: 100vh; color: var(--text-primary); }
+
+/* ========== 顶部 ========== */
+.td-header { position: sticky; top: 0; z-index: 50; padding: 14px 0 12px; background: var(--bg-dark); border-bottom: 1px solid var(--border-subtle); margin: 0 -24px 16px; padding-left: 24px; padding-right: 24px; }
+.td-header-top { display: flex; align-items: center; justify-content: space-between; }
+.td-back { font-size: 13px; color: var(--primary-light); cursor: pointer; }
+.td-back::before { content: "← 返回"; margin-right: 8px; }
+.td-title-wrap { flex: 1; margin: 0 16px; }
+.td-title { font-size: 16px; font-weight: 700; color: #fff; }
+.td-type { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.td-status { padding: 3px 12px; border-radius: 14px; font-size: 11px; }
+.td-status.progress { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.td-status.done { background: rgba(34,197,94,0.15); color: #22c55e; }
+.td-status.pending { background: rgba(251,146,60,0.15); color: #fb923c; }
+
+/* ========== 基本信息 ========== */
+.td-info-row { display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+.td-info-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.td-info-label { color: var(--text-muted); }
+.td-info-value { color: var(--text-primary); font-weight: 500; }
+.td-info-dot { width: 6px; height: 6px; border-radius: 50%; }
+.td-info-dot.green { background: #22c55e; }
+.td-info-dot.orange { background: #fb923c; }
+
+/* ========== 两列布局 ========== */
+.td-body { display: flex; gap: 20px; align-items: flex-start; }
+.td-left { flex: 1; min-width: 0; }
+.td-right { width: 340px; flex-shrink: 0; }
+.td-right-sticky { position: sticky; top: 60px; }
+.td-right .td-section { margin-bottom: 14px; }
+.td-right .td-section-head { font-size: 12px; margin-bottom: 6px; }
+
+/* ========== 区块 ========== */
+.td-section { margin-bottom: 16px; }
+.td-section-head { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #fff; }
+
+/* ========== 任务描述 ========== */
+.td-desc-box { padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; }
+.td-desc-group { margin-bottom: 14px; }
+.td-desc-group:last-child { margin-bottom: 0; }
+.td-desc-label { font-size: 11px; color: var(--primary-light); font-weight: 600; margin-bottom: 6px; }
+.td-desc-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.td-desc-text ul { margin: 4px 0 0 0; padding-left: 16px; }
+.td-desc-text li { margin-bottom: 4px; }
+.td-sop-step { display: flex; gap: 8px; margin-bottom: 6px; }
+.td-sop-num { width: 18px; height: 18px; border-radius: 50%; background: rgba(139,92,246,0.2); color: #a78bfa; font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.td-sop-text { font-size: 12px; color: var(--text-secondary); }
+
+/* ========== 触发原因 ========== */
+.td-trigger { padding: 12px 14px; background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,256,0.2); border-radius: 8px; font-size: 12px; }
+.td-trigger-label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.td-trigger-reason { color: #a78bfa; }
+
+/* ========== 参与人员 ========== */
+.td-parti-row { display: flex; gap: 32px; }
+.td-parti-col { flex: 1; }
+.td-parti-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.td-parti-card { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; }
+.td-parti-avatar { width: 24px; height: 24px; border-radius: 50%; font-size: 10px; color: #fff; display: flex; align-items: center; justify-content: center; }
+.td-parti-avatar.human { background: linear-gradient(135deg, #64748b, #94a3b8); }
+.td-parti-avatar.r1 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.td-parti-avatar.r2 { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+.td-parti-avatar.r3 { background: linear-gradient(135deg, #10b981, #34d399); }
+.td-parti-name { font-size: 12px; color: var(--text-primary); }
+.td-parti-role { font-size: 10px; color: var(--text-muted); }
+
+/* ========== 产出物 ========== */
+.td-output-list { display: flex; flex-direction: column; gap: 6px; }
+.td-output-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+.td-output-item:hover { border-color: rgba(139,92,246,0.4); }
+.td-output-icon { font-size: 16px; }
+.td-output-info { flex: 1; }
+.td-output-name { font-size: 12px; color: var(--text-primary); }
+.td-output-meta { font-size: 10px; color: var(--text-muted); }
+.td-output-meta .by { color: var(--primary-light); }
+
+/* ========== 任务依赖 ========== */
+.td-dep-row { display: flex; gap: 16px; }
+.td-dep-col { flex: 1; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+.td-dep-title { font-size: 11px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+.td-dep-list { display: flex; flex-direction: column; gap: 4px; }
+.td-dep-item { font-size: 11px; color: var(--text-secondary); }
+.td-dep-item .link { color: var(--primary-light); cursor: pointer; }
+.td-dep-item .link:hover { text-decoration: underline; }
+
+/* ========== 系列任务 ========== */
+.td-series-list { display: flex; flex-direction: column; gap: 6px; }
+.td-series-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; }
+.td-series-num { width: 20px; height: 20px; border-radius: 50%; background: rgba(139,92,246,0.2); color: #a78bfa; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+.td-series-num.done { background: rgba(34,197,94,0.2); color: #22c55e; }
+.td-series-num.current { background: var(--primary); color: #fff; }
+.td-series-num.pending { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+.td-series-info { flex: 1; }
+.td-series-name { font-size: 12px; color: var(--text-primary); }
+.td-series-name.done { color: var(--text-muted); text-decoration: line-through; }
+.td-series-status { font-size: 10px; padding: 2px 8px; border-radius: 8px; }
+.td-series-status.done { background: rgba(34,197,94,0.15); color: #22c55e; }
+.td-series-status.current { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.td-series-status.pending { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+
+/* ========== 时间线 ========== */
+.td-timeline { display: flex; flex-direction: column; }
+.td-timeline-item { display: flex; gap: 10px; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); position: relative; cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+.td-timeline-item:hover { background: rgba(139,92,246,0.08); }
+.td-timeline-item:last-child { border-bottom: none; }
+.td-timeline-item.has-detail::after { content: "›"; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); }
+.td-timeline-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); margin-top: 4px; flex-shrink: 0; }
+.td-timeline-time { font-size: 10px; color: var(--text-muted); width: 40px; flex-shrink: 0; }
+.td-timeline-content { font-size: 11px; color: var(--text-secondary); flex: 1; padding-right: 16px; }
+.td-timeline-content .actor { color: var(--primary-light); }
+.td-tl-badge { flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 5px; font-size: 9px; white-space: nowrap; margin-top: 1px; }
+.td-tl-badge svg { width: 12px; height: 12px; }
+.td-tl-badge.auto { background: rgba(139,92,246,0.12); color: #a78bfa; }
+.td-tl-badge.data { background: rgba(16,185,129,0.12); color: #34d399; }
+</style>
+</head>
+<body class="td-page">
+
+<!-- ========== 顶部 ========== -->
+<div class="td-header">
+  <div class="td-header-top">
+    <div class="td-back" onclick="history.back()"></div>
+    <div class="td-title-wrap">
+      <div class="td-title">B区储罐检修风险评估</div>
+      <div class="td-type">履约任务 · 园区危化储运管理</div>
+    </div>
+    <span class="td-status pending">待处理</span>
+  </div>
+</div>
+
+<!-- ========== 基本信息 ========== -->
+<div class="td-info-row">
+  <div class="td-info-item"><span class="td-info-label">创建：</span><span class="td-info-value">5/14 09:00</span></div>
+  <div class="td-info-item"><span class="td-info-label">截止：</span><span class="td-info-value">5/20 18:00</span></div>
+  <div class="td-info-item"><span class="td-info-label">优先级：</span><span class="td-info-value">中</span></div>
+  <div class="td-info-item"><span class="td-info-label">负责人：</span><span class="td-info-value">张工程师</span></div>
+  <div class="td-info-item"><span class="td-info-dot orange"></span><span class="td-info-value">小研</span><span class="td-info-value" style="color:var(--text-muted)">待命</span></div>
+</div>
+
+<!-- ========== 两列主体 ========== -->
+<div class="td-body">
+  <!-- ===== 左侧栏 ===== -->
+  <div class="td-left">
+
+    <!-- ========== 任务描述（SOP流程） ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>📋</span> 任务描述</div>
+      <div class="td-desc-box">
+        <div class="td-desc-group">
+          <div class="td-desc-label">📝 SOP流程</div>
+          <div class="td-sop-step"><div class="td-sop-num">1</div><div class="td-sop-text">获取储罐设计参数和检修方案</div></div>
+          <div class="td-sop-step"><div class="td-sop-num">2</div><div class="td-sop-text">分析储罐风险因素</div></div>
+          <div class="td-sop-step"><div class="td-sop-num">3</div><div class="td-sop-text">计算风险等级</div></div>
+          <div class="td-sop-step"><div class="td-sop-num">4</div><div class="td-sop-text">生成评估报告</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 参与数字员工 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>🤖</span> 参与数字员工 <span style="font-weight:400;color:var(--text-muted)">(1个)</span></div>
+      <div class="td-parti-list">
+        <div class="td-parti-card">
+          <div class="td-parti-avatar r2">研</div>
+          <div class="td-parti-name">小研</div>
+          <div class="td-parti-role">风险评估</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 系列任务 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>📑</span> 系列任务 <span style="font-weight:400;color:var(--text-muted)">(已绑定1项上游)</span></div>
+      <div class="td-series-list">
+        <div class="td-series-item">
+          <div class="td-series-num done">1</div>
+          <div class="td-series-info">
+            <div class="td-series-name done">F-101温度异常诊断</div>
+          </div>
+          <span class="td-series-status done">已完成</span>
+        </div>
+        <div class="td-series-item">
+          <div class="td-series-num current">2</div>
+          <div class="td-series-info">
+            <div class="td-series-name">B区储罐检修风险评估</div>
+          </div>
+          <span class="td-series-status current">待处理</span>
+        </div>
+        <div class="td-series-item">
+          <div class="td-series-num pending">3</div>
+          <div class="td-series-info">
+            <div class="td-series-name">隐患整改工单生成</div>
+          </div>
+          <span class="td-series-status pending">待执行</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 任务依赖 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>🔗</span> 任务依赖</div>
+      <div class="td-dep-row">
+        <div class="td-dep-col">
+          <div class="td-dep-title">⬅️ 前置任务</div>
+          <div class="td-dep-list">
+            <div class="td-dep-item"><span class="link">F-101温度异常诊断</span> · 已完成</div>
+          </div>
+        </div>
+        <div class="td-dep-col">
+          <div class="td-dep-title">➡️ 后续任务</div>
+          <div class="td-dep-list">
+            <div class="td-dep-item"><span class="link">隐患整改工单生成</span></div>
+            <div class="td-dep-item"><span class="link">安全例会汇报材料</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 执行记录 ========== -->
+    <div class="td-section">
+      <div class="td-section-head"><span>📜</span> 执行记录</div>
+      <div class="td-timeline">
+        <div class="td-timeline-item" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot"></div>
+          <div class="td-timeline-time">09:00</div>
+          <div class="td-timeline-content">任务创建，<span class="actor">F-101诊断完成后</span>自动触发</div>
+          <span class="td-tl-badge auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>自动触发</span>
+        </div>
+        <div class="td-timeline-item has-detail" onclick="location.href='task-step-detail.html'">
+          <div class="td-timeline-dot" style="background:#06b6d4"></div>
+          <div class="td-timeline-time">09:05</div>
+          <div class="td-timeline-content"><span class="actor">小研</span> 待命，等待输入参数</div>
+          <span class="td-tl-badge data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>等待数据</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ===== /左侧栏 ===== -->
+
+  <!-- ===== 右侧栏 ===== -->
+  <div class="td-right">
+    <div class="td-right-sticky">
+
+      <!-- ========== 触发原因 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>⚡</span> 触发原因</div>
+        <div class="td-trigger">
+          <div class="td-trigger-label">由上游任务自动触发</div>
+          <div class="td-trigger-reason">F-101温度异常诊断完成后，触发下游风险评估</div>
+        </div>
+      </div>
+
+      <!-- ========== 输入要求 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📥</span> 输入要求</div>
+        <div class="td-desc-box">
+          <div class="td-desc-text"><ul><li>B区储罐设计参数（压力、温度、材质）</li><li>检修方案文档</li><li>周边储罐分布图</li></ul></div>
+        </div>
+      </div>
+
+      <!-- ========== 输出要求 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📤</span> 输出要求</div>
+        <div class="td-desc-box">
+          <div class="td-desc-text"><ul><li>风险评估报告（PDF）</li><li>风险等级：红/橙/黄/蓝</li><li>整改建议</li></ul></div>
+        </div>
+      </div>
+
+      <!-- ========== 产出物 ========== -->
+      <div class="td-section">
+        <div class="td-section-head"><span>📦</span> 产出物</div>
+        <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:14px;text-align:center;background:var(--bg-card);border:1px dashed var(--border-subtle);border-radius:8px;">
+          暂无产出物<br>
+          <span style="font-size:10px;color:var(--text-muted)">任务完成后自动生成</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- ===== /右侧栏 ===== -->
+</div>
+<!-- ========== /两列主体 ========== -->
+
+</body>
+</html>

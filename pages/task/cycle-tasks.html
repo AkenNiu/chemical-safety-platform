@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>周期任务 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* ========== 基础 ========== */
+html, body { overflow: auto !important; height: auto !important; }
+.tc-page { padding: 0 24px 40px; background: var(--bg-dark); min-height: 100vh; color: var(--text-primary); }
+
+/* ========== 顶部栏 ========== */
+.tc-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0 12px;
+  margin-bottom: 20px; padding-right: 24px; padding-left: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.tc-topbar-title { font-size: 20px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+.tc-topbar-title span { font-size: 24px; }
+.tc-back { font-size: 13px; color: var(--primary-light); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.tc-back:hover { color: #fff; }
+
+/* ========== 筛选栏 ========== */
+.tc-filters {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px;
+}
+.tc-filter-group { display: flex; align-items: center; gap: 6px; }
+.tc-filter-label { font-size: 12px; color: var(--text-muted); }
+.tc-filter-select {
+  padding: 5px 12px; border-radius: 8px; font-size: 12px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle);
+  color: var(--text-primary); outline: none; cursor: pointer;
+}
+.tc-filter-select:focus { border-color: var(--primary); }
+.tc-filter-keyword { flex: 1; position: relative; max-width: 200px; }
+.tc-filter-keyword input { width: 100%; padding: 5px 12px 5px 30px; border-radius: 8px; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-primary); outline: none; }
+.tc-filter-keyword input:focus { border-color: var(--primary); }
+.tc-filter-keyword input::placeholder { color: var(--text-muted); }
+.tc-filter-keyword::before { content: "🔍"; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 11px; }
+.tc-filter-stats { display: flex; align-items: center; gap: 16px; margin-left: auto; }
+.tc-filter-stat { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.tc-filter-stat-num { font-size: 14px; font-weight: 700; }
+.tc-filter-stat-num.green { color: #22c55e; }
+.tc-filter-stat-num.orange { color: #fb923c; }
+.tc-filter-stat-num.blue { color: #60a5fa; }
+.tc-filter-stat-num.gray { color: var(--text-muted); }
+.tc-filter-stat-label { color: var(--text-muted); }
+
+/* ========== 周期分类 ========== */
+.tc-cycle-nav { display: flex; gap: 6px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle); }
+.tc-cycle-btn {
+  padding: 8px 16px; border-radius: 18px; font-size: 13px; cursor: pointer;
+  white-space: nowrap; transition: all .2s;
+  color: var(--text-secondary); background: rgba(255,255,255,0.04);
+  border: 1px solid transparent;
+}
+.tc-cycle-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.08); }
+.tc-cycle-btn.active { color: #fff; background: var(--primary); border-color: var(--primary); }
+.tc-cycle-btn .badge { margin-left: 5px; padding: 1px 7px; border-radius: 9px; font-size: 11px; background: rgba(255,255,255,0.18); }
+
+/* ========== 统计卡片 ========== */
+.tc-summary { display: flex; gap: 12px; margin-bottom: 20px; }
+.tc-summary-card {
+  flex: 1; padding: 16px; border-radius: 10px;
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  display: flex; align-items: center; gap: 12px;
+}
+.tc-summary-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.tc-summary-icon.green { background: rgba(34,197,94,0.12); }
+.tc-summary-icon.orange { background: rgba(251,146,60,0.12); }
+.tc-summary-icon.blue { background: rgba(96,165,250,0.12); }
+.tc-summary-icon.gray { background: rgba(255,255,255,0.06); }
+.tc-summary-content { flex: 1; }
+.tc-summary-num { font-size: 22px; font-weight: 700; color: #fff; }
+.tc-summary-label { font-size: 12px; color: var(--text-muted); }
+
+/* ========== 周期任务网格 ========== */
+.tc-cycle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.tc-cycle-card {
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px;
+  padding: 16px; transition: all .2s; cursor: pointer;
+}
+.tc-cycle-card:hover { border-color: rgba(139,92,246,0.4); }
+.tc-cycle-schedule { font-size: 12px; color: var(--primary-light); margin-bottom: 8px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.tc-cycle-schedule::before { content: "🕐"; font-size: 14px; }
+.tc-cycle-name { font-size: 14px; color: var(--text-primary); font-weight: 600; margin-bottom: 10px; }
+.tc-cycle-meta { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+.tc-cycle-executor { display: flex; align-items: center; gap: 6px; }
+.tc-cycle-avatar { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #a78bfa); display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; }
+.tc-cycle-avatar.blue { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+.tc-cycle-avatar.green { background: linear-gradient(135deg, #10b981, #34d399); }
+.tc-cycle-avatar.orange { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.tc-cycle-avatar.pink { background: linear-gradient(135deg, #ec4899, #f472b6); }
+.tc-cycle-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.tc-cycle-bar-fill { height: 100%; border-radius: 3px; }
+.tc-cycle-bar-fill.green { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.tc-cycle-bar-fill.blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.tc-cycle-bar-fill.purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.tc-cycle-bar-fill.orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.tc-cycle-bar-fill.gray { background: rgba(255,255,255,0.1); }
+.tc-cycle-history { display: flex; gap: 4px; flex-wrap: wrap; }
+.tc-cycle-dot { width: 18px; height: 18px; border-radius: 4px; font-size: 9px; display: flex; align-items: center; justify-content: center; }
+.tc-cycle-dot.done { background: #22c55e; color: #fff; }
+.tc-cycle-dot.failed { background: #ef4444; color: #fff; }
+.tc-cycle-dot.pending { background: rgba(255,255,255,0.1); color: var(--text-muted); }
+.tc-cycle-dot.progress { background: #60a5fa; color: #fff; }
+</style>
+</head>
+<body class="tc-page">
+
+<!-- ========== 顶部栏 ========== -->
+<div class="tc-topbar">
+  <div class="tc-topbar-title"><span>🔄</span> 周期任务</div>
+  <div class="tc-back" onclick="location.href='task-center.html'">← 返回任务中心</div>
+</div>
+
+<!-- ========== 筛选栏 ========== -->
+<div class="tc-filters">
+  <div class="tc-filter-group">
+    <span class="tc-filter-label">关键词</span>
+    <div class="tc-filter-keyword">
+      <input type="text" placeholder="搜索任务...">
+    </div>
+  </div>
+  <div class="tc-filter-group">
+    <span class="tc-filter-label">周期</span>
+    <select class="tc-filter-select">
+      <option>全部</option>
+      <option>每天</option>
+      <option>每周</option>
+      <option>每月</option>
+    </select>
+  </div>
+  <div class="tc-filter-group">
+    <span class="tc-filter-label">执行人</span>
+    <select class="tc-filter-select">
+      <option>全部</option>
+      <option>小安</option>
+      <option>小报</option>
+      <option>小巡</option>
+      <option>小库</option>
+    </select>
+  </div>
+  <div class="tc-filter-stats">
+    <div class="tc-filter-stat"><span class="tc-filter-stat-num green">4</span><span class="tc-filter-stat-label">今日完成</span></div>
+    <div class="tc-filter-stat"><span class="tc-filter-stat-num orange">1</span><span class="tc-filter-stat-label">待执行</span></div>
+    <div class="tc-filter-stat"><span class="tc-filter-stat-num blue">1</span><span class="tc-filter-stat-label">进行中</span></div>
+  </div>
+</div>
+
+<!-- ========== 周期分类导航 ========== -->
+<div class="tc-cycle-nav">
+  <button class="tc-cycle-btn active">全部 <span class="badge">6</span></button>
+  <button class="tc-cycle-btn">每天 <span class="badge">4</span></button>
+  <button class="tc-cycle-btn">每周 <span class="badge">2</span></button>
+</div>
+
+<!-- ========== 统计摘要 ========== -->
+<div class="tc-summary">
+  <div class="tc-summary-card">
+    <div class="tc-summary-icon green">✓</div>
+    <div class="tc-summary-content">
+      <div class="tc-summary-num">4</div>
+      <div class="tc-summary-label">今日已完成</div>
+    </div>
+  </div>
+  <div class="tc-summary-card">
+    <div class="tc-summary-icon orange">⏳</div>
+    <div class="tc-summary-content">
+      <div class="tc-summary-num">1</div>
+      <div class="tc-summary-label">待执行</div>
+    </div>
+  </div>
+  <div class="tc-summary-card">
+    <div class="tc-summary-icon blue">🔄</div>
+    <div class="tc-summary-content">
+      <div class="tc-summary-num">1</div>
+      <div class="tc-summary-label">进行中</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 周期任务网格 ========== -->
+<div class="tc-cycle-grid">
+  <div class="tc-cycle-card" onclick="location.href='task-cycle-detail.html'">
+    <div class="tc-cycle-schedule">每天 08:00</div>
+    <div class="tc-cycle-name">安全日报生成</div>
+    <div class="tc-cycle-meta">
+      <div class="tc-cycle-executor">
+        <span class="tc-cycle-avatar orange">报</span>
+        <span>执行人：小报</span>
+      </div>
+      <span>已完成 ✓</span>
+    </div>
+    <div class="tc-cycle-bar"><div class="tc-cycle-bar-fill green" style="width:100%"></div></div>
+    <div class="tc-cycle-history">
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+    </div>
+  </div>
+
+  <div class="tc-cycle-card">
+    <div class="tc-cycle-schedule">每天 14:00</div>
+    <div class="tc-cycle-name">装置区安全巡检</div>
+    <div class="tc-cycle-meta">
+      <div class="tc-cycle-executor">
+        <span class="tc-cycle-avatar blue">巡</span>
+        <span>执行人：小巡</span>
+      </div>
+      <span>进度 12/28</span>
+    </div>
+    <div class="tc-cycle-bar"><div class="tc-cycle-bar-fill blue" style="width:43%"></div></div>
+    <div class="tc-cycle-history">
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot failed">✗</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot progress">▶</span>
+      <span class="tc-cycle-dot pending">○</span>
+    </div>
+  </div>
+
+  <div class="tc-cycle-card">
+    <div class="tc-cycle-schedule">每天 09:00</div>
+    <div class="tc-cycle-name">危化品储罐液位检测</div>
+    <div class="tc-cycle-meta">
+      <div class="tc-cycle-executor">
+        <span class="tc-cycle-avatar green">库</span>
+        <span>执行人：小库</span>
+      </div>
+      <span>已完成 ✓</span>
+    </div>
+    <div class="tc-cycle-bar"><div class="tc-cycle-bar-fill green" style="width:100%"></div></div>
+    <div class="tc-cycle-history">
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+    </div>
+  </div>
+
+  <div class="tc-cycle-card">
+    <div class="tc-cycle-schedule">每天 20:00</div>
+    <div class="tc-cycle-name">夜班交接安全检查</div>
+    <div class="tc-cycle-meta">
+      <div class="tc-cycle-executor">
+        <span class="tc-cycle-avatar">安</span>
+        <span>执行人：小安</span>
+      </div>
+      <span>待执行</span>
+    </div>
+    <div class="tc-cycle-bar"><div class="tc-cycle-bar-fill gray" style="width:0%"></div></div>
+    <div class="tc-cycle-history">
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot pending">○</span>
+      <span class="tc-cycle-dot pending">○</span>
+      <span class="tc-cycle-dot pending">○</span>
+      <span class="tc-cycle-dot pending">○</span>
+    </div>
+  </div>
+
+  <div class="tc-cycle-card">
+    <div class="tc-cycle-schedule">每周五 16:00</div>
+    <div class="tc-cycle-name">周度安全报告汇总</div>
+    <div class="tc-cycle-meta">
+      <div class="tc-cycle-executor">
+        <span class="tc-cycle-avatar orange">报</span>
+        <span>执行人：小报</span>
+      </div>
+      <span>第3周/共4周</span>
+    </div>
+    <div class="tc-cycle-bar"><div class="tc-cycle-bar-fill orange" style="width:75%"></div></div>
+    <div class="tc-cycle-history">
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot progress">▶</span>
+      <span class="tc-cycle-dot pending">○</span>
+    </div>
+  </div>
+
+  <div class="tc-cycle-card">
+    <div class="tc-cycle-schedule">每周一 10:00</div>
+    <div class="tc-cycle-name">园区视频巡查周检</div>
+    <div class="tc-cycle-meta">
+      <div class="tc-cycle-executor">
+        <span class="tc-cycle-avatar blue">巡</span>
+        <span>执行人：小巡</span>
+      </div>
+      <span>本周已完成 ✓</span>
+    </div>
+    <div class="tc-cycle-bar"><div class="tc-cycle-bar-fill green" style="width:100%"></div></div>
+    <div class="tc-cycle-history">
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+      <span class="tc-cycle-dot done">✓</span>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tc-cycle-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tc-cycle-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

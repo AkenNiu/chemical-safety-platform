@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>技能详情 - 报警根因分析 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* ========== 技能详情页 ========== */
+html, body { overflow: auto !important; height: auto !important; }
+.page-skill-detail { padding: 16px; background: var(--bg-deep); min-height: 100vh; overflow-y: auto; }
+.skill-detail-main { display: flex; flex-direction: column; gap: 14px; max-width: 960px; margin: 0 auto; }
+
+/* 技能主题色：cyan / teal */
+:root {
+  --skill-accent: #06b6d4;
+  --skill-accent-light: #22d3ee;
+  --skill-accent-dim: rgba(6,182,212,0.15);
+  --skill-accent-border: rgba(6,182,212,0.3);
+  --skill-accent-glow: rgba(6,182,212,0.4);
+}
+
+/* ========== 1. 头部信息区（非工卡） ========== */
+.skill-header {
+  background: linear-gradient(135deg, #0f1d2e 0%, #0c1825 100%);
+  border: 1px solid var(--skill-accent-border);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+/* 背景装饰 */
+.skill-header::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -40px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.skill-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  position: relative;
+}
+.skill-header-left { flex: 1; }
+.skill-header-breadcrumb {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.skill-header-breadcrumb a { color: var(--text-muted); text-decoration: none; }
+.skill-header-breadcrumb a:hover { color: var(--skill-accent); }
+.skill-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.skill-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--skill-accent), var(--skill-accent-light));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 20px var(--skill-accent-glow);
+  flex-shrink: 0;
+}
+.skill-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+.skill-version {
+  font-size: 11px;
+  font-family: monospace;
+  padding: 3px 10px;
+  background: var(--skill-accent-dim);
+  border: 1px solid var(--skill-accent-border);
+  border-radius: 10px;
+  color: var(--skill-accent-light);
+}
+.skill-header-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+.skill-header-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.skill-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.skill-meta-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--skill-accent-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.skill-meta-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--skill-accent-light);
+}
+.skill-meta-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+/* 编辑按钮 */
+.skill-edit-btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--skill-accent-border);
+  background: var(--skill-accent-dim);
+  color: var(--skill-accent-light);
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.skill-edit-btn:hover {
+  background: rgba(6,182,212,0.25);
+  box-shadow: 0 4px 16px var(--skill-accent-glow);
+  transform: translateY(-1px);
+}
+
+/* ========== 2. 标签 ========== */
+.skill-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+}
+.section-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.skill-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.skill-tag {
+  padding: 5px 14px;
+  background: var(--skill-accent-dim);
+  border: 1px solid var(--skill-accent-border);
+  border-radius: 16px;
+  font-size: 11px;
+  color: var(--skill-accent-light);
+}
+.skill-tag.cat {
+  background: rgba(139,92,246,0.12);
+  border-color: rgba(139,92,246,0.3);
+  color: #a78bfa;
+}
+.skill-tag.type {
+  background: rgba(34,197,94,0.12);
+  border-color: rgba(34,197,94,0.3);
+  color: #4ade80;
+}
+
+/* ========== 3. 输入 / 输出 ========== */
+.skill-io-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.skill-io-card {
+  background: var(--bg-elevated);
+  border-radius: 12px;
+  padding: 16px;
+}
+.skill-io-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.skill-io-label .io-arrow {
+  color: var(--skill-accent);
+  font-size: 14px;
+}
+.skill-io-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.skill-io-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+}
+.skill-io-item-icon {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.skill-io-item-icon.input-icon {
+  background: rgba(96,165,250,0.12);
+  color: #60a5fa;
+}
+.skill-io-item-icon.output-icon {
+  background: rgba(34,197,94,0.12);
+  color: #4ade80;
+}
+.skill-io-item-info { flex: 1; }
+.skill-io-item-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.skill-io-item-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.skill-io-required {
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.skill-io-required.yes {
+  background: rgba(239,68,68,0.12);
+  color: #f87171;
+}
+.skill-io-required.no {
+  background: rgba(100,116,139,0.12);
+  color: #94a3b8;
+}
+
+/* ========== 4. 技能内容预览（MD 文件） ========== */
+.skill-md-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+}
+.skill-md-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.skill-md-filename {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+.skill-md-filename .file-badge {
+  padding: 2px 8px;
+  background: rgba(96,165,250,0.12);
+  border-radius: 6px;
+  color: #60a5fa;
+  font-size: 10px;
+}
+.skill-md-copy {
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all .2s;
+  background: rgba(255,255,255,0.04);
+}
+.skill-md-copy:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+.skill-md-body {
+  background: var(--bg-elevated);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 16px;
+  max-height: 320px;
+  overflow-y: auto;
+  font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+.skill-md-body::-webkit-scrollbar { width: 6px; }
+.skill-md-body::-webkit-scrollbar-track { background: transparent; }
+.skill-md-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+.skill-md-body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+/* MD 内容格式化 */
+.md-h1 { font-size: 16px; font-weight: 700; color: #fff; margin: 12px 0 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; }
+.md-h2 { font-size: 14px; font-weight: 600; color: var(--skill-accent-light); margin: 10px 0 4px; }
+.md-h3 { font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 8px 0 4px; }
+.md-p { margin: 4px 0; }
+.md-code { color: #fbbf24; background: rgba(251,191,36,0.08); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+.md-bold { color: #fff; font-weight: 600; }
+.md-list { padding-left: 16px; }
+.md-list li { margin: 2px 0; }
+.md-list li::marker { color: var(--skill-accent); }
+
+/* ========== 5. 关联的数字员工 ========== */
+.skill-staff-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.skill-staff-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s;
+  border: 1px solid transparent;
+}
+.skill-staff-item:hover {
+  background: rgba(139,92,246,0.08);
+  border-color: rgba(139,92,246,0.2);
+}
+.skill-staff-avatar {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.skill-staff-info { flex: 1; min-width: 0; }
+.skill-staff-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.skill-staff-role { font-size: 10px; color: var(--text-muted); }
+.skill-staff-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+.skill-staff-badge.owner {
+  background: rgba(139,92,246,0.15);
+  color: #a78bfa;
+}
+.skill-staff-badge.shared {
+  background: rgba(96,165,250,0.12);
+  color: #60a5fa;
+}
+
+/* ========== 6. Token 消耗 ========== */
+.skill-token-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.skill-token-card {
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+.skill-token-value { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.skill-token-value.cyan { color: var(--skill-accent-light); }
+.skill-token-value.green { color: #4ade80; }
+.skill-token-value.blue { color: #60a5fa; }
+.skill-token-value.amber { color: #fbbf24; }
+.skill-token-label { font-size: 11px; color: var(--text-muted); }
+.skill-token-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.skill-token-fill { height: 100%; border-radius: 2px; }
+.skill-token-fill.cyan { background: linear-gradient(90deg, var(--skill-accent), var(--skill-accent-light)); }
+.skill-token-fill.green { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.skill-token-fill.blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.skill-token-fill.amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+/* ========== 7. 引用次数 ========== */
+.skill-ref-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--bg-elevated);
+  border-radius: 12px;
+}
+.skill-ref-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.skill-ref-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--skill-accent-light);
+}
+.skill-ref-label { font-size: 11px; color: var(--text-muted); }
+.skill-ref-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,0.08);
+}
+
+/* ========== 8. 迭代记录（复用 profile 的 timeline） ========== */
+.skill-evolution-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+.skill-evolution-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--skill-accent), rgba(6,182,212,0.15));
+}
+.evo-item {
+  position: relative;
+  padding-bottom: 14px;
+}
+.evo-item:last-child { padding-bottom: 0; }
+.evo-dot {
+  position: absolute;
+  left: -20px; top: 4px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--skill-accent);
+  border: 3px solid var(--bg-deep);
+}
+.evo-dot.current { background: #22c55e; box-shadow: 0 0 12px rgba(34,197,94,0.6); }
+.evo-version {
+  font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 3px;
+  display: flex; align-items: center; gap: 6px;
+}
+.evo-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 9px;
+}
+.evo-tag.major { background: rgba(239,68,68,0.15); color: #f87171; }
+.evo-tag.minor { background: rgba(96,165,250,0.15); color: #60a5fa; }
+.evo-tag.fix { background: rgba(34,197,94,0.15); color: #4ade80; }
+.evo-date { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+.evo-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+/* ========== 两列布局辅助 ========== */
+.skill-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+</style>
+</head>
+<body class="page-skill-detail">
+<div class="skill-detail-main">
+
+<!-- ==================== 1. 头部信息区 ==================== -->
+<div class="skill-header">
+  <div class="skill-header-top">
+    <div class="skill-header-left">
+      <!-- 面包屑 -->
+      <div class="skill-header-breadcrumb">
+        <a href="../skills.html">技能中心</a>
+        <span>/</span>
+        <a href="../skills.html?cat=alarm">报警诊断</a>
+        <span>/</span>
+        <span style="color:var(--text-secondary)">报警根因分析</span>
+      </div>
+      <!-- 标题行 -->
+      <div class="skill-header-title-row">
+        <div class="skill-icon">🔍</div>
+        <div class="skill-title">报警根因分析</div>
+        <span class="skill-version">V2.3.0</span>
+      </div>
+      <!-- 描述 -->
+      <div class="skill-header-desc">
+        基于 DCS/GDS/SIS 实时数据，运用规则引擎与大模型混合推理，自动诊断化工生产过程中报警信号的根因。支持单报警快速诊断与多报警关联分析两种模式，输出结构化诊断报告与处置建议。
+      </div>
+      <!-- 元数据 -->
+      <div class="skill-header-meta">
+        <div class="skill-meta-item">
+          <div class="skill-meta-icon">🔗</div>
+          <div>
+            <div class="skill-meta-value">18</div>
+            <div class="skill-meta-label">被引用次数</div>
+          </div>
+        </div>
+        <div class="skill-meta-item">
+          <div class="skill-meta-icon">⚡</div>
+          <div>
+            <div class="skill-meta-value">3.2K</div>
+            <div class="skill-meta-label">平均 Token</div>
+          </div>
+        </div>
+        <div class="skill-meta-item">
+          <div class="skill-meta-icon">⏱</div>
+          <div>
+            <div class="skill-meta-value">8.6s</div>
+            <div class="skill-meta-label">平均耗时</div>
+          </div>
+        </div>
+        <div class="skill-meta-item">
+          <div class="skill-meta-icon">✅</div>
+          <div>
+            <div class="skill-meta-value">96.8%</div>
+            <div class="skill-meta-label">执行成功率</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 编辑按钮 -->
+    <button class="skill-edit-btn" onclick="location.href='skill-edit.html?id=SK-ALARM-001'">
+      ✏️ 编辑技能
+    </button>
+  </div>
+</div>
+
+<!-- ==================== 2. 标签 ==================== -->
+<div class="skill-section">
+  <div class="section-title">🏷️ 技能标签</div>
+  <div class="skill-tags">
+    <span class="skill-tag cat">报警诊断</span>
+    <span class="skill-tag cat">根因分析</span>
+    <span class="skill-tag type">诊断类</span>
+    <span class="skill-tag">DCS数据</span>
+    <span class="skill-tag">GDS数据</span>
+    <span class="skill-tag">SIS联锁</span>
+    <span class="skill-tag">规则引擎</span>
+    <span class="skill-tag">大模型推理</span>
+  </div>
+</div>
+
+<!-- ==================== 3. 输入 / 输出 ==================== -->
+<div class="skill-section">
+  <div class="section-title">🔌 输入 / 输出定义</div>
+  <div class="skill-io-grid">
+    <!-- 输入 -->
+    <div class="skill-io-card">
+      <div class="skill-io-label"><span class="io-arrow">→</span> 输入参数</div>
+      <div class="skill-io-list">
+        <div class="skill-io-item">
+          <div class="skill-io-item-icon input-icon">📊</div>
+          <div class="skill-io-item-info">
+            <div class="skill-io-item-name">alarm_data</div>
+            <div class="skill-io-item-desc">报警信号数据，含位号、时间戳、数值</div>
+          </div>
+          <span class="skill-io-required yes">必填</span>
+        </div>
+        <div class="skill-io-item">
+          <div class="skill-io-item-icon input-icon">🏭</div>
+          <div class="skill-io-item-info">
+            <div class="skill-io-item-name">device_context</div>
+            <div class="skill-io-item-desc">设备上下文，含装置、工段、工艺参数</div>
+          </div>
+          <span class="skill-io-required yes">必填</span>
+        </div>
+        <div class="skill-io-item">
+          <div class="skill-io-item-icon input-icon">📋</div>
+          <div class="skill-io-item-info">
+            <div class="skill-io-item-name">history_alarms</div>
+            <div class="skill-io-item-desc">近 24h 关联报警历史记录</div>
+          </div>
+          <span class="skill-io-required no">选填</span>
+        </div>
+        <div class="skill-io-item">
+          <div class="skill-io-item-icon input-icon">🎯</div>
+          <div class="skill-io-item-info">
+            <div class="skill-io-item-name">analysis_mode</div>
+            <div class="skill-io-item-desc">分析模式：single / correlation</div>
+          </div>
+          <span class="skill-io-required no">选填</span>
+        </div>
+      </div>
+    </div>
+    <!-- 输出 -->
+    <div class="skill-io-card">
+      <div class="skill-io-label"><span class="io-arrow">←</span> 输出结果</div>
+      <div class="skill-io-list">
+        <div class="skill-io-item">
+          <div class="skill-io-item-icon output-icon">📄</div>
+          <div class="skill-io-item-info">
+            <div class="skill-io-item-name">diagnosis_report</div>
+            <div class="skill-io-item-desc">结构化诊断报告（JSON / DOCX）</div>
+          </div>
+        </div>
+        <div class="skill-io-item">
+          <div class="skill-io-item-icon output-icon">🎯</div>
+          <div class="skill-io-item-info">
+            <div class="skill-io-item-name">root_cause</div>
+            <div class="skill-io-item-desc">根因结论 + 置信度评分</div>
+          </div>
+        </div>
+        <div class="skill-io-item">
+          <div class="skill-io-item-icon output-icon">💡</div>
+          <div class="skill-io-item-info">
+            <div class="skill-io-item-name">suggestions</div>
+            <div class="skill-io-item-desc">处置建议与风险提示</div>
+          </div>
+        </div>
+        <div class="skill-io-item">
+          <div class="skill-io-item-icon output-icon">🔗</div>
+          <div class="skill-io-item-info">
+            <div class="skill-io-item-name">related_skills</div>
+            <div class="skill-io-item-desc">推荐关联执行的后续技能</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 4. 技能内容预览（MD 文件） ==================== -->
+<div class="skill-md-section">
+  <div class="skill-md-header">
+    <div class="section-title" style="margin-bottom:0;">📝 技能定义文件</div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="skill-md-filename">
+        <span class="file-badge">MD</span>
+        SK-ALARM-001/alarm-root-cause-analysis.md
+      </div>
+      <span class="skill-md-copy" onclick="this.textContent='已复制'">📋 复制</span>
+    </div>
+  </div>
+  <div class="skill-md-body">
+<div class="md-h1"># 报警根因分析 (alarm-root-cause-analysis)</div>
+
+<div class="md-p">基于 DCS/GDS/SIS 实时数据，运用规则引擎与大模型混合推理，自动诊断化工生产过程中报警信号的根因。</div>
+
+<div class="md-h2">## 触发条件</div>
+<ul class="md-list">
+  <li>单点报警：GDS 报警信号触发后 <span class="md-code">30s</span> 内自动启动</li>
+  <li>关联分析：同一工段 <span class="md-code">5min</span> 内出现 3+ 报警时自动升级为关联模式</li>
+  <li>手动调用：数字员工通过对话或任务下发触发</li>
+</ul>
+
+<div class="md-h2">## 执行步骤</div>
+<div class="md-h3">Step 1 - 数据采集</div>
+<ul class="md-list">
+  <li>从 DCS 获取报警点位实时数据（最近 <span class="md-code">15min</span>）</li>
+  <li>从 GDS 获取气体检测浓度趋势</li>
+  <li>从 SIS 获取联锁状态</li>
+</ul>
+
+<div class="md-h3">Step 2 - 规则预筛</div>
+<ul class="md-list">
+  <li>匹配 <span class="md-bold">已知规则库</span>（200+ 条预置规则）</li>
+  <li>规则命中则直接输出结论，置信度 <span class="md-code">≥ 0.95</span></li>
+  <li>规则未命中则转大模型推理</li>
+</ul>
+
+<div class="md-h3">Step 3 - 大模型推理</div>
+<ul class="md-list">
+  <li>将报警上下文组装为结构化 Prompt</li>
+  <li>调用诊断模型（128K 上下文窗口）</li>
+  <li>输出根因假设 + 置信度评分</li>
+</ul>
+
+<div class="md-h3">Step 4 - 报告生成</div>
+<ul class="md-list">
+  <li>生成结构化诊断报告</li>
+  <li>附处置建议、风险提示、历史对比</li>
+  <li>推送至任务中心归档</li>
+</ul>
+
+<div class="md-h2">## 输出格式</div>
+<div class="md-p">诊断报告包含：根因结论、置信度、处置建议、历史同类报警、关联技能推荐</div>
+
+<div class="md-h2">## 限制与约束</div>
+<ul class="md-list">
+  <li>单次 Token 消耗上限：<span class="md-code">8K</span></li>
+  <li>推理超时：<span class="md-code">30s</span></li>
+  <li>置信度低于 <span class="md-code">0.6</span> 时标记为"需人工确认"</li>
+</ul>
+  </div>
+</div>
+
+<!-- ==================== 5. 引用次数（扩展展示） ==================== -->
+<div class="skill-section">
+  <div class="section-title">📊 引用统计</div>
+  <div class="skill-ref-bar">
+    <div class="skill-ref-item">
+      <div class="skill-ref-value">18</div>
+      <div class="skill-ref-label">被数字员工引用</div>
+    </div>
+    <div class="skill-ref-divider"></div>
+    <div class="skill-ref-item">
+      <div class="skill-ref-value">5</div>
+      <div class="skill-ref-label">出现在编排流程中</div>
+    </div>
+    <div class="skill-ref-divider"></div>
+    <div class="skill-ref-item">
+      <div class="skill-ref-value">342</div>
+      <div class="skill-ref-label">累计执行次数（本月）</div>
+    </div>
+    <div class="skill-ref-divider"></div>
+    <div class="skill-ref-item">
+      <div class="skill-ref-value">7</div>
+      <div class="skill-ref-label">关联技能</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 6. 关联的数字员工 ==================== -->
+<div class="skill-section">
+  <div class="section-title">👥 关联数字员工</div>
+  <div class="skill-staff-grid">
+    <div class="skill-staff-item" onclick="location.href='../ai-staff/profile.html'">
+      <div class="skill-staff-avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">
+        <img src="../../assets/images/robot-1.png" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
+      </div>
+      <div class="skill-staff-info">
+        <div class="skill-staff-name">小安</div>
+        <div class="skill-staff-role">报警诊断专员</div>
+      </div>
+      <span class="skill-staff-badge owner">主要使用</span>
+    </div>
+    <div class="skill-staff-item">
+      <div class="skill-staff-avatar" style="background:linear-gradient(135deg,#06b6d4,#22d3ee)">
+        <img src="../../assets/images/robot-2.png" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
+      </div>
+      <div class="skill-staff-info">
+        <div class="skill-staff-name">小研</div>
+        <div class="skill-staff-role">风险评估师</div>
+      </div>
+      <span class="skill-staff-badge shared">协作引用</span>
+    </div>
+    <div class="skill-staff-item">
+      <div class="skill-staff-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6)">
+        <img src="../../assets/images/robot-5.png" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
+      </div>
+      <div class="skill-staff-info">
+        <div class="skill-staff-name">小库</div>
+        <div class="skill-staff-role">知识检索员</div>
+      </div>
+      <span class="skill-staff-badge shared">协作引用</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 7. Token 消耗分析 ==================== -->
+<div class="skill-section">
+  <div class="section-title">⚡ Token 消耗分析</div>
+  <div class="skill-token-grid">
+    <div class="skill-token-card">
+      <div class="skill-token-value cyan">3.2K</div>
+      <div class="skill-token-label">平均消耗 Token</div>
+      <div class="skill-token-bar"><div class="skill-token-fill cyan" style="width:42%"></div></div>
+    </div>
+    <div class="skill-token-card">
+      <div class="skill-token-value green">5.8K</div>
+      <div class="skill-token-label">峰值消耗 Token</div>
+      <div class="skill-token-bar"><div class="skill-token-fill green" style="width:76%"></div></div>
+    </div>
+    <div class="skill-token-card">
+      <div class="skill-token-value blue">1.1M</div>
+      <div class="skill-token-label">本月累计 Token</div>
+      <div class="skill-token-bar"><div class="skill-token-fill blue" style="width:62%"></div></div>
+    </div>
+    <div class="skill-token-card">
+      <div class="skill-token-value amber">¥0.03</div>
+      <div class="skill-token-label">单次平均成本</div>
+      <div class="skill-token-bar"><div class="skill-token-fill amber" style="width:28%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 8. 迭代记录 ==================== -->
+<div class="skill-section">
+  <div class="section-title">🚀 技能迭代记录</div>
+  <div class="skill-evolution-timeline">
+    <div class="evo-item">
+      <div class="evo-dot current"></div>
+      <div class="evo-version">V2.3.0 <span class="evo-tag major">重大更新</span></div>
+      <div class="evo-date">2026-05-12</div>
+      <div class="evo-desc">新增多报警关联分析模式；优化 Prompt 模板，减少无效 Token 消耗约 30%；增加历史同类报警对比能力。</div>
+    </div>
+    <div class="evo-item">
+      <div class="evo-dot"></div>
+      <div class="evo-version">V2.2.0</div>
+      <div class="evo-date">2026-04-20</div>
+      <div class="evo-desc">接入 SIS 联锁诊断数据；新增规则库条目 52 条（总计 200+）；诊断准确率从 93.1% 提升至 96.8%。</div>
+    </div>
+    <div class="evo-item">
+      <div class="evo-dot"></div>
+      <div class="evo-version">V2.1.1 <span class="evo-tag fix">修复</span></div>
+      <div class="evo-date">2026-03-15</div>
+      <div class="evo-desc">修复 DCS 数据延迟导致误报的问题；优化超时处理逻辑，避免 Token 超限异常。</div>
+    </div>
+    <div class="evo-item">
+      <div class="evo-dot"></div>
+      <div class="evo-version">V2.0.0 <span class="evo-tag major">架构升级</span></div>
+      <div class="evo-date">2026-02-01</div>
+      <div class="evo-desc">从纯规则引擎升级为"规则预筛 + 大模型推理"混合架构；重新设计输出格式为结构化 JSON。</div>
+    </div>
+    <div class="evo-item">
+      <div class="evo-dot"></div>
+      <div class="evo-version">V1.0.0</div>
+      <div class="evo-date">2025-11-15</div>
+      <div class="evo-desc">初始版本发布，基于规则引擎的单报警诊断能力。</div>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
