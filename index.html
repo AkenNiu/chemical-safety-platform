@@ -253,7 +253,12 @@ document.querySelectorAll('.l1-item').forEach(item => {
     const page = this.dataset.page;
     document.querySelectorAll('.l1-item').forEach(i => i.classList.remove('active'));
     this.classList.add('active');
-    document.getElementById('pageFrame').src = 'pages/' + page + '.html';
+    // 能力平台加载首页
+    if (page === 'builder') {
+      document.getElementById('pageFrame').src = 'pages/builder/index.html';
+    } else {
+      document.getElementById('pageFrame').src = 'pages/' + page + '.html';
+    }
   });
 });
 
