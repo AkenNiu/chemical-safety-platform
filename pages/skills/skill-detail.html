@@ -525,404 +525,237 @@ html, body { overflow: auto !important; height: auto !important; }
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   border-radius: 0;
 }
+
+/* 动态渲染需要的额外样式 */
+.skill-section-title { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; }
+.skill-tag-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.skill-tag-item { padding: 4px 12px; border-radius: 12px; font-size: 12px; border: 1px solid; }
+.skill-feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.skill-feature-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--bg-elevated); border-radius: 10px; }
+.skill-feature-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+.skill-feature-text { font-size: 13px; color: var(--text-primary); }
+.skill-io-item { display: flex; gap: 12px; margin-bottom: 10px; padding: 12px; background: var(--bg-elevated); border-radius: 10px; }
+.skill-io-label { width: 60px; flex-shrink: 0; font-size: 12px; color: var(--text-muted); }
+.skill-io-value { flex: 1; font-size: 13px; color: var(--text-primary); }
 </style>
+<script>
+// ========== 技能数据配置 ==========
+var skillData = {
+  'SK-ALARM-001': {
+    id: 'SK-ALARM-001', name: '报警根因分析', icon: '🔍', color: '#06b6d4',
+    category: '报警诊断', version: 'V2.3.0',
+    desc: '基于 DCS/GDS/SIS 实时数据，运用规则引擎与大模型混合推理，自动诊断化工生产过程中报警信号的根因。支持单报警快速诊断与多报警关联分析两种模式，输出结构化诊断报告与处置建议。',
+    refs: 18, calls: '2.3K', accuracy: '96.8%',
+    tags: ['报警诊断', '根因分析', 'DCS数据'],
+    features: ['单报警快速诊断', '多报警关联分析', '根因分析报告', '处置建议生成'],
+    input: 'DCS/GDS/SIS 实时数据，报警点位和时间范围',
+    output: '结构化诊断报告，包含根因、影响范围、处置建议'
+  },
+  'SK-WEATHER-001': {
+    id: 'SK-WEATHER-001', name: '天气查询', icon: '🌤️', color: '#10b981',
+    category: '业务数据交互', version: 'V1.2.0',
+    desc: '用于天气查询，获取指定地点的天气信息，支持未来7天预报。',
+    refs: 6, calls: '890', accuracy: '99.5%',
+    tags: ['业务数据交互', '天气'],
+    features: ['实时天气查询', '7天预报', '空气质量'],
+    input: '城市名称或经纬度',
+    output: '天气信息 JSON'
+  },
+  'SK-INDUSTRY-001': {
+    id: 'SK-INDUSTRY-001', name: '产业结构判定', icon: '🏭', color: '#f59e0b',
+    category: '安全顾问', version: 'V1.0.0',
+    desc: '依据《产业结构调整指导目录》判定产业类别，提供合规性建议。',
+    refs: 4, calls: '320', accuracy: '98.2%',
+    tags: ['安全顾问', '合规'],
+    features: ['产业类别判定', '合规性检查'],
+    input: '企业生产产品描述',
+    output: '产业类别结果'
+  },
+  'SK-RISK-001': {
+    id: 'SK-RISK-001', name: '风险评估', icon: '⚠️', color: '#ef4444',
+    category: '风险评估', version: 'V2.1.0',
+    desc: '化工装置安全风险等级自动评估，基于LEC评价法和行业标准。',
+    refs: 12, calls: '1.2K', accuracy: '94.2%',
+    tags: ['风险评估', '安全分析'],
+    features: ['LEC评价', '风险等级判定', '整改建议'],
+    input: '装置参数、作业类型',
+    output: '风险评估报告'
+  },
+  'SK-REPORT-001': {
+    id: 'SK-REPORT-001', name: '报告生成', icon: '📄', color: '#3b82f6',
+    category: '报告生成', version: 'V2.0.0',
+    desc: '智能生成安全巡检报告与日报，支持多种模板。',
+    refs: 9, calls: '780', accuracy: '98.5%',
+    tags: ['报告生成', '可视化'],
+    features: ['日报生成', '周报生成', '可视化图表'],
+    input: '数据源、报告模板',
+    output: 'Word/PPT 报告'
+  },
+  'SK-KNOWLEDGE-001': {
+    id: 'SK-KNOWLEDGE-001', name: '知识检索', icon: '📚', color: '#8b5cf6',
+    category: '知识检索', version: 'V1.8.0',
+    desc: '企业知识库与法规文档智能检索，支持语义匹配。',
+    refs: 15, calls: '3.5K', accuracy: '99.1%',
+    tags: ['知识检索', '法规库'],
+    features: ['语义检索', '文档解析', '知识图谱'],
+    input: '自然语言查询',
+    output: '匹配文档列表'
+  },
+  'SK-PATROL-001': {
+    id: 'SK-PATROL-001', name: '智能巡检', icon: '🤖', color: '#10b981',
+    category: '智能巡检', version: 'V2.5.0',
+    desc: '自动化点位巡检与异常识别，基于计算机视觉和IoT数据。',
+    refs: 7, calls: '1.8K', accuracy: '97.3%',
+    tags: ['智能巡检', '异常识别'],
+    features: ['点位巡检', '异常识别', '巡检报告'],
+    input: '巡检点位、图片/视频',
+    output: '巡检记录、异常清单'
+  },
+  'SK-APPROVE-001': {
+    id: 'SK-APPROVE-001', name: '作业审批', icon: '✅', color: '#f43f5e',
+    category: '作业审批', version: 'V1.5.0',
+    desc: '智能审核作业票与安全措施，辅助审批流程。',
+    refs: 5, calls: '420', accuracy: '95.6%',
+    tags: ['作业审批', '安全审核'],
+    features: ['作业票审核', '安全措施检查'],
+    input: '作业票表单',
+    output: '审批意见'
+  },
+  'SK-VISUAL-001': {
+    id: 'SK-VISUAL-001', name: '数据可视化', icon: '📊', color: '#06b6d4',
+    category: '数据分析', version: 'V1.3.0',
+    desc: '安全数据图表生成与趋势分析。',
+    refs: 3, calls: '560', accuracy: '98.0%',
+    tags: ['数据分析', '可视化'],
+    features: ['图表生成', '趋势分析'],
+    input: '数据系列',
+    output: '图表/报表'
+  },
+  'SK-LAW-001': {
+    id: 'SK-LAW-001', name: '法规匹配', icon: '⚖️', color: '#64748b',
+    category: '法规库', version: 'V1.2.0',
+    desc: '自动匹配适用法规标准与条款。',
+    refs: 8, calls: '920', accuracy: '97.8%',
+    tags: ['法规库', '合规'],
+    features: ['法规匹配', '条款检索'],
+    input: '场景描述',
+    output: '适用法规列表'
+  },
+  'SK-EMERGENCY-001': {
+    id: 'SK-EMERGENCY-001', name: '应急推演', icon: '🚨', color: '#dc2626',
+    category: '应急', version: 'V1.0.0',
+    desc: '事故场景模拟与应急预案生成。',
+    refs: 2, calls: '180', accuracy: '92.0%',
+    tags: ['应急', '推演'],
+    features: ['场景模拟', '预案生成'],
+    input: '事故场景描述',
+    output: '推演结果、预案'
+  },
+  'SK-DEVICE-001': {
+    id: 'SK-DEVICE-001', name: '设备诊断', icon: '🔧', color: '#f59e0b',
+    category: '设备', version: 'V1.4.0',
+    desc: '设备运行状态监测与故障预测。',
+    refs: 6, calls: '1.1K', accuracy: '95.2%',
+    tags: ['设备', '预测'],
+    features: ['状态监测', '故障预测'],
+    input: '设备传感器数据',
+    output: '诊断报告'
+  },
+  'SK-TRAIN-001': {
+    id: 'SK-TRAIN-001', name: '培训生成', icon: '🎓', color: '#ec4899',
+    category: '培训', version: 'V1.1.0',
+    desc: '安全培训课程与考试题自动生成。',
+    refs: 4, calls: '340', accuracy: '96.5%',
+    tags: ['培训', '教育'],
+    features: ['课程生成', '题库生成'],
+    input: '培训主题',
+    output: '课程/试题'
+  },
+  'SK-DOC-001': {
+    id: 'SK-DOC-001', name: '文档解析', icon: '📑', color: '#6366f1',
+    category: '文档', version: 'V1.0.0',
+    desc: '安全文档结构化解析与摘要提取。',
+    refs: 5, calls: '620', accuracy: '97.0%',
+    tags: ['文档', 'NLP'],
+    features: ['结构化解析', '摘要提取'],
+    input: '文档文件',
+    output: '结构化数据'
+  }
+};
+
+function getSkillId() {
+  var params = new URLSearchParams(window.location.search);
+  return params.get('id') || 'SK-ALARM-001';
+}
+
+function renderSkill(skillId) {
+  var data = skillData[skillId];
+  if (!data) return;
+  
+  document.title = '技能详情 - ' + data.name + ' - SMAP平台';
+  
+  // 设置主题色
+  document.documentElement.style.setProperty('--skill-accent', data.color);
+  document.documentElement.style.setProperty('--skill-accent-light', data.color + 'aa');
+  document.documentElement.style.setProperty('--skill-accent-dim', data.color + '26');
+  document.documentElement.style.setProperty('--skill-accent-border', data.color + '4d');
+  document.documentElement.style.setProperty('--skill-accent-glow', data.color + '66');
+  
+  var html = '<a class="l3-back-btn" href="../builder/index.html">← 返回能力广场</a>';
+  html += '<div class="skill-detail-main">';
+  
+  // 头部
+  html += '<div class="skill-header">';
+  html += '<div class="skill-header-top">';
+  html += '<div class="skill-header-left">';
+  html += '<div class="skill-header-breadcrumb">';
+  html += '<span>技能中心</span><span>/</span><span>' + data.category + '</span><span>/</span><span style="color:var(--text-secondary)">' + data.name + '</span>';
+  html += '</div>';
+  html += '<div class="skill-header-title-row">';
+  html += '<div class="skill-icon">' + data.icon + '</div>';
+  html += '<div class="skill-title">' + data.name + '</div>';
+  html += '<span class="skill-version">' + data.version + '</span>';
+  html += '</div>';
+  html += '<div class="skill-header-desc">' + data.desc + '</div>';
+  html += '<div class="skill-header-meta">';
+  html += '<div class="skill-meta-item"><div class="skill-meta-icon">🔗</div><div><div class="skill-meta-value">' + data.refs + '</div><div class="skill-meta-label">被引用次数</div></div></div>';
+  html += '<div class="skill-meta-item"><div class="skill-meta-icon">⚡</div><div><div class="skill-meta-value">' + data.calls + '</div><div class="skill-meta-label">调用次数</div></div></div>';
+  html += '<div class="skill-meta-item"><div class="skill-meta-icon">🎯</div><div><div class="skill-meta-value">' + data.accuracy + '</div><div class="skill-meta-label">准确率</div></div></div>';
+  html += '</div></div>';
+  html += '<button class="skill-edit-btn" style="background:' + data.color + '26;border-color:' + data.color + '4d;color:' + data.color + ';">✏️ 编辑技能</button>';
+  html += '</div></div>';
+  
+  // 标签
+  html += '<div class="skill-tags"><span class="skill-section-title">技能标签</span><div class="skill-tag-list">';
+  for (var i = 0; i < data.tags.length; i++) {
+    html += '<span class="skill-tag-item" style="background:' + data.color + '15;border-color:' + data.color + '30;color:' + data.color + ';">' + data.tags[i] + '</span>';
+  }
+  html += '</div></div>';
+  
+  // 功能特性
+  html += '<div class="skill-section"><div class="skill-section-title">功能特性</div><div class="skill-feature-grid">';
+  for (var i = 0; i < data.features.length; i++) {
+    html += '<div class="skill-feature-item"><div class="skill-feature-icon" style="background:' + data.color + '15;color:' + data.color + ';">✓</div><div class="skill-feature-text">' + data.features[i] + '</div></div>';
+  }
+  html += '</div></div>';
+  
+  // 输入输出
+  html += '<div class="skill-section"><div class="skill-section-title">输入输出</div>';
+  html += '<div class="skill-io-item"><div class="skill-io-label">输入</div><div class="skill-io-value">' + data.input + '</div></div>';
+  html += '<div class="skill-io-item"><div class="skill-io-label">输出</div><div class="skill-io-value">' + data.output + '</div></div>';
+  html += '</div>';
+  
+  html += '</div></div>';
+  
+  document.getElementById('skillContent').innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderSkill(getSkillId());
+});
+</script>
 </head>
 <body class="page-skill-detail">
-<div class="skill-detail-main">
-
-<!-- ==================== 1. 头部信息区 ==================== -->
-<div class="skill-header">
-  <div class="skill-header-top">
-    <div class="skill-header-left">
-      <!-- 面包屑 -->
-      <div class="skill-header-breadcrumb">
-        <a href="../skills.html">技能中心</a>
-        <span>/</span>
-        <a href="../skills.html?cat=alarm">报警诊断</a>
-        <span>/</span>
-        <span style="color:var(--text-secondary)">报警根因分析</span>
-      </div>
-      <!-- 标题行 -->
-      <div class="skill-header-title-row">
-        <div class="skill-icon">🔍</div>
-        <div class="skill-title">报警根因分析</div>
-        <span class="skill-version">V2.3.0</span>
-      </div>
-      <!-- 描述 -->
-      <div class="skill-header-desc">
-        基于 DCS/GDS/SIS 实时数据，运用规则引擎与大模型混合推理，自动诊断化工生产过程中报警信号的根因。支持单报警快速诊断与多报警关联分析两种模式，输出结构化诊断报告与处置建议。
-      </div>
-      <!-- 元数据 -->
-      <div class="skill-header-meta">
-        <div class="skill-meta-item">
-          <div class="skill-meta-icon">🔗</div>
-          <div>
-            <div class="skill-meta-value">18</div>
-            <div class="skill-meta-label">被引用次数</div>
-          </div>
-        </div>
-        <div class="skill-meta-item">
-          <div class="skill-meta-icon">⚡</div>
-          <div>
-            <div class="skill-meta-value">3.2K</div>
-            <div class="skill-meta-label">平均 Token</div>
-          </div>
-        </div>
-        <div class="skill-meta-item">
-          <div class="skill-meta-icon">⏱</div>
-          <div>
-            <div class="skill-meta-value">8.6s</div>
-            <div class="skill-meta-label">平均耗时</div>
-          </div>
-        </div>
-        <div class="skill-meta-item">
-          <div class="skill-meta-icon">✅</div>
-          <div>
-            <div class="skill-meta-value">96.8%</div>
-            <div class="skill-meta-label">执行成功率</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- 编辑按钮 -->
-    <button class="skill-edit-btn" onclick="location.href='skill-edit.html?id=SK-ALARM-001'">
-      ✏️ 编辑技能
-    </button>
-  </div>
-</div>
-
-<!-- ==================== 锚点导航 ==================== -->
-<div id="skillToc" class="skill-toc">
-  <a class="skill-toc-item active" href="#tags">🏷️ 标签</a>
-  <a class="skill-toc-item" href="#io">🔌 输入/输出</a>
-  <a class="skill-toc-item" href="#md">📝 技能定义</a>
-  <span class="skill-toc-divider"></span>
-  <a class="skill-toc-item" href="#ref">📊 引用统计</a>
-  <a class="skill-toc-item" href="#staff">👥 关联员工</a>
-  <a class="skill-toc-item" href="#token">⚡ Token分析</a>
-  <span class="skill-toc-divider"></span>
-  <a class="skill-toc-item" href="#evolution">🚀 迭代记录</a>
-</div>
-
-<script>
-// Skill详情页 - 滚动固定导航
-(function() {
-  var toc = document.getElementById('skillToc');
-  if (!toc) return;
-  var origTop = toc.offsetTop;
-  var fixedClass = 'skill-toc-fixed';
-  
-  window.addEventListener('scroll', function() {
-    if (window.scrollY > origTop) {
-      toc.classList.add(fixedClass);
-    } else {
-      toc.classList.remove(fixedClass);
-    }
-  });
-  
-  // 点击smooth scroll
-  toc.querySelectorAll('a').forEach(function(a) {
-    a.addEventListener('click', function(e) {
-      var href = this.getAttribute('href');
-      if (href && href.charAt(0) === '#') {
-        var el = document.querySelector(href);
-        if (el) {
-          e.preventDefault();
-          var top = el.offsetTop - 70;
-          window.scrollTo({top: top, behavior: 'smooth'});
-        }
-      }
-    });
-  });
-})();
-</script>
-
-<!-- ==================== 2. 标签 ==================== -->
-<div class="skill-section" id="tags">
-  <div class="section-title">🏷️ 技能标签</div>
-  <div class="skill-tags">
-    <span class="skill-tag cat">报警诊断</span>
-    <span class="skill-tag cat">根因分析</span>
-    <span class="skill-tag type">诊断类</span>
-    <span class="skill-tag">DCS数据</span>
-    <span class="skill-tag">GDS数据</span>
-    <span class="skill-tag">SIS联锁</span>
-    <span class="skill-tag">规则引擎</span>
-    <span class="skill-tag">大模型推理</span>
-  </div>
-</div>
-
-<!-- ==================== 3. 输入 / 输出 ==================== -->
-<div class="skill-section" id="io">
-  <div class="section-title">🔌 输入 / 输出定义</div>
-  <div class="skill-io-grid">
-    <!-- 输入 -->
-    <div class="skill-io-card">
-      <div class="skill-io-label"><span class="io-arrow">→</span> 输入参数</div>
-      <div class="skill-io-list">
-        <div class="skill-io-item">
-          <div class="skill-io-item-icon input-icon">📊</div>
-          <div class="skill-io-item-info">
-            <div class="skill-io-item-name">alarm_data</div>
-            <div class="skill-io-item-desc">报警信号数据，含位号、时间戳、数值</div>
-          </div>
-          <span class="skill-io-required yes">必填</span>
-        </div>
-        <div class="skill-io-item">
-          <div class="skill-io-item-icon input-icon">🏭</div>
-          <div class="skill-io-item-info">
-            <div class="skill-io-item-name">device_context</div>
-            <div class="skill-io-item-desc">设备上下文，含装置、工段、工艺参数</div>
-          </div>
-          <span class="skill-io-required yes">必填</span>
-        </div>
-        <div class="skill-io-item">
-          <div class="skill-io-item-icon input-icon">📋</div>
-          <div class="skill-io-item-info">
-            <div class="skill-io-item-name">history_alarms</div>
-            <div class="skill-io-item-desc">近 24h 关联报警历史记录</div>
-          </div>
-          <span class="skill-io-required no">选填</span>
-        </div>
-        <div class="skill-io-item">
-          <div class="skill-io-item-icon input-icon">🎯</div>
-          <div class="skill-io-item-info">
-            <div class="skill-io-item-name">analysis_mode</div>
-            <div class="skill-io-item-desc">分析模式：single / correlation</div>
-          </div>
-          <span class="skill-io-required no">选填</span>
-        </div>
-      </div>
-    </div>
-    <!-- 输出 -->
-    <div class="skill-io-card">
-      <div class="skill-io-label"><span class="io-arrow">←</span> 输出结果</div>
-      <div class="skill-io-list">
-        <div class="skill-io-item">
-          <div class="skill-io-item-icon output-icon">📄</div>
-          <div class="skill-io-item-info">
-            <div class="skill-io-item-name">diagnosis_report</div>
-            <div class="skill-io-item-desc">结构化诊断报告（JSON / DOCX）</div>
-          </div>
-        </div>
-        <div class="skill-io-item">
-          <div class="skill-io-item-icon output-icon">🎯</div>
-          <div class="skill-io-item-info">
-            <div class="skill-io-item-name">root_cause</div>
-            <div class="skill-io-item-desc">根因结论 + 置信度评分</div>
-          </div>
-        </div>
-        <div class="skill-io-item">
-          <div class="skill-io-item-icon output-icon">💡</div>
-          <div class="skill-io-item-info">
-            <div class="skill-io-item-name">suggestions</div>
-            <div class="skill-io-item-desc">处置建议与风险提示</div>
-          </div>
-        </div>
-        <div class="skill-io-item">
-          <div class="skill-io-item-icon output-icon">🔗</div>
-          <div class="skill-io-item-info">
-            <div class="skill-io-item-name">related_skills</div>
-            <div class="skill-io-item-desc">推荐关联执行的后续技能</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== 4. 技能内容预览（MD 文件） ==================== -->
-<div class="skill-md-section" id="md">
-  <div class="skill-md-header">
-    <div class="section-title" style="margin-bottom:0;">📝 技能定义文件</div>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div class="skill-md-filename">
-        <span class="file-badge">MD</span>
-        SK-ALARM-001/alarm-root-cause-analysis.md
-      </div>
-      <span class="skill-md-copy" onclick="this.textContent='已复制'">📋 复制</span>
-    </div>
-  </div>
-  <div class="skill-md-body">
-<div class="md-h1"># 报警根因分析 (alarm-root-cause-analysis)</div>
-
-<div class="md-p">基于 DCS/GDS/SIS 实时数据，运用规则引擎与大模型混合推理，自动诊断化工生产过程中报警信号的根因。</div>
-
-<div class="md-h2">## 触发条件</div>
-<ul class="md-list">
-  <li>单点报警：GDS 报警信号触发后 <span class="md-code">30s</span> 内自动启动</li>
-  <li>关联分析：同一工段 <span class="md-code">5min</span> 内出现 3+ 报警时自动升级为关联模式</li>
-  <li>手动调用：数字员工通过对话或任务下发触发</li>
-</ul>
-
-<div class="md-h2">## 执行步骤</div>
-<div class="md-h3">Step 1 - 数据采集</div>
-<ul class="md-list">
-  <li>从 DCS 获取报警点位实时数据（最近 <span class="md-code">15min</span>）</li>
-  <li>从 GDS 获取气体检测浓度趋势</li>
-  <li>从 SIS 获取联锁状态</li>
-</ul>
-
-<div class="md-h3">Step 2 - 规则预筛</div>
-<ul class="md-list">
-  <li>匹配 <span class="md-bold">已知规则库</span>（200+ 条预置规则）</li>
-  <li>规则命中则直接输出结论，置信度 <span class="md-code">≥ 0.95</span></li>
-  <li>规则未命中则转大模型推理</li>
-</ul>
-
-<div class="md-h3">Step 3 - 大模型推理</div>
-<ul class="md-list">
-  <li>将报警上下文组装为结构化 Prompt</li>
-  <li>调用诊断模型（128K 上下文窗口）</li>
-  <li>输出根因假设 + 置信度评分</li>
-</ul>
-
-<div class="md-h3">Step 4 - 报告生成</div>
-<ul class="md-list">
-  <li>生成结构化诊断报告</li>
-  <li>附处置建议、风险提示、历史对比</li>
-  <li>推送至任务中心归档</li>
-</ul>
-
-<div class="md-h2">## 输出格式</div>
-<div class="md-p">诊断报告包含：根因结论、置信度、处置建议、历史同类报警、关联技能推荐</div>
-
-<div class="md-h2">## 限制与约束</div>
-<ul class="md-list">
-  <li>单次 Token 消耗上限：<span class="md-code">8K</span></li>
-  <li>推理超时：<span class="md-code">30s</span></li>
-  <li>置信度低于 <span class="md-code">0.6</span> 时标记为"需人工确认"</li>
-</ul>
-  </div>
-</div>
-
-<!-- ==================== 5. 引用次数（扩展展示） ==================== -->
-<div class="skill-section" id="ref">
-  <div class="section-title">📊 引用统计</div>
-  <div class="skill-ref-bar">
-    <div class="skill-ref-item">
-      <div class="skill-ref-value">18</div>
-      <div class="skill-ref-label">被数字员工引用</div>
-    </div>
-    <div class="skill-ref-divider"></div>
-    <div class="skill-ref-item">
-      <div class="skill-ref-value">5</div>
-      <div class="skill-ref-label">出现在编排流程中</div>
-    </div>
-    <div class="skill-ref-divider"></div>
-    <div class="skill-ref-item">
-      <div class="skill-ref-value">342</div>
-      <div class="skill-ref-label">累计执行次数（本月）</div>
-    </div>
-    <div class="skill-ref-divider"></div>
-    <div class="skill-ref-item">
-      <div class="skill-ref-value">7</div>
-      <div class="skill-ref-label">关联技能</div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== 6. 关联的数字员工 ==================== -->
-<div class="skill-section" id="staff">
-  <div class="section-title">👥 关联数字员工</div>
-  <div class="skill-staff-grid">
-    <div class="skill-staff-item" onclick="location.href='../ai-staff/profile.html'">
-      <div class="skill-staff-avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">
-        <img src="../../assets/images/robot-1.png" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
-      </div>
-      <div class="skill-staff-info">
-        <div class="skill-staff-name">小安</div>
-        <div class="skill-staff-role">报警诊断专员</div>
-      </div>
-      <span class="skill-staff-badge owner">主要使用</span>
-    </div>
-    <div class="skill-staff-item">
-      <div class="skill-staff-avatar" style="background:linear-gradient(135deg,#06b6d4,#22d3ee)">
-        <img src="../../assets/images/robot-2.png" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
-      </div>
-      <div class="skill-staff-info">
-        <div class="skill-staff-name">小研</div>
-        <div class="skill-staff-role">风险评估师</div>
-      </div>
-      <span class="skill-staff-badge shared">协作引用</span>
-    </div>
-    <div class="skill-staff-item">
-      <div class="skill-staff-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6)">
-        <img src="../../assets/images/robot-5.png" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
-      </div>
-      <div class="skill-staff-info">
-        <div class="skill-staff-name">小库</div>
-        <div class="skill-staff-role">知识检索员</div>
-      </div>
-      <span class="skill-staff-badge shared">协作引用</span>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== 7. Token 消耗分析 ==================== -->
-<div class="skill-section" id="token">
-  <div class="section-title">⚡ Token 消耗分析</div>
-  <div class="skill-token-grid">
-    <div class="skill-token-card">
-      <div class="skill-token-value cyan">3.2K</div>
-      <div class="skill-token-label">平均消耗 Token</div>
-      <div class="skill-token-bar"><div class="skill-token-fill cyan" style="width:42%"></div></div>
-    </div>
-    <div class="skill-token-card">
-      <div class="skill-token-value green">5.8K</div>
-      <div class="skill-token-label">峰值消耗 Token</div>
-      <div class="skill-token-bar"><div class="skill-token-fill green" style="width:76%"></div></div>
-    </div>
-    <div class="skill-token-card">
-      <div class="skill-token-value blue">1.1M</div>
-      <div class="skill-token-label">本月累计 Token</div>
-      <div class="skill-token-bar"><div class="skill-token-fill blue" style="width:62%"></div></div>
-    </div>
-    <div class="skill-token-card">
-      <div class="skill-token-value amber">¥0.03</div>
-      <div class="skill-token-label">单次平均成本</div>
-      <div class="skill-token-bar"><div class="skill-token-fill amber" style="width:28%"></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== 8. 迭代记录 ==================== -->
-<div class="skill-section" id="evolution">
-  <div class="section-title">🚀 技能迭代记录</div>
-  <div class="skill-evolution-timeline">
-    <div class="evo-item">
-      <div class="evo-dot current"></div>
-      <div class="evo-version">V2.3.0 <span class="evo-tag major">重大更新</span></div>
-      <div class="evo-date">2026-05-12</div>
-      <div class="evo-desc">新增多报警关联分析模式；优化 Prompt 模板，减少无效 Token 消耗约 30%；增加历史同类报警对比能力。</div>
-    </div>
-    <div class="evo-item">
-      <div class="evo-dot"></div>
-      <div class="evo-version">V2.2.0</div>
-      <div class="evo-date">2026-04-20</div>
-      <div class="evo-desc">接入 SIS 联锁诊断数据；新增规则库条目 52 条（总计 200+）；诊断准确率从 93.1% 提升至 96.8%。</div>
-    </div>
-    <div class="evo-item">
-      <div class="evo-dot"></div>
-      <div class="evo-version">V2.1.1 <span class="evo-tag fix">修复</span></div>
-      <div class="evo-date">2026-03-15</div>
-      <div class="evo-desc">修复 DCS 数据延迟导致误报的问题；优化超时处理逻辑，避免 Token 超限异常。</div>
-    </div>
-    <div class="evo-item">
-      <div class="evo-dot"></div>
-      <div class="evo-version">V2.0.0 <span class="evo-tag major">架构升级</span></div>
-      <div class="evo-date">2026-02-01</div>
-      <div class="evo-desc">从纯规则引擎升级为"规则预筛 + 大模型推理"混合架构；重新设计输出格式为结构化 JSON。</div>
-    </div>
-    <div class="evo-item">
-      <div class="evo-dot"></div>
-      <div class="evo-version">V1.0.0</div>
-      <div class="evo-date">2025-11-15</div>
-      <div class="evo-desc">初始版本发布，基于规则引擎的单报警诊断能力。</div>
-    </div>
-  </div>
-</div>
-
-</div>
+<div id="skillContent"></div>
 </body>
 </html>

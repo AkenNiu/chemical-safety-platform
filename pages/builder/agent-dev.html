@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能体开发 - 能力平台 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+.dev-hero { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 20px; padding: 40px 20px; }
+.dev-hero-icon { font-size: 72px; opacity: 0.4; filter: drop-shadow(0 0 20px rgba(139,92,246,0.3)); }
+.dev-hero-title { font-size: 24px; font-weight: 700; color: #fff; }
+.dev-hero-desc { font-size: 14px; color: var(--text-muted); text-align: center; max-width: 400px; line-height: 1.6; }
+.dev-hero-tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+.dev-hero-tag { padding: 4px 12px; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25); border-radius: 16px; font-size: 12px; color: #a78bfa; }
+.dev-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 720px; margin: 0 auto 40px; padding: 0 20px; }
+.dev-feat-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 18px; text-align: center; }
+.dev-feat-icon { font-size: 28px; margin-bottom: 8px; }
+.dev-feat-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.dev-feat-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+</style>
+</head>
+<body>
+<a class="l3-back-btn" href="index.html">← 返回能力广场</a>
+
+<div class="dev-hero">
+  <div class="dev-hero-icon">🤖</div>
+  <div class="dev-hero-title">智能体开发工作台</div>
+  <div class="dev-hero-desc">创建、配置和发布专属智能体。支持多模态能力编排、知识库挂载和工具调用。</div>
+  <div class="dev-hero-tags">
+    <span class="dev-hero-tag">可视化编排</span>
+    <span class="dev-hero-tag">知识库接入</span>
+    <span class="dev-hero-tag">工具调用</span>
+    <span class="dev-hero-tag">多模态</span>
+    <span class="dev-hero-tag">版本管理</span>
+  </div>
+</div>
+
+<div class="dev-features">
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">🧩</div>
+    <div class="dev-feat-title">Prompt编排</div>
+    <div class="dev-feat-desc">可视化构建系统提示词与人设配置</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">📚</div>
+    <div class="dev-feat-title">知识库挂载</div>
+    <div class="dev-feat-desc">关联企业知识库，增强智能体专业能力</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">🔧</div>
+    <div class="dev-feat-title">技能绑定</div>
+    <div class="dev-feat-desc">为智能体分配可调用的技能和工具</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">🧪</div>
+    <div class="dev-feat-title">调试测试</div>
+    <div class="dev-feat-desc">在线对话调试，快速验证智能体效果</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">📤</div>
+    <div class="dev-feat-title">发布上线</div>
+    <div class="dev-feat-desc">一键发布到智能体市场供他人使用</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">📊</div>
+    <div class="dev-feat-title">运营监控</div>
+    <div class="dev-feat-desc">查看智能体调用统计和用户反馈</div>
+  </div>
+</div>
+
+</body>
+</html>

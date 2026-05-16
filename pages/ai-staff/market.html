@@ -340,7 +340,7 @@ html, body { overflow: auto !important; height: auto !important; }
       <div class="market-footer-desc">打造专属智能体，发布到市场供他人使用</div>
     </div>
   </div>
-  <button class="market-footer-btn" onclick="window.open('#','_blank')">
+  <button class="market-footer-btn" onclick="(function(){var d=window.top.document;if(d){d.querySelectorAll('.l1-item').forEach(function(i){i.classList.remove('active')});var t=d.querySelector('.l1-item[data-page=builder]');if(t){t.classList.add('active');t.click();}}}())">
     进入开发平台 →
   </button>
 </div>

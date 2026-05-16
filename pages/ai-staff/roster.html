@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的数字员工 - SMAP平台</title>
-<link rel="stylesheet" href="../../css/variables.css">
-<link rel="stylesheet" href="../../css/common.css">
-<link rel="stylesheet" href="../../css/layout.css">
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的数字员工 - SMAP平台</title>
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/common.css">
+  <link rel="stylesheet" href="../../css/layout.css">
+  <style>
 /* 数字员工花名册 */
 .page-roster { padding: 16px; background: var(--bg-dark); min-height: 100%; }
 .roster-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
@@ -54,61 +54,233 @@
 </style>
 </head>
 <body class="page-roster">
-<div class="roster-header">
-  <div class="roster-title">👥 我的数字员工 <span class="roster-count">(共 7 人)</span></div>
-  <div class="roster-actions"><button class="roster-btn roster-btn-add">➕ 添加数字员工</button></div>
+  <div class="roster-header">
+    <div class="roster-title">👥 我的数字员工 <span class="roster-count">(共 7 人)</span>
+    </div>
+    <div class="roster-actions">
+      <button class="roster-btn roster-btn-add">➕ 添加数字员工</button>
+    </div>
+  </div>
+
+  <div class="roster-filters">
+    <div class="filter-group">
+      <span class="filter-label">角色:</span>
+      <select class="filter-select">
+        <option>全部</option>
+        <option>报警诊断</option>
+        <option>风险评估</option>
+        <option>智能巡检</option>
+        <option>知识检索</option>
+        <option>智能问答</option>
+        <option>报告生成</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">状态:</span>
+      <select class="filter-select">
+        <option>全部</option>
+        <option>工作中</option>
+        <option>等待中</option>
+        <option>待命</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">擅长:</span>
+      <select class="filter-select">
+        <option>全部</option>
+        <option>报警诊断</option>
+        <option>风险评估</option>
+        <option>设备管理</option>
+        <option>知识库</option>
+      </select>
+    </div>
+    <div class="roster-search">
+      <span class="roster-search-icon">🔍</span>
+      <input type="text" placeholder="搜索数字员工...">
+    </div>
+  </div>
+
+  <div class="roster-grid">
+    <div class="staff-card">
+      <div class="staff-card-header">
+        <div class="staff-card-avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa);background-size:cover;">
+          <img src="../../assets/images/robot-1.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+        </div>
+        <div class="staff-card-info">
+          <div class="staff-card-name">小安</div>
+          <div class="staff-card-role">报警诊断专员</div>
+        </div>
+        <div class="staff-card-status working">工作中</div>
+      </div>
+      <div class="staff-card-tags">
+        <span class="staff-card-tag">报警诊断</span>
+        <span class="staff-card-tag">根因分析</span>
+        <span class="staff-card-tag">GDS数据</span>
+      </div>
+      <div class="staff-card-output">
+        <span class="staff-card-output-icon">📄</span>
+        <span class="staff-card-output-text">F-101诊断报告.docx · 已完成</span>
+      </div>
+      <div class="staff-card-actions">
+        <div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=an'">💬 对话</div>
+        <div class="staff-card-btn staff-card-btn-profile" onclick="location.href='profile.html?staff=an&from=roster'">📋 档案</div>
+      </div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-card-header">
+        <div class="staff-card-avatar" style="background:linear-gradient(135deg,#06b6d4,#22d3ee);background-size:cover;">
+          <img src="../../assets/images/robot-2.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+        </div>
+        <div class="staff-card-info">
+          <div class="staff-card-name">小研</div>
+          <div class="staff-card-role">风险评估师</div>
+        </div>
+        <div class="staff-card-status waiting">需确认</div>
+      </div>
+      <div class="staff-card-tags">
+        <span class="staff-card-tag">风险评估</span>
+        <span class="staff-card-tag">安全分析</span>
+        <span class="staff-card-tag">作业票</span>
+      </div>
+      <div class="staff-card-output">
+        <span class="staff-card-output-icon">⏳</span>
+        <span class="staff-card-output-text">B区储罐检修风险评估 · 待补充参数</span>
+      </div>
+      <div class="staff-card-actions">
+        <div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=yan'">💬 对话</div>
+        <div class="staff-card-btn staff-card-btn-profile" onclick="location.href='profile.html?staff=yan&from=roster'">📋 档案</div>
+      </div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-card-header">
+        <div class="staff-card-avatar" style="background:linear-gradient(135deg,#10b981,#34d399);background-size:cover;">
+          <img src="../../assets/images/robot-3.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+        </div>
+        <div class="staff-card-info">
+          <div class="staff-card-name">小报</div>
+          <div class="staff-card-role">报告生成员</div>
+        </div>
+        <div class="staff-card-status working">生成中</div>
+      </div>
+      <div class="staff-card-tags">
+        <span class="staff-card-tag">报告生成</span>
+        <span class="staff-card-tag">数据分析</span>
+        <span class="staff-card-tag">可视化</span>
+      </div>
+      <div class="staff-card-output">
+        <span class="staff-card-output-icon">📄</span>
+        <span class="staff-card-output-text">5月月度安全运行报告.pptx · 生成中</span>
+      </div>
+      <div class="staff-card-actions">
+        <div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=bao'">💬 对话</div>
+        <div class="staff-card-btn staff-card-btn-profile" onclick="location.href='profile.html?staff=bao&from=roster'">📋 档案</div>
+      </div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-card-header">
+        <div class="staff-card-avatar" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);background-size:cover;">
+          <img src="../../assets/images/robot-4.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+        </div>
+        <div class="staff-card-info">
+          <div class="staff-card-name">小巡</div>
+          <div class="staff-card-role">智能巡检员</div>
+        </div>
+        <div class="staff-card-status working">巡检中</div>
+      </div>
+      <div class="staff-card-tags">
+        <span class="staff-card-tag">智能巡检</span>
+        <span class="staff-card-tag">点位巡检</span>
+        <span class="staff-card-tag">异常识别</span>
+      </div>
+      <div class="staff-card-output">
+        <span class="staff-card-output-icon">📍</span>
+        <span class="staff-card-output-text">A区日常巡检 · 12/28点位</span>
+      </div>
+      <div class="staff-card-actions">
+        <div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=xun'">💬 对话</div>
+        <div class="staff-card-btn staff-card-btn-profile" onclick="location.href='profile.html?staff=xun&from=roster'">📋 档案</div>
+      </div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-card-header">
+        <div class="staff-card-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6);background-size:cover;">
+          <img src="../../assets/images/robot-5.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+        </div>
+        <div class="staff-card-info">
+          <div class="staff-card-name">小库</div>
+          <div class="staff-card-role">知识检索员</div>
+        </div>
+        <div class="staff-card-status working">检索中</div>
+      </div>
+      <div class="staff-card-tags">
+        <span class="staff-card-tag">知识检索</span>
+        <span class="staff-card-tag">文档匹配</span>
+        <span class="staff-card-tag">法规库</span>
+      </div>
+      <div class="staff-card-output">
+        <span class="staff-card-output-icon">📄</span>
+        <span class="staff-card-output-text">F-101相关规范检索 · 已匹配15条</span>
+      </div>
+      <div class="staff-card-actions">
+        <div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=ku'">💬 对话</div>
+        <div class="staff-card-btn staff-card-btn-profile" onclick="location.href='profile.html?staff=ku&from=roster'">📋 档案</div>
+      </div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-card-header">
+        <div class="staff-card-avatar" style="background:linear-gradient(135deg,#64748b,#94a3b8);background-size:cover;">
+          <img src="../../assets/images/robot-7.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+        </div>
+        <div class="staff-card-info">
+          <div class="staff-card-name">小审</div>
+          <div class="staff-card-role">作业审批员</div>
+        </div>
+        <div class="staff-card-status idle">待命</div>
+      </div>
+      <div class="staff-card-tags">
+        <span class="staff-card-tag">作业审批</span>
+        <span class="staff-card-tag">安全审核</span>
+        <span class="staff-card-tag">票证</span>
+      </div>
+      <div class="staff-card-output">
+        <span class="staff-card-output-icon">💤</span>
+        <span class="staff-card-output-text">空闲中 · ��次审批 2小时前</span>
+      </div>
+      <div class="staff-card-actions">
+        <div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=shen'">💬 对话</div>
+        <div class="staff-card-btn staff-card-btn-profile" onclick="location.href='profile.html?staff=shen&from=roster'">📋 档案</div>
+      </div>
+    </div>
+      <div class="staff-card">
+    <div class="staff-card-header">
+      <div class="staff-card-avatar" style="background:linear-gradient(135deg,#6366f1,#818cf8);background-size:cover;">
+        <img src="../../assets/images/robot-6.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+      </div>
+      <div class="staff-card-info">
+        <div class="staff-card-name">小识</div>
+        <div class="staff-card-role">智能问答</div>
+      </div>
+      <div class="staff-card-status idle">等待中</div>
+    </div>
+    <div class="staff-card-tags">
+      <span class="staff-card-tag">智能问答</span>
+      <span class="staff-card-tag">知识库</span>
+      <span class="staff-card-tag">对话</span>
+    </div>
+    <div class="staff-card-output">
+      <span class="staff-card-output-icon">💬</span>
+      <span class="staff-card-output-text">空闲待命 · 响应时间 &lt;1s</span>
+    </div>
+    <div class="staff-card-actions">
+      <div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=shi'">💬 对话</div>
+      <div class="staff-card-btn staff-card-btn-profile" onclick="location.href='profile.html?staff=shi&from=roster'">📋 档案</div>
+    </div>
+  </div>
+  </div>
+
 </div>
 
-<div class="roster-filters">
-  <div class="filter-group"><span class="filter-label">角色:</span><select class="filter-select"><option>全部</option><option>报警诊断</option><option>风险评估</option><option>智能巡检</option><option>知识检索</option><option>智能问答</option><option>报告生成</option></select></div>
-  <div class="filter-group"><span class="filter-label">状态:</span><select class="filter-select"><option>全部</option><option>工作中</option><option>等待中</option><option>待命</option></select></div>
-  <div class="filter-group"><span class="filter-label">擅长:</span><select class="filter-select"><option>全部</option><option>报警诊断</option><option>风险评估</option><option>设备管理</option><option>知识库</option></select></div>
-  <div class="roster-search"><span class="roster-search-icon">🔍</span><input type="text" placeholder="搜索数字员工..."></div>
 </div>
-
-<div class="roster-grid">
-  <div class="staff-card">
-    <div class="staff-card-header"><div class="staff-card-avatar" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa);background-size:cover;"><img src="../../assets/images/robot-1.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div><div class="staff-card-info"><div class="staff-card-name">小安</div><div class="staff-card-role">报警诊断专员</div></div><div class="staff-card-status working">工作中</div></div>
-    <div class="staff-card-tags"><span class="staff-card-tag">报警诊断</span><span class="staff-card-tag">根因分析</span><span class="staff-card-tag">GDS数据</span></div>
-    <div class="staff-card-output"><span class="staff-card-output-icon">📄</span><span class="staff-card-output-text">F-101诊断报告.docx · 已完成</span></div>
-    <div class="staff-card-actions"><div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=an'">💬 对话</div><div class="staff-card-btn staff-card-btn-profile" onclick="location.href='profile.html'">📋 档案</div></div>
-  </div>
-  <div class="staff-card">
-    <div class="staff-card-header"><div class="staff-card-avatar" style="background:linear-gradient(135deg,#06b6d4,#22d3ee);background-size:cover;"><img src="../../assets/images/robot-2.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div><div class="staff-card-info"><div class="staff-card-name">小研</div><div class="staff-card-role">风险评估师</div></div><div class="staff-card-status waiting">需确认</div></div>
-    <div class="staff-card-tags"><span class="staff-card-tag">风险评估</span><span class="staff-card-tag">安全分析</span><span class="staff-card-tag">作业票</span></div>
-    <div class="staff-card-output"><span class="staff-card-output-icon">⏳</span><span class="staff-card-output-text">B区储罐检修风险评估 · 待补充参数</span></div>
-    <div class="staff-card-actions"><div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=yan'">💬 对话</div><div class="staff-card-btn staff-card-btn-profile">📋 档案</div></div>
-  </div>
-  <div class="staff-card">
-    <div class="staff-card-header"><div class="staff-card-avatar" style="background:linear-gradient(135deg,#10b981,#34d399);background-size:cover;"><img src="../../assets/images/robot-3.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div><div class="staff-card-info"><div class="staff-card-name">小报</div><div class="staff-card-role">报告生成员</div></div><div class="staff-card-status working">生成中</div></div>
-    <div class="staff-card-tags"><span class="staff-card-tag">报告生成</span><span class="staff-card-tag">数据分析</span><span class="staff-card-tag">可视化</span></div>
-    <div class="staff-card-output"><span class="staff-card-output-icon">📄</span><span class="staff-card-output-text">5月月度安全运行报告.pptx · 生成中</span></div>
-    <div class="staff-card-actions"><div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=bao'">💬 对话</div><div class="staff-card-btn staff-card-btn-profile">📋 档案</div></div>
-  </div>
-  <div class="staff-card">
-    <div class="staff-card-header"><div class="staff-card-avatar" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);background-size:cover;"><img src="../../assets/images/robot-4.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div><div class="staff-card-info"><div class="staff-card-name">小巡</div><div class="staff-card-role">智能巡检员</div></div><div class="staff-card-status working">巡检中</div></div>
-    <div class="staff-card-tags"><span class="staff-card-tag">智能巡检</span><span class="staff-card-tag">点位巡检</span><span class="staff-card-tag">异常识别</span></div>
-    <div class="staff-card-output"><span class="staff-card-output-icon">📍</span><span class="staff-card-output-text">A区日常巡检 · 12/28点位</span></div>
-    <div class="staff-card-actions"><div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=xun'">💬 对话</div><div class="staff-card-btn staff-card-btn-profile">📋 档案</div></div>
-  </div>
-  <div class="staff-card">
-    <div class="staff-card-header"><div class="staff-card-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6);background-size:cover;"><img src="../../assets/images/robot-5.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div><div class="staff-card-info"><div class="staff-card-name">小库</div><div class="staff-card-role">知识检索员</div></div><div class="staff-card-status working">检索中</div></div>
-    <div class="staff-card-tags"><span class="staff-card-tag">知识检索</span><span class="staff-card-tag">文档匹配</span><span class="staff-card-tag">法规库</span></div>
-    <div class="staff-card-output"><span class="staff-card-output-icon">📄</span><span class="staff-card-output-text">F-101相关规范检索 · 已匹配15条</span></div>
-    <div class="staff-card-actions"><div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=ku'">💬 对话</div><div class="staff-card-btn staff-card-btn-profile">📋 档案</div></div>
-  </div>
-  <div class="staff-card">
-    <div class="staff-card-header"><div class="staff-card-avatar" style="background:linear-gradient(135deg,#6366f1,#818cf8);background-size:cover;"><img src="../../assets/images/robot-6.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div><div class="staff-card-info"><div class="staff-card-name">小识</div><div class="staff-card-role">智能问答</div></div><div class="staff-card-status idle">等待中</div></div>
-    <div class="staff-card-tags"><span class="staff-card-tag">智能问答</span><span class="staff-card-tag">知识库</span><span class="staff-card-tag">对话</span></div>
-    <div class="staff-card-output"><span class="staff-card-output-icon">💬</span><span class="staff-card-output-text">空闲待命 · 响应时间 &lt;1s</span></div>
-    <div class="staff-card-actions"><div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=shi'">💬 对话</div><div class="staff-card-btn staff-card-btn-profile">📋 档案</div></div>
-  </div>
-  <div class="staff-card">
-    <div class="staff-card-header"><div class="staff-card-avatar" style="background:linear-gradient(135deg,#64748b,#94a3b8);background-size:cover;"><img src="../../assets/images/robot-7.png" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div><div class="staff-card-info"><div class="staff-card-name">小审</div><div class="staff-card-role">作业审批员</div></div><div class="staff-card-status idle">待命</div></div>
-    <div class="staff-card-tags"><span class="staff-card-tag">作业审批</span><span class="staff-card-tag">安全审核</span><span class="staff-card-tag">票证</span></div>
-    <div class="staff-card-output"><span class="staff-card-output-icon">💤</span><span class="staff-card-output-text">空闲中 · ��次审批 2小时前</span></div>
-    <div class="staff-card-actions"><div class="staff-card-btn staff-card-btn-chat" onclick="location.href='chat.html?staff=shen'">💬 对话</div><div class="staff-card-btn staff-card-btn-profile">📋 档案</div></div>
-  </div>
 </div>
 </body>
 </html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>履约中心 - SMAP平台</title>
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/l2-frame.css">
+<style>
+body { background: var(--bg-dark); }
+</style>
+</head>
+<body>
+
+<div class="l2-container">
+  <!-- 左侧菜单 -->
+  <div class="l2-sidebar">
+    <div class="l2-menu-group">
+      <div class="l2-menu-item active" data-page="index">
+        <span class="l2-icon">📊</span>
+        <span class="l2-text">履约看板</span>
+      </div>
+      <div class="l2-menu-item" data-page="customers">
+        <span class="l2-icon">👥</span>
+        <span class="l2-text">客户台账</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 右侧内容区 -->
+  <div class="l2-content">
+    <iframe id="contentFrame" src="performance/index.html" frameborder="0"></iframe>
+  </div>
+</div>
+
+<script>
+// L2菜单切换
+document.querySelectorAll('.l2-menu-item').forEach(item => {
+  item.addEventListener('click', function() {
+    // 移除active
+    document.querySelectorAll('.l2-menu-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+    
+    // 切换iframe
+    const page = this.dataset.page;
+    document.getElementById('contentFrame').src = 'performance/' + page + '.html';
+  });
+});
+</script>
+
+</body>
+</html>

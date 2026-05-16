@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户档案详情 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<style>
+html, body { overflow: auto !important; height: auto !important; background: var(--bg-dark); }
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: color .2s;
+}
+.back-btn:hover { color: var(--primary); }
+
+.page-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.page-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-left: 12px;
+}
+.page-badge.active { background: rgba(34,197,94,0.15); color: var(--success); }
+.page-badge.inactive { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+
+/* 双栏布局 */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+}
+
+/* 卡片 */
+.detail-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 左侧信息 */
+.customer-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.customer-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.info-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.info-value {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.info-value.highlight { color: var(--primary); font-weight: 500; }
+.info-value.danger { color: var(--danger); font-weight: 500; }
+
+.grade-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-right: 12px;
+}
+.grade-badge.s { background: rgba(139,92,246,0.2); color: #a78bfa; }
+.grade-badge.a { background: rgba(6,182,212,0.2); color: #22d3ee; }
+.grade-badge.b { background: rgba(34,197,94,0.2); color: #4ade80; }
+.grade-badge.c { background: rgba(250,173,20,0.2); color: #fbbf24; }
+
+/* 快捷操作 */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.action-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+/* 回款记录 */
+.payment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.payment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+}
+.payment-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.payment-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.payment-date {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.payment-item.total {
+  background: rgba(22,119,255,0.08);
+  border: 1px solid rgba(22,119,255,0.2);
+}
+.payment-item.total .payment-value { color: var(--primary); }
+
+/* 大事记时间轴 */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 16px;
+  border-left: 2px solid var(--border-subtle);
+}
+.timeline-item {
+  position: relative;
+  padding-left: 20px;
+  padding-bottom: 16px;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -21px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--bg-card);
+}
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-title {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.timeline-date {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* 沟通记录 */
+.comm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.comm-item {
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+}
+.comm-content {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+.comm-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* 履约记录摘要 */
+.perf-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.perf-stat {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+}
+.perf-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.perf-stat-value.success { color: var(--success); }
+.perf-stat-value.warning { color: var(--warning); }
+.perf-stat-value.danger { color: var(--danger); }
+.perf-stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.view-all-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.view-all-link:hover { border-color: var(--primary); }
+
+/* 服务项 */
+.service-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.service-item:last-child { border-bottom: none; }
+.service-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.service-info { flex: 1; }
+.service-name {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.service-track {
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+}
+.service-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+}
+.service-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  width: 40px;
+  text-align: right;
+}
+
+/* 客户画像 */
+.profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.profile-tag {
+  padding: 4px 10px;
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.2);
+  border-radius: 4px;
+  font-size: 11px;
+  color: #a78bfa;
+}
+</style>
+</head>
+<body style="padding: 20px;">
+
+<!-- 返回按钮 -->
+<div class="back-btn" onclick="location.href='customers.html'">
+  ← 返回客户台账
+</div>
+
+<!-- 页面标题 -->
+<div class="page-title-row">
+  <div class="page-title">
+    <span id="customerName">江阴临港化工园区</span>
+    <span class="page-badge active">服务中</span>
+  </div>
+</div>
+
+<!-- 双栏布局 -->
+<div class="detail-grid">
+  <!-- 左侧：客户基础信息 -->
+  <div>
+    <!-- 基本信息卡片 -->
+    <div class="detail-card">
+      <div class="card-title">📋 客户基础信息</div>
+      
+      <div class="customer-name" id="custName2">江阴临港化工园区</div>
+      <div class="customer-sub">
+        <span class="grade-badge s">S级</span>
+        国家级 · 精细化工
+      </div>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">客户成功经理</span>
+          <span class="info-value highlight">霍宇杰</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">销售经理</span>
+          <span class="info-value">段玉乐</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">园区级别</span>
+          <span class="info-value">国家级</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">产业类型</span>
+          <span class="info-value">精细化工</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">固定资产总额</span>
+          <span class="info-value">20,650 万元</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">安全风险等级</span>
+          <span class="info-value danger">C 级</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">年销售收入</span>
+          <span class="info-value">1,357,046 万元</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">化工企业总数</span>
+          <span class="info-value">126 家</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">规划面积</span>
+          <span class="info-value">28.5 km²</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">建成面积</span>
+          <span class="info-value">25.95 km²</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">从业人数</span>
+          <span class="info-value">3,454 人</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">合同期限</span>
+          <span class="info-value">2024.01 - 2026.12</span>
+        </div>
+      </div>
+      
+      <!-- 快捷操作 -->
+      <div class="quick-actions">
+        <div class="action-btn">📋 生成报告</div>
+        <div class="action-btn">📊 服务明细</div>
+        <div class="action-btn">📝 续约提醒</div>
+        <div class="action-btn">📞 联系客户</div>
+      </div>
+    </div>
+    
+    <!-- 回款记录 -->
+    <div class="detail-card">
+      <div class="card-title">💰 回款记录</div>
+      <div class="payment-list">
+        <div class="payment-item total">
+          <div>
+            <div class="payment-label">已回款总额</div>
+            <div class="payment-value" style="font-size: 18px;">¥ 900,000</div>
+          </div>
+        </div>
+        <div class="payment-item">
+          <div>
+            <div class="payment-label">一期回款</div>
+            <div class="payment-date">2023-12-22 到账</div>
+          </div>
+          <div class="payment-value">¥ 580,000</div>
+        </div>
+        <div class="payment-item">
+          <div>
+            <div class="payment-label">二期回款</div>
+            <div class="payment-date">2024-06-22 到账</div>
+          </div>
+          <div class="payment-value">¥ 320,000</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 大事记 -->
+    <div class="detail-card">
+      <div class="card-title">📅 大事记</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-title">导入客户</div>
+          <div class="timeline-date">2022-05-30</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-title">签订一期合同</div>
+          <div class="timeline-date">2023-06-22</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-title">一期验收</div>
+          <div class="timeline-date">2023-12-22</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 右侧：动态信息 -->
+  <div>
+    <!-- 履约摘要 -->
+    <div class="detail-card">
+      <div class="card-title">📈 履约概览</div>
+      <div class="perf-summary">
+        <div class="perf-stat">
+          <div class="perf-stat-value success">92%</div>
+          <div class="perf-stat-label">累计履约率</div>
+        </div>
+        <div class="perf-stat">
+          <div class="perf-stat-value warning">5</div>
+          <div class="perf-stat-label">进行中任务</div>
+        </div>
+        <div class="perf-stat">
+          <div class="perf-stat-value">28</div>
+          <div class="perf-stat-label">已完成任务</div>
+        </div>
+      </div>
+      <div class="view-all-link" onclick="location.href='records.html?id=s001'">
+        查看全部履约记录 →
+      </div>
+    </div>
+    
+    <!-- 服务进度 -->
+    <div class="detail-card">
+      <div class="card-title">🛠️ 当前服务内容</div>
+      <div class="service-item">
+        <div class="service-icon" style="background: rgba(139,92,246,0.15);">🔒</div>
+        <div class="service-info">
+          <div class="service-name">特殊作业服务</div>
+          <div class="service-track"><div class="service-fill" style="width: 92%;"></div></div>
+        </div>
+        <div class="service-value">92%</div>
+      </div>
+      <div class="service-item">
+        <div class="service-icon" style="background: rgba(6,182,212,0.15);">⚠️</div>
+        <div class="service-info">
+          <div class="service-name">重大危险源监控</div>
+          <div class="service-track"><div class="service-fill" style="width: 100%;"></div></div>
+        </div>
+        <div class="service-value">100%</div>
+      </div>
+      <div class="service-item">
+        <div class="service-icon" style="background: rgba(34,197,94,0.15);">🚗</div>
+        <div class="service-info">
+          <div class="service-name">封闭园区管理</div>
+          <div class="service-track"><div class="service-fill" style="width: 85%;"></div></div>
+        </div>
+        <div class="service-value">85%</div>
+      </div>
+      <div class="service-item">
+        <div class="service-icon" style="background: rgba(250,173,20,0.15);">📊</div>
+        <div class="service-info">
+          <div class="service-name">数据治理服务</div>
+          <div class="service-track"><div class="service-fill" style="width: 68%;"></div></div>
+        </div>
+        <div class="service-value">68%</div>
+      </div>
+    </div>
+    
+    <!-- 沟通记录 -->
+    <div class="detail-card">
+      <div class="card-title">💬 沟通记录</div>
+      <div class="comm-list">
+        <div class="comm-item">
+          <div class="comm-content">系统运行稳定，各项指标正常，用户反馈良好。</div>
+          <div class="comm-meta">
+            <span>李工程师</span>
+            <span>2025-03-15</span>
+          </div>
+        </div>
+        <div class="comm-item">
+          <div class="comm-content">上门进行工作交接，用户提出新需求，已记录。</div>
+          <div class="comm-meta">
+            <span>王经理</span>
+            <span>2025-01-20</span>
+          </div>
+        </div>
+        <div class="comm-item">
+          <div class="comm-content">季度回访，系统使用培训完成。</div>
+          <div class="comm-meta">
+            <span>张工程师</span>
+            <span>2024-12-05</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 客户画像 -->
+    <div class="detail-card">
+      <div class="card-title">👤 客户画像</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">活跃度</span>
+          <span class="info-value">████░░ 75%</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">配合度</span>
+          <span class="info-value">█████░ 90%</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">响应速度</span>
+          <span class="info-value">███░░░ 60%</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">投诉率</span>
+          <span class="info-value">█░░░░░ 15%</span>
+        </div>
+      </div>
+      <div class="profile-tags">
+        <span class="profile-tag">重点客户</span>
+        <span class="profile-tag">上市公司</span>
+        <span class="profile-tag">高风险</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// URL参数获取客户ID
+function getUrlParam(name) {
+  const params = new URLSearchParams(location.search);
+  return params.get(name);
+}
+
+const customerId = getUrlParam('id') || 's001';
+console.log('Customer ID:', customerId);
+</script>
+
+</body>
+</html>

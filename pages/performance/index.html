@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>履约看板 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<style>
+html, body { overflow: auto !important; height: auto !important; background: var(--bg-dark); }
+
+.perf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.perf-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.perf-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* KPI卡片 */
+.perf-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.perf-kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.perf-kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+.perf-kpi-card.red::before { background: var(--danger); }
+.perf-kpi-card.orange::before { background: var(--warning); }
+.perf-kpi-card.green::before { background: var(--success); }
+.perf-kpi-card.blue::before { background: var(--primary); }
+
+.perf-kpi-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.perf-kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.perf-kpi-unit {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-left: 4px;
+}
+.perf-kpi-trend {
+  font-size: 11px;
+  margin-top: 8px;
+}
+.perf-kpi-trend.up { color: var(--success); }
+.perf-kpi-trend.down { color: var(--danger); }
+
+/* 双栏布局 */
+.perf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* 卡片 */
+.perf-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+}
+.perf-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.perf-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.perf-card-action {
+  font-size: 12px;
+  color: var(--primary);
+  cursor: pointer;
+}
+
+/* 客户等级分布 */
+.grade-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.grade-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.grade-bar-label {
+  width: 60px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.grade-bar-track {
+  flex: 1;
+  height: 24px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.grade-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+}
+.grade-bar-fill.s { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.grade-bar-fill.a { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+.grade-bar-fill.b { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.grade-bar-fill.c { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+/* 近期履约客户 */
+.perf-customer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.perf-customer-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.perf-customer-item:hover {
+  background: rgba(255,255,255,0.05);
+}
+.perf-customer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.perf-customer-info { flex: 1; }
+.perf-customer-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.perf-customer-grade {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.perf-customer-rate {
+  text-align: right;
+}
+.perf-customer-rate-value {
+  font-size: 16px;
+  font-weight: 600;
+}
+.perf-customer-rate-value.high { color: var(--success); }
+.perf-customer-rate-value.mid { color: var(--warning); }
+.perf-customer-rate-value.low { color: var(--danger); }
+.perf-customer-rate-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* 预警列表 */
+.perf-alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.perf-alert-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  border-left: 3px solid;
+}
+.perf-alert-item.red { border-color: var(--danger); }
+.perf-alert-item.orange { border-color: var(--warning); }
+.perf-alert-item.blue { border-color: var(--primary); }
+
+.perf-alert-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.perf-alert-item.red .perf-alert-icon { background: rgba(239,68,68,0.15); }
+.perf-alert-item.orange .perf-alert-icon { background: rgba(250,173,20,0.15); }
+.perf-alert-item.blue .perf-alert-icon { background: rgba(22,119,255,0.15); }
+
+.perf-alert-info { flex: 1; }
+.perf-alert-title {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+.perf-alert-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.perf-alert-time {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* 服务进度 */
+.perf-service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.perf-service-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.perf-service-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.perf-service-info { flex: 1; }
+.perf-service-name {
+  font-size: 12px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.perf-service-track {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+}
+.perf-service-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+}
+.perf-service-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  width: 40px;
+  text-align: right;
+}
+</style>
+</head>
+<body style="padding: 20px;">
+
+<!-- 页面标题 -->
+<div class="perf-header">
+  <div>
+    <div class="perf-title">📊 履约看板</div>
+    <div class="perf-subtitle">实时监控客户服务履约情况</div>
+  </div>
+</div>
+
+<!-- KPI卡片 -->
+<div class="perf-kpi-grid">
+  <div class="perf-kpi-card red">
+    <div class="perf-kpi-label">服务客户总数</div>
+    <div class="perf-kpi-value">128<span class="perf-kpi-unit">家</span></div>
+    <div class="perf-kpi-trend up">↑ 较上月 +12</div>
+  </div>
+  <div class="perf-kpi-card orange">
+    <div class="perf-kpi-label">本月应履约</div>
+    <div class="perf-kpi-value">86<span class="perf-kpi-unit">项</span></div>
+    <div class="perf-kpi-trend up">↑ 较上月 +8</div>
+  </div>
+  <div class="perf-kpi-card green">
+    <div class="perf-kpi-label">已完成履约</div>
+    <div class="perf-kpi-value">72<span class="perf-kpi-unit">项</span></div>
+    <div class="perf-kpi-trend up">完成率 83.7%</div>
+  </div>
+  <div class="perf-kpi-card blue">
+    <div class="perf-kpi-label">待履约任务</div>
+    <div class="perf-kpi-value">14<span class="perf-kpi-unit">项</span></div>
+    <div class="perf-kpi-trend down">⚠ 3项逾期</div>
+  </div>
+</div>
+
+<!-- 双栏区域 -->
+<div class="perf-row">
+  <!-- 左：客户等级分布 -->
+  <div class="perf-card">
+    <div class="perf-card-header">
+      <div class="perf-card-title">👥 客户等级分布</div>
+    </div>
+    <div class="grade-bars">
+      <div class="grade-bar-item">
+        <div class="grade-bar-label">S级</div>
+        <div class="grade-bar-track">
+          <div class="grade-bar-fill s" style="width: 25%;">8</div>
+        </div>
+      </div>
+      <div class="grade-bar-item">
+        <div class="grade-bar-label">A级</div>
+        <div class="grade-bar-track">
+          <div class="grade-bar-fill a" style="width: 40%;">32</div>
+        </div>
+      </div>
+      <div class="grade-bar-item">
+        <div class="grade-bar-label">B级</div>
+        <div class="grade-bar-track">
+          <div class="grade-bar-fill b" style="width: 55%;">56</div>
+        </div>
+      </div>
+      <div class="grade-bar-item">
+        <div class="grade-bar-label">C级</div>
+        <div class="grade-bar-track">
+          <div class="grade-bar-fill c" style="width: 30%;">32</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 右：预警中心 -->
+  <div class="perf-card">
+    <div class="perf-card-header">
+      <div class="perf-card-title">⚠️ 履约预警</div>
+      <div class="perf-card-action">查看全部 →</div>
+    </div>
+    <div class="perf-alert-list">
+      <div class="perf-alert-item red">
+        <div class="perf-alert-icon">🚨</div>
+        <div class="perf-alert-info">
+          <div class="perf-alert-title">江阴临港化工园区 - 履约率低于60%</div>
+          <div class="perf-alert-desc">已连续3个月履约率不达标</div>
+        </div>
+        <div class="perf-alert-time">2小时前</div>
+      </div>
+      <div class="perf-alert-item orange">
+        <div class="perf-alert-icon">⏰</div>
+        <div class="perf-alert-info">
+          <div class="perf-alert-title">南京江北新材料科技园 - 合同即将到期</div>
+          <div class="perf-alert-desc">合同于2025-06-30到期</div>
+        </div>
+        <div class="perf-alert-time">5小时前</div>
+      </div>
+      <div class="perf-alert-item blue">
+        <div class="perf-alert-icon">📋</div>
+        <div class="perf-alert-info">
+          <div class="perf-alert-title">常州滨江经济开发区 - 待履约任务</div>
+          <div class="perf-alert-desc">重大危险源评估报告待提交</div>
+        </div>
+        <div class="perf-alert-time">1天前</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 双栏区域 -->
+<div class="perf-row">
+  <!-- 左：近期履约情况 -->
+  <div class="perf-card">
+    <div class="perf-card-header">
+      <div class="perf-card-title">📈 近期履约客户 TOP5</div>
+      <div class="perf-card-action" onclick="location.href='customers.html'">客户台账 →</div>
+    </div>
+    <div class="perf-customer-list">
+      <div class="perf-customer-item" onclick="location.href='customer-detail.html?id=s001'">
+        <div class="perf-customer-avatar">🏭</div>
+        <div class="perf-customer-info">
+          <div class="perf-customer-name">江阴临港化工园区</div>
+          <div class="perf-customer-grade">S级客户 · 江苏</div>
+        </div>
+        <div class="perf-customer-rate">
+          <div class="perf-customer-rate-value high">98%</div>
+          <div class="perf-customer-rate-label">履约率</div>
+        </div>
+      </div>
+      <div class="perf-customer-item" onclick="location.href='customer-detail.html?id=s002'">
+        <div class="perf-customer-avatar">🔬</div>
+        <div class="perf-customer-info">
+          <div class="perf-customer-name">南京江北新材料科技园</div>
+          <div class="perf-customer-grade">S级客户 · 江苏</div>
+        </div>
+        <div class="perf-customer-rate">
+          <div class="perf-customer-rate-value high">95%</div>
+          <div class="perf-customer-rate-label">履约率</div>
+        </div>
+      </div>
+      <div class="perf-customer-item" onclick="location.href='customer-detail.html?id=a001'">
+        <div class="perf-customer-avatar">⚗️</div>
+        <div class="perf-customer-info">
+          <div class="perf-customer-name">常州滨江经济开发区</div>
+          <div class="perf-customer-grade">A级客户 · 江苏</div>
+        </div>
+        <div class="perf-customer-rate">
+          <div class="perf-customer-rate-value mid">82%</div>
+          <div class="perf-customer-rate-label">履约率</div>
+        </div>
+      </div>
+      <div class="perf-customer-item" onclick="location.href='customer-detail.html?id=a002'">
+        <div class="perf-customer-avatar">🧪</div>
+        <div class="perf-customer-info">
+          <div class="perf-customer-name">苏州工业园化工区</div>
+          <div class="perf-customer-grade">A级客户 · 江苏</div>
+        </div>
+        <div class="perf-customer-rate">
+          <div class="perf-customer-rate-value mid">78%</div>
+          <div class="perf-customer-rate-label">履约率</div>
+        </div>
+      </div>
+      <div class="perf-customer-item" onclick="location.href='customer-detail.html?id=b001'">
+        <div class="perf-customer-avatar">🏢</div>
+        <div class="perf-customer-info">
+          <div class="perf-customer-name">扬州化工园区</div>
+          <div class="perf-customer-grade">B级客户 · 江苏</div>
+        </div>
+        <div class="perf-customer-rate">
+          <div class="perf-customer-rate-value low">65%</div>
+          <div class="perf-customer-rate-label">履约率</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 右：服务进度 -->
+  <div class="perf-card">
+    <div class="perf-card-header">
+      <div class="perf-card-title">📋 本月服务项进度</div>
+    </div>
+    <div class="perf-service-list">
+      <div class="perf-service-item">
+        <div class="perf-service-icon" style="background: rgba(139,92,246,0.15);">🔒</div>
+        <div class="perf-service-info">
+          <div class="perf-service-name">特殊作业服务</div>
+          <div class="perf-service-track">
+            <div class="perf-service-fill" style="width: 92%;"></div>
+          </div>
+        </div>
+        <div class="perf-service-value">92%</div>
+      </div>
+      <div class="perf-service-item">
+        <div class="perf-service-icon" style="background: rgba(6,182,212,0.15);">⚠️</div>
+        <div class="perf-service-info">
+          <div class="perf-service-name">重大危险源监控</div>
+          <div class="perf-service-track">
+            <div class="perf-service-fill" style="width: 88%;"></div>
+          </div>
+        </div>
+        <div class="perf-service-value">88%</div>
+      </div>
+      <div class="perf-service-item">
+        <div class="perf-service-icon" style="background: rgba(34,197,94,0.15);">🚗</div>
+        <div class="perf-service-info">
+          <div class="perf-service-name">封闭园区管理</div>
+          <div class="perf-service-track">
+            <div class="perf-service-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+        <div class="perf-service-value">100%</div>
+      </div>
+      <div class="perf-service-item">
+        <div class="perf-service-icon" style="background: rgba(250,173,20,0.15);">📊</div>
+        <div class="perf-service-info">
+          <div class="perf-service-name">数据治理服务</div>
+          <div class="perf-service-track">
+            <div class="perf-service-fill" style="width: 65%;"></div>
+          </div>
+        </div>
+        <div class="perf-service-value">65%</div>
+      </div>
+      <div class="perf-service-item">
+        <div class="perf-service-icon" style="background: rgba(239,68,68,0.15);">🛡️</div>
+        <div class="perf-service-info">
+          <div class="perf-service-name">应急咨询服务</div>
+          <div class="perf-service-track">
+            <div class="perf-service-fill" style="width: 78%;"></div>
+          </div>
+        </div>
+        <div class="perf-service-value">78%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

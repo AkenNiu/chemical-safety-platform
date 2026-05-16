@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据集市 - 能力平台 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+.dev-hero { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 20px; padding: 40px 20px; }
+.dev-hero-icon { font-size: 72px; opacity: 0.4; filter: drop-shadow(0 0 20px rgba(250,173,20,0.3)); }
+.dev-hero-title { font-size: 24px; font-weight: 700; color: #fff; }
+.dev-hero-desc { font-size: 14px; color: var(--text-muted); text-align: center; max-width: 400px; line-height: 1.6; }
+.dev-hero-tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+.dev-hero-tag { padding: 4px 12px; background: rgba(250,173,20,0.1); border: 1px solid rgba(250,173,20,0.25); border-radius: 16px; font-size: 12px; color: #fbbf24; }
+.dev-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 720px; margin: 0 auto 40px; padding: 0 20px; }
+.dev-feat-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 18px; text-align: center; }
+.dev-feat-icon { font-size: 28px; margin-bottom: 8px; }
+.dev-feat-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.dev-feat-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+</style>
+</head>
+<body>
+<a class="l3-back-btn" href="index.html">← 返回能力广场</a>
+
+<div class="dev-hero">
+  <div class="dev-hero-icon">📊</div>
+  <div class="dev-hero-title">数据集市</div>
+  <div class="dev-hero-desc">统一管理和共享企业数据资产。提供数据集发布、数据订阅和数据质量监控。</div>
+  <div class="dev-hero-tags">
+    <span class="dev-hero-tag">数据集管理</span>
+    <span class="dev-hero-tag">数据目录</span>
+    <span class="dev-hero-tag">数据订阅</span>
+    <span class="dev-hero-tag">质量监控</span>
+    <span class="dev-hero-tag">权限管控</span>
+  </div>
+</div>
+
+<div class="dev-features">
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">📂</div>
+    <div class="dev-feat-title">数据集发布</div>
+    <div class="dev-feat-desc">创建并发布数据集到集市，描述元信息</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">🔍</div>
+    <div class="dev-feat-title">数据目录</div>
+    <div class="dev-feat-desc">按主题、标签分类浏览全部数据资产</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">📥</div>
+    <div class="dev-feat-title">数据订阅</div>
+    <div class="dev-feat-desc">订阅所需数据集，获取更新通知</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">✅</div>
+    <div class="dev-feat-title">质量监控</div>
+    <div class="dev-feat-desc">自动检测数据完整性、准确性和时效性</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">🔒</div>
+    <div class="dev-feat-title">权限管控</div>
+    <div class="dev-feat-desc">精细化的数据访问权限和脱敏策略</div>
+  </div>
+  <div class="dev-feat-card">
+    <div class="dev-feat-icon">📈</div>
+    <div class="dev-feat-title">使用统计</div>
+    <div class="dev-feat-desc">追踪数据集调用频次和使用趋势</div>
+  </div>
+</div>
+
+</body>
+</html>

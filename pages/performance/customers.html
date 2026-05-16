@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户台账 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<style>
+html, body { overflow: auto !important; height: auto !important; background: var(--bg-dark); }
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 搜索筛选区 */
+.search-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.search-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.search-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  width: 180px;
+  outline: none;
+}
+.search-input:focus { border-color: var(--primary); }
+.search-input::placeholder { color: var(--text-muted); }
+
+.search-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+.search-select option { background: var(--bg-card); }
+
+.date-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  transition: all .2s;
+}
+.btn-reset {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.btn-reset:hover { border-color: var(--primary); color: var(--primary); }
+.btn-query {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-query:hover { box-shadow: 0 4px 12px rgba(22,119,255,0.3); }
+
+/* 数据表格 */
+.data-table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table th,
+.data-table td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 13px;
+}
+.data-table th {
+  background: rgba(255,255,255,0.02);
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.data-table td {
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.data-table .col-id { width: 60px; }
+.data-table .col-name { width: 200px; }
+.data-table .col-grade { width: 80px; }
+.data-table .col-area { width: 100px; }
+.data-table .col-rate { width: 150px; }
+.data-table .col-date { width: 120px; }
+.data-table .col-owner { width: 80px; }
+.data-table .col-action { width: 80px; }
+
+/* 客户等级标签 */
+.grade-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.grade-tag.s { background: rgba(139,92,246,0.2); color: #a78bfa; }
+.grade-tag.a { background: rgba(6,182,212,0.2); color: #22d3ee; }
+.grade-tag.b { background: rgba(34,197,94,0.2); color: #4ade80; }
+.grade-tag.c { background: rgba(250,173,20,0.2); color: #fbbf24; }
+
+/* 完成度进度条 */
+.rate-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rate-bar {
+  width: 80px;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.rate-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+.rate-fill.high { background: var(--success); }
+.rate-fill.mid { background: var(--warning); }
+.rate-fill.low { background: var(--danger); }
+.rate-value {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* 操作按钮 */
+.action-btn {
+  color: var(--primary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color .2s;
+}
+.action-btn:hover { color: #4094ff; }
+
+/* 分页 */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+.pagination-info {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.pagination-controls {
+  display: flex;
+  gap: 8px;
+}
+.page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.page-btn:hover { border-color: var(--primary); color: var(--primary); }
+.page-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+</style>
+</head>
+<body style="padding: 20px;">
+
+<!-- 页面标题 -->
+<div class="page-header">
+  <div class="page-title">👥 客户台账</div>
+</div>
+
+<!-- 搜索筛选区 -->
+<div class="search-bar">
+  <div class="search-item">
+    <span class="search-label">客户名称</span>
+    <input type="text" class="search-input" placeholder="请输入客户名称" id="searchName">
+  </div>
+  <div class="search-item">
+    <span class="search-label">客户等级</span>
+    <select class="search-select" id="searchGrade">
+      <option value="">全部等级</option>
+      <option value="S">S级</option>
+      <option value="A">A级</option>
+      <option value="B">B级</option>
+      <option value="C">C级</option>
+    </select>
+  </div>
+  <div class="search-item">
+    <span class="search-label">所属区域</span>
+    <select class="search-select" id="searchArea">
+      <option value="">全部区域</option>
+      <option value="江苏">江苏</option>
+      <option value="浙江">浙江</option>
+      <option value="上海">上海</option>
+      <option value="安徽">安徽</option>
+      <option value="山东">山东</option>
+    </select>
+  </div>
+  <div class="search-item">
+    <span class="search-label">合同截止</span>
+    <input type="date" class="date-input" id="searchDateStart">
+    <span style="color: var(--text-muted);">-</span>
+    <input type="date" class="date-input" id="searchDateEnd">
+  </div>
+  <div style="flex:1;"></div>
+  <button class="btn btn-reset" onclick="resetSearch()">重置</button>
+  <button class="btn btn-query" onclick="doSearch()">查询</button>
+</div>
+
+<!-- 数据表格 -->
+<div class="data-table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th class="col-id">序号</th>
+        <th class="col-name">客户名称</th>
+        <th class="col-grade">客户等级</th>
+        <th class="col-area">所属区域</th>
+        <th class="col-rate">服务任务完成度</th>
+        <th class="col-date">合同截止</th>
+        <th class="col-owner">责任人</th>
+        <th class="col-action">操作</th>
+      </tr>
+    </thead>
+    <tbody id="customerTable">
+      <!-- 动态生成 -->
+    </tbody>
+  </table>
+  
+  <!-- 分页 -->
+  <div class="pagination">
+    <div class="pagination-info">共 <span id="totalCount">0</span> 家客户</div>
+    <div class="pagination-controls">
+      <button class="page-btn" id="prevBtn" onclick="changePage(-1)">‹</button>
+      <button class="page-btn active" onclick="goPage(1)">1</button>
+      <button class="page-btn" onclick="goPage(2)">2</button>
+      <button class="page-btn" onclick="goPage(3)">3</button>
+      <span style="color: var(--text-muted); padding: 0 8px;">...</span>
+      <button class="page-btn" onclick="goPage(7)">7</button>
+      <button class="page-btn" id="nextBtn" onclick="changePage(1)">›</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 客户数据
+const customers = [
+  { id: 's001', name: '江阴临港化工园区', grade: 'S', area: '江苏', rate: 98, date: '2025-06-30', owner: '吕寻征' },
+  { id: 's002', name: '南京江北新材料科技园', grade: 'S', area: '江苏', rate: 95, date: '2025-06-12', owner: '刘强' },
+  { id: 'a001', name: '常州滨江经济开发区新材料产业园', grade: 'A', area: '江苏', rate: 100, date: '2025-06-10', owner: '王芳' },
+  { id: 'a002', name: '苏州工业园化工区', grade: 'A', area: '江苏', rate: 78, date: '2025-08-15', owner: '李明' },
+  { id: 'b001', name: '扬州化工园区', grade: 'B', area: '江苏', rate: 65, date: '2025-07-20', owner: '张伟' },
+  { id: 'a003', name: '宁波化学工业区', grade: 'A', area: '浙江', rate: 88, date: '2025-09-01', owner: '陈静' },
+  { id: 'b002', name: '嘉兴港区化工园区', grade: 'B', area: '浙江', rate: 72, date: '2025-05-30', owner: '赵军' },
+  { id: 's003', name: '上海化工区', grade: 'S', area: '上海', rate: 92, date: '2025-12-31', owner: '孙杰' },
+  { id: 'c001', name: '合肥化工园区', grade: 'C', area: '安徽', rate: 55, date: '2025-04-15', owner: '周婷' },
+  { id: 'b003', name: '青岛化工园区', grade: 'B', area: '山东', rate: 80, date: '2025-10-20', owner: '吴磊' },
+];
+
+let currentPage = 1;
+const pageSize = 10;
+
+function renderTable() {
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+  const pageData = customers.slice(start, end);
+  
+  const tbody = document.getElementById('customerTable');
+  tbody.innerHTML = pageData.map((c, i) => {
+    const rateClass = c.rate >= 90 ? 'high' : (c.rate >= 70 ? 'mid' : 'low');
+    return `
+      <tr onclick="location.href='customer-detail.html?id=${c.id}'" style="cursor:pointer;">
+        <td>${start + i + 1}</td>
+        <td><span style="color: var(--text-primary); font-weight: 500;">${c.name}</span></td>
+        <td><span class="grade-tag ${c.grade.toLowerCase()}">${c.grade}级</span></td>
+        <td>${c.area}</td>
+        <td>
+          <div class="rate-cell">
+            <div class="rate-bar"><div class="rate-fill ${rateClass}" style="width: ${c.rate}%;"></div></div>
+            <span class="rate-value">${c.rate}%</span>
+          </div>
+        </td>
+        <td>${c.date}</td>
+        <td>${c.owner}</td>
+        <td><span class="action-btn" onclick="event.stopPropagation(); location.href='customer-detail.html?id=${c.id}'">查看详情 →</span></td>
+      </tr>
+    `;
+  }).join('');
+  
+  document.getElementById('totalCount').textContent = customers.length;
+}
+
+function goPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.page-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i + 1 === page);
+  });
+  renderTable();
+}
+
+function changePage(delta) {
+  const newPage = currentPage + delta;
+  if (newPage >= 1 && newPage <= 7) goPage(newPage);
+}
+
+function resetSearch() {
+  document.getElementById('searchName').value = '';
+  document.getElementById('searchGrade').value = '';
+  document.getElementById('searchArea').value = '';
+  document.getElementById('searchDateStart').value = '';
+  document.getElementById('searchDateEnd').value = '';
+}
+
+function doSearch() {
+  alert('演示模式：实际应根据筛选条件查询后端数据');
+}
+
+// 初始化
+renderTable();
+</script>
+
+</body>
+</html>

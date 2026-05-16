@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>创建任务模板 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<style>
+html, body { overflow: auto !important; height: auto !important; background: var(--bg-dark); }
+.page-container { display: flex; gap: 20px; height: calc(100vh - 40px); }
+.page-left { flex: 1; display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
+.page-right { width: 280px; display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.page-title { font-size: 18px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.btn-back { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 8px; color: var(--text-secondary); font-size: 13px; cursor: pointer; }
+.btn-back:hover { border-color: var(--primary); color: var(--primary); }
+.section-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px; overflow: hidden; display: flex; flex-direction: column; }
+.section-card.flex-1 { flex: 1; min-height: 0; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-shrink: 0; }
+.card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.card-hint { font-size: 11px; color: var(--text-muted); }
+.card-body { flex: 1; overflow-y: auto; min-height: 0; }
+.nl-input-area { flex-shrink: 0; }
+.nl-textarea { width: 100%; min-height: 120px; padding: 14px; background: var(--bg-elevated); border: 2px solid var(--border-subtle); border-radius: 10px; color: var(--text-primary); font-size: 14px; line-height: 1.6; resize: none; outline: none; font-family: inherit; box-sizing: border-box; }
+.nl-textarea:focus { border-color: var(--primary); }
+.nl-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.nl-hint-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.hint-btn { padding: 5px 10px; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); border-radius: 6px; color: #a78bfa; font-size: 11px; cursor: pointer; }
+.hint-btn:hover { background: rgba(139,92,246,0.2); }
+.btn-parse { display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: var(--primary); border: none; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 500; cursor: pointer; }
+.btn-parse:hover { box-shadow: 0 4px 12px rgba(22,119,255,0.3); }
+.parse-preview-area { flex: 0 0 auto; max-height: 180px; }
+.parse-result { display: flex; flex-direction: column; gap: 10px; }
+.parse-loaded { padding: 12px; background: rgba(139,92,246,0.08); border: 1px dashed rgba(139,92,246,0.3); border-radius: 8px; }
+.parse-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.parse-tag { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; }
+.parse-tag.scene { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.parse-tag.trigger { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.parse-tag.tasks { background: rgba(34,197,94,0.15); color: #4ade80; }
+.parse-tasks-list { display: flex; flex-direction: column; gap: 6px; }
+.parse-task-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 6px; font-size: 12px; color: var(--text-primary); }
+.parse-task-num { width: 20px; height: 20px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.parse-arrow { color: var(--text-muted); font-size: 10px; }
+.parse-empty { padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px; }
+.flow-editor-area { flex: 1; min-height: 0; }
+.flow-canvas { flex: 1; min-height: 200px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+.flow-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 13px; }
+.flow-task { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; }
+.flow-task:hover { border-color: var(--primary); }
+.flow-task-num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.flow-task-body { flex: 1; min-width: 0; }
+.flow-task-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.flow-task-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.flow-task-label { padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+.flow-task-label.executor { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.flow-task-label.output { background: rgba(34,197,94,0.15); color: #4ade80; }
+.flow-task-label.trigger { background: rgba(250,173,20,0.15); color: #fbbf24; }
+.flow-task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.flow-action-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; color: var(--text-muted); font-size: 12px; cursor: pointer; }
+.flow-action-btn:hover { border-color: var(--primary); color: var(--primary); }
+.flow-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+.flow-add-btn { padding: 10px; border: 2px dashed var(--border-subtle); border-radius: 10px; color: var(--text-muted); font-size: 12px; text-align: center; cursor: pointer; }
+.flow-add-btn:hover { border-color: var(--primary); color: var(--primary); }
+.right-panel { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; display: flex; flex-direction: column; }
+.right-header { padding: 14px 16px; border-bottom: 1px solid var(--border-subtle); font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.right-body { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+.tag-section { }
+.tag-title { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.tag-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-option { padding: 5px 10px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; font-size: 11px; color: var(--text-secondary); cursor: pointer; }
+.tag-option:hover { border-color: var(--primary); }
+.tag-option.selected { background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.3); color: #a78bfa; }
+.param-section { padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; }
+.param-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.param-row:last-child { margin-bottom: 0; }
+.param-label { font-size: 11px; color: var(--text-muted); }
+.param-input { width: 100px; padding: 6px 8px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; color: var(--text-primary); font-size: 11px; text-align: right; outline: none; }
+.param-input:focus { border-color: var(--primary); }
+.template-history { display: flex; flex-direction: column; gap: 8px; }
+.history-item { padding: 10px 12px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 8px; cursor: pointer; }
+.history-item:hover { border-color: var(--primary); }
+.history-name { font-size: 12px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+.history-meta { font-size: 10px; color: var(--text-muted); }
+.action-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; margin-top: 16px; }
+.action-left { display: flex; align-items: center; gap: 10px; }
+.action-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+.action-status.saved { color: var(--success); }
+.action-right { display: flex; gap: 10px; }
+.btn-secondary { padding: 10px 20px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 8px; color: var(--text-secondary); font-size: 13px; cursor: pointer; }
+.btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+.btn-primary { padding: 10px 20px; background: var(--primary); border: none; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 500; cursor: pointer; }
+.btn-primary:hover { box-shadow: 0 4px 12px rgba(22,119,255,0.3); }
+</style>
+</head>
+<body style="padding: 20px;">
+<div class="page-header">
+  <div class="page-title"><button class="btn-back" onclick="history.back()">← 返回</button><span>创建任务模板</span></div>
+</div>
+<div class="page-container">
+  <div class="page-left">
+    <div class="section-card nl-input-area">
+      <div class="card-header"><div class="card-title">📝 描述任务流程</div><div class="card-hint">用自然语言描述你想自动化的工作流程</div></div>
+      <textarea class="nl-textarea" id="nlInput" placeholder="例如：每月1号启动月度巡检任务...">每月1号启动月度巡检任务，先让AI执行日常巡检，巡检完成后生成报告，最后交给安全工程师审核签字。报告需在5日内提交，异常情况24小时内响应。</textarea>
+      <div class="nl-actions">
+        <div class="nl-hint-btns">
+          <button class="hint-btn" onclick="insertHint('周期性')">🔄 周期性任务</button>
+          <button class="hint-btn" onclick="insertHint('触发')">⚡ 条件触发</button>
+          <button class="hint-btn" onclick="insertHint('串行')">→ 串行任务</button>
+        </div>
+        <button class="btn-parse" id="btnParse" onclick="parseIntent()"><span>✨ 智能解析</span></button>
+      </div>
+    </div>
+    <div class="section-card parse-preview-area">
+      <div class="card-header"><div class="card-title">🔍 解析预览</div><div class="card-hint">识别到的任务结构和关键信息</div></div>
+      <div class="card-body"><div class="parse-result" id="parseResult"></div></div>
+    </div>
+    <div class="section-card flow-editor-area">
+      <div class="card-header"><div class="card-title">🎯 流程编辑器</div><div class="card-hint">拖拽调整任务顺序，编辑任务详情</div></div>
+      <div class="flow-canvas" id="flowCanvas"></div>
+    </div>
+  </div>
+  <div class="page-right">
+    <div class="right-panel">
+      <div class="right-header">模板配置</div>
+      <div class="right-body">
+        <div class="tag-section">
+          <div class="tag-title">业务场景</div>
+          <div class="tag-options">
+            <div class="tag-option selected" data-value="special" onclick="selectTag(this)">特殊作业</div>
+            <div class="tag-option" data-value="hazard" onclick="selectTag(this)">重大危险源</div>
+            <div class="tag-option" data-value="closed" onclick="selectTag(this)">封闭园区</div>
+            <div class="tag-option" data-value="emergency" onclick="selectTag(this)">应急管理</div>
+            <div class="tag-option" data-value="data" onclick="selectTag(this)">数据治理</div>
+          </div>
+        </div>
+        <div class="tag-section">
+          <div class="tag-title">触发方式</div>
+          <div class="tag-options">
+            <div class="tag-option selected" data-value="cycle" onclick="selectTrigger(this)">🔄 周期触发</div>
+            <div class="tag-option" data-value="condition" onclick="selectTrigger(this)">⚡ 条件触发</div>
+            <div class="tag-option" data-value="manual" onclick="selectTrigger(this)">👆 手动触发</div>
+          </div>
+        </div>
+        <div class="param-section">
+          <div class="tag-title">关键指标</div>
+          <div class="param-row"><span class="param-label">覆盖率</span><input type="text" class="param-input" id="kpiCoverage" value="≥100%"></div>
+          <div class="param-row"><span class="param-label">响应时限</span><input type="text" class="param-input" id="kpiResponse" value="≤24h"></div>
+          <div class="param-row"><span class="param-label">完成时限</span><input type="text" class="param-input" id="kpiComplete" value="≤5日"></div>
+        </div>
+        <div class="tag-section">
+          <div class="tag-title">参考模板</div>
+          <div class="template-history">
+            <div class="history-item" onclick="loadTemplate('月度巡检')"><div class="history-name">📋 月度巡检任务</div><div class="history-meta">3个子任务 · 周期触发</div></div>
+            <div class="history-item" onclick="loadTemplate('危险源评估')"><div class="history-name">⚠️ 危险源评估</div><div class="history-meta">2个子任务 · 条件触发</div></div>
+            <div class="history-item" onclick="loadTemplate('应急处置')"><div class="history-name">🚨 应急事件处置</div><div class="history-meta">4个子任务 · 条件触发</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="action-bar">
+  <div class="action-left"><div class="action-status saved" id="actionStatus"><span>✓</span><span>已自动保存</span></div></div>
+  <div class="action-right"><button class="btn-secondary" onclick="saveDraft()">保存草稿</button><button class="btn-primary" onclick="saveTemplate()">保存模板</button></div>
+</div>
+<script>
+var parsedTasks = {tasks:[{id:1,name:'日常巡检',executor:'AI',type:'现场执行',output:'巡检记录表'},{id:2,name:'报告生成',executor:'AI',type:'自动生成',output:'巡检报告'},{id:3,name:'审核签字',executor:'human',type:'人工确认',output:'审核签字'}],scene:'special',isCycle:true,isCondition:false};
+var selectedScene='special',selectedTrigger='cycle';
+function insertHint(t){var h={周期性:'每月1号启动任务，按周期自动执行。',触发:'当[条件]满足时触发执行。',串行:'任务A完成后 → 执行任务B。'};document.getElementById('nlInput').value+=h[t];}
+function parseIntent(){var i=document.getElementById('nlInput').value.trim();if(!i)return alert('请先输入任务描述');var b=document.getElementById('btnParse');b.innerHTML='<span>🔄 解析中...</span>';setTimeout(function(){parsedTasks=parseTextToTasks(i);renderParseResult(parsedTasks);renderFlowEditor(parsedTasks);b.innerHTML='<span>✨ 智能解析</span>';},800);}
+function parseTextToTasks(t){var ts=[];var ti=1;var ic=/每月|每���|每日|周期/.test(t);var is=/当|触发|条件/.test(t);var sc='special';if(/巡检/.test(t))sc='special';else if(/危险源|评估/.test(t))sc='hazard';else if(/应急|报警/.test(t))sc='emergency';else if(/车辆|封闭/.test(t))sc='closed';else if(/数据|治理/.test(t))sc='data';selectedScene=sc;if(/巡检|检查/.test(t))ts.push({id:ti++,name:'日常巡检',executor:'AI',type:'现场执行',output:'巡检记录表'});if(/报告|生成/.test(t))ts.push({id:ti++,name:'报告生成',executor:'AI',type:'自动生成',output:'巡检报告'});if(/审核|签字/.test(t))ts.push({id:ti++,name:'审核签字',executor:'human',type:'人工确认',output:'审核签字'});if(ts.length===0)ts.push({id:1,name:'主任务',executor:'AI',type:'自动执行',output:'任务结果'});return{tasks:ts,scene:sc,isCycle:ic,isCondition:is};}
+function renderParseResult(r){var c=document.getElementById('parseResult');if(!r.tasks||r.tasks.length===0){c.innerHTML='<div class="parse-empty">未能识别到任务</div>';return;}var sn={special:'特殊作业',hazard:'重大危险源',closed:'封闭园区',emergency:'应急管理',data:'数据治理'};var tt=r.isCycle?'周期触发':r.isCondition?'条件触发':'手动触发';c.innerHTML='<div class="parse-loaded"><div class="parse-meta"><span class="parse-tag scene">🏢 '+sn[r.scene]+'</span><span class="parse-tag trigger">'+(r.isCycle?'🔄':'⚡')+' '+tt+'</span><span class="parse-tag tasks">📋 '+r.tasks.length+'个任务</span></div><div class="parse-tasks-list">'+r.tasks.map(function(t,i){return'<div class="parse-task-item"><span class="parse-task-num">'+(i+1)+'</span><span>'+t.name+'</span></div>';}).join('')+'</div></div>';}
+function renderFlowEditor(r){var c=document.getElementById('flowCanvas');if(!r.tasks||r.tasks.length===0){c.innerHTML='<div class="flow-empty">解析后的任务流程将在此显示</div>';return;}c.innerHTML=r.tasks.map(function(t,i){return'<div class="flow-task"><div class="flow-task-num">'+(i+1)+'</div><div class="flow-task-body"><div class="flow-task-name">'+t.name+'</div><div class="flow-task-meta"><span class="flow-task-label executor">👤 '+(t.executor==='AI'?'AI':'人')+'</span><span class="flow-task-label output">📄 '+t.output+'</span></div></div><div class="flow-task-actions"><div class="flow-action-btn" onclick="moveTask('+t.id+',-1)">↑</div><div class="flow-action-btn" onclick="moveTask('+t.id+',1)">↓</div><div class="flow-action-btn" onclick="editTask('+t.id+')">✏️</div><div class="flow-action-btn danger" onclick="deleteTask('+t.id+')">×</div></div></div>';}).join('')+'<div class="flow-add-btn" onclick="addTask()">+ 添加任务</div>';}
+function moveTask(id,dir){var ts=parsedTasks.tasks;var i=ts.findIndex(function(t){return t.id===id;});if(i<0||i+dir<0||i+dir>=ts.length)return;var tmp=ts[i];ts[i]=ts[i+dir];ts[i+dir]=tmp;renderFlowEditor(parsedTasks);}
+function editTask(id){alert('编辑任务: '+id);}
+function deleteTask(id){if(!confirm('确定删除此任务？'))return;parsedTasks.tasks=parsedTasks.tasks.filter(function(t){return t.id!==id;});renderFlowEditor(parsedTasks);renderParseResult(parsedTasks);}
+function addTask(){var nid=Math.max(0,Math.apply(null,parsedTasks.tasks.map(function(t){return t.id;})))+1;parsedTasks.tasks.push({id:nid,name:'新任务',executor:'AI',type:'自动执行',output:'结果'});renderFlowEditor(parsedTasks);}
+function selectTag(el){document.querySelectorAll('.tag-section:first-child .tag-option').forEach(function(o){o.classList.remove('selected');});el.classList.add('selected');selectedScene=el.dataset.value;}
+function selectTrigger(el){document.querySelectorAll('.tag-section:nth-child(2) .tag-option').forEach(function(o){o.classList.remove('selected');});el.classList.add('selected');selectedTrigger=el.dataset.value;}
+var templates={'月度巡检':{scene:'special',trigger:'cycle',tasks:[{id:1,name:'日常巡检',executor:'AI',type:'现场执行',output:'巡检记录表'},{id:2,name:'报告生成',executor:'AI',type:'自动生成',output:'巡检报告'},{id:3,name:'审核签字',executor:'human',type:'人工确认',output:'审核签字'}]},'危险源评估':{scene:'hazard',trigger:'condition',tasks:[{id:1,name:'诊断分析',executor:'AI',type:'自动诊断',output:'诊断结论'},{id:2,name:'评估报告',executor:'AI',type:'自动生成',output:'评估报告'}]},'应急处置':{scene:'emergency',trigger:'condition',tasks:[{id:1,name:'响应确认',executor:'AI',type:'自动响应',output:'响应记录'},{id:2,name:'现场评估',executor:'AI',type:'智能评估',output:'评估结论'},{id:3,name:'调度处置',executor:'human',type:'人工处置',output:'处置记录'},{id:4,name:'上报归档',executor:'human',type:'人工归档',output:'归档文件'}]}};
+function loadTemplate(n){var t=templates[n];if(!t)return;document.getElementById('nlInput').value=n+'：执行'+t.tasks.map(function(x){return x.name;}).join(' → ');selectedScene=t.scene;selectedTrigger=t.trigger;parsedTasks={tasks:t.tasks,scene:t.scene,isCycle:t.trigger==='cycle',isCondition:t.trigger==='condition'};document.querySelectorAll('.tag-section:first-child .tag-option').forEach(function(o){o.classList.toggle('selected',o.dataset.value===t.scene);});document.querySelectorAll('.tag-section:nth-child(2) .tag-option').forEach(function(o){o.classList.toggle('selected',o.dataset.value===t.trigger);});renderParseResult(parsedTasks);renderFlowEditor(parsedTasks);}
+function saveDraft(){var s=document.getElementById('actionStatus');s.innerHTML='<span>💾</span><span>保存中...</span>';s.classList.remove('saved');setTimeout(function(){s.innerHTML='<span>✓</span><span>已保存</span>';s.classList.add('saved');},500);}
+function saveTemplate(){if(!parsedTasks.tasks||!parsedTasks.tasks.length)return alert('请先解析任务流程');console.log('保存:',{scene:selectedScene,trigger:selectedTrigger,tasks:parsedTasks.tasks});alert('模板保存成功！');history.back();}
+renderParseResult(parsedTasks);renderFlowEditor(parsedTasks);
+</script>
+</body>
+</html>

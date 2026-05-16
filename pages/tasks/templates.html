@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务模板管理 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<style>
+html, body { overflow: auto !important; height: auto !important; background: var(--bg-dark); }
+
+/* 页面头部 */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.btn-create {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-create:hover { box-shadow: 0 4px 12px rgba(22,119,255,0.3); }
+
+/* 筛选栏 */
+.filter-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.filter-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  min-width: 140px;
+}
+.filter-select:focus { border-color: var(--primary); }
+.filter-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  width: 180px;
+}
+.filter-input:focus { border-color: var(--primary); }
+.filter-input::placeholder { color: var(--text-muted); }
+
+/* 模板卡片列表 */
+.template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 模板卡片 */
+.template-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.template-card:hover {
+  border-color: rgba(139,92,246,0.3);
+  box-shadow: 0 4px 16px rgba(139,92,246,0.08);
+}
+
+.template-card.expanded {
+  border-color: var(--primary);
+}
+
+/* 卡片头部 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: rgba(139,92,246,0.15);
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 标签 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.tag-scene-special { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.tag-scene-hazard { background: rgba(250,173,20,0.15); color: #fbbf24; }
+.tag-scene-closed { background: rgba(34,197,94,0.15); color: #4ade80; }
+.tag-scene-emergency { background: rgba(239,68,68,0.15); color: #f87171; }
+.tag-scene-data { background: rgba(139,92,246,0.15); color: #a78bfa; }
+
+.tag-trigger { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
+.tag-trigger.cycle { background: rgba(139,92,246,0.15); color: #a78bfa; }
+.tag-trigger.condition { background: rgba(250,173,20,0.15); color: #fbbf24; }
+.tag-trigger.manual { background: rgba(34,197,94,0.15); color: #4ade80; }
+
+.tag-status { background: rgba(34,197,94,0.15); color: var(--success); }
+
+/* 卡片操作按钮 */
+.card-actions {
+  display: flex;
+  gap: 6px;
+}
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-icon:hover { border-color: var(--primary); color: var(--primary); }
+.btn-execute {
+  background: rgba(139,92,246,0.15);
+  border-color: rgba(139,92,246,0.3);
+  color: #a78bfa;
+}
+.btn-execute:hover { background: rgba(139,92,246,0.25); }
+
+/* 关键指标 */
+.card-kpis {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+}
+.kpi-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.kpi-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.kpi-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border-subtle);
+}
+
+/* 子任务链 */
+.card-chain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: rgba(139,92,246,0.05);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary);
+}
+.chain-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+.chain-task {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+.chain-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chain-arrow {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* 执行人 */
+.card-executors {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.executor-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.executor-type {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.executor-type.ai { background: rgba(139,92,246,0.2); color: #a78bfa; }
+.executor-type.human { background: rgba(34,197,94,0.2); color: #4ade80; }
+
+/* 产出物 */
+.card-output {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.output-icon {
+  color: var(--primary);
+}
+
+/* 展开详情 */
+.card-detail {
+  display: none;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+.card-detail.show { display: block; }
+
+.detail-section {
+  margin-bottom: 16px;
+}
+.detail-section:last-child { margin-bottom: 0; }
+.detail-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 子任务详情 */
+.subtask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+}
+.subtask-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(139,92,246,0.2);
+  color: #a78bfa;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.subtask-info { flex: 1; }
+.subtask-name {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.subtask-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.subtask-pre {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 4px;
+}
+
+/* 执行参数 */
+.param-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.param-item {
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+}
+.param-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.param-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* 展开/收起按钮 */
+.expand-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all .2s;
+  margin-left: auto;
+}
+.expand-btn:hover { color: var(--primary); background: rgba(139,92,246,0.1); }
+
+/* 模态框 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 18px;
+}
+.modal-close:hover { background: rgba(255,255,255,0.1); }
+.modal-body { padding: 24px; }
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-subtle);
+}
+.btn-cancel {
+  padding: 10px 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+}
+.btn-primary {
+  padding: 10px 20px;
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* 表单项 */
+.form-group {
+  margin-bottom: 20px;
+}
+.form-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+/* 触发方式选项 */
+.trigger-options {
+  display: flex;
+  gap: 12px;
+}
+.trigger-option {
+  flex: 1;
+  padding: 12px;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-subtle);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: all .2s;
+}
+.trigger-option:hover { border-color: var(--primary); }
+.trigger-option.selected { border-color: var(--primary); background: rgba(139,92,246,0.1); }
+.trigger-option input { display: none; }
+.trigger-icon { font-size: 20px; margin-bottom: 6px; }
+.trigger-name { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+.trigger-desc { font-size: 11px; color: var(--text-muted); }
+</style>
+</head>
+<body style="padding: 20px;">
+
+<!-- 页面头部 -->
+<div class="page-header">
+  <div class="page-title">🔧 任务模板管理</div>
+  <button class="btn-create" onclick="location.href='template-create.html'">+ 创建模板</button>
+</div>
+
+<!-- 筛选栏 -->
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">业务场景</span>
+    <select class="filter-select" id="filterScene">
+      <option value="">全部场景</option>
+      <option value="special">特殊作业</option>
+      <option value="hazard">重大危险源</option>
+      <option value="closed">封闭园区</option>
+      <option value="emergency">应急管理</option>
+      <option value="data">数据治理</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">触发方式</span>
+    <select class="filter-select" id="filterTrigger">
+      <option value="">全部触发</option>
+      <option value="cycle">周期触发</option>
+      <option value="condition">条件触发</option>
+      <option value="manual">手动触发</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">状态</span>
+    <select class="filter-select" id="filterStatus">
+      <option value="">全部状态</option>
+      <option value="enabled">已启用</option>
+      <option value="disabled">已停用</option>
+    </select>
+  </div>
+  <div style="flex:1;"></div>
+  <input type="text" class="filter-input" placeholder="🔍 搜索模板名称..." id="searchInput" oninput="filterTemplates()">
+</div>
+
+<!-- 模板列表 -->
+<div class="template-list" id="templateList">
+  <!-- 模板1：月度巡检 -->
+  <div class="template-card" data-scene="special" data-trigger="cycle" data-status="enabled">
+    <div class="card-header">
+      <div class="card-title-row">
+        <div class="card-icon">📋</div>
+        <div>
+          <div class="card-title">月度巡检任务模板</div>
+          <div class="card-meta">
+            <span class="tag tag-scene-special">特殊作业</span>
+            <span class="tag tag-trigger cycle">🔄 周期触发(每月1日)</span>
+            <span class="tag tag-status">✅ 已启用</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <div class="btn-icon" title="编辑" onclick="location.href='template-create.html?id=1'">✏️</div>
+        <div class="btn-icon" title="复制">📋</div>
+        <div class="btn-icon btn-execute" title="立即执行">▶</div>
+      </div>
+    </div>
+    
+    <div class="card-kpis">
+      <div class="kpi-item"><span class="kpi-value">≥100%</span> 覆盖率</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">≤5日</span> 报告提交</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">≤24h</span> 异常响应</div>
+    </div>
+    
+    <div class="card-chain">
+      <span class="chain-label">子任务(3)</span>
+      <span class="chain-task"><span class="chain-num">1</span> 日常巡检</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-task"><span class="chain-num">2</span> 报告生成</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-task"><span class="chain-num">3</span> 审核签字</span>
+    </div>
+    
+    <div class="card-executors">
+      <span class="chain-label">执行人</span>
+      <div class="executor-tag">小巡 <span class="executor-type ai">AI</span></div>
+      <div class="executor-tag">小报 <span class="executor-type ai">AI</span></div>
+      <div class="executor-tag">安全工程师 <span class="executor-type human">人</span></div>
+    </div>
+    
+    <div class="card-output">
+      <span class="output-icon">📄</span>
+      <span>最终产物：月度巡检闭环报告</span>
+    </div>
+    
+    <div class="expand-btn" onclick="toggleDetail(this)">展开详情 ▼</div>
+    
+    <div class="card-detail">
+      <div class="detail-section">
+        <div class="detail-title">子任务详情</div>
+        <div class="subtask-list">
+          <div class="subtask-item">
+            <div class="subtask-num">1</div>
+            <div class="subtask-info">
+              <div class="subtask-name">日常巡检</div>
+              <div class="subtask-meta">执行人：小巡(AI) · 前置条件：无 · 产出物：巡检记录表</div>
+            </div>
+            <div class="subtask-pre">现场执行</div>
+          </div>
+          <div class="subtask-item">
+            <div class="subtask-num">2</div>
+            <div class="subtask-info">
+              <div class="subtask-name">报告生成</div>
+              <div class="subtask-meta">执行人：小报(AI) · 前置条件：①完成 · 产出物：月度巡检报告</div>
+            </div>
+            <div class="subtask-pre">自动生成</div>
+          </div>
+          <div class="subtask-item">
+            <div class="subtask-num">3</div>
+            <div class="subtask-info">
+              <div class="subtask-name">审核签字</div>
+              <div class="subtask-meta">执行人：安全工程师(人) · 前置条件：②完成 · 产出物：审核签字</div>
+            </div>
+            <div class="subtask-pre">人工确认</div>
+          </div>
+        </div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-title">执行参数</div>
+        <div class="param-grid">
+          <div class="param-item">
+            <div class="param-label">巡检频次</div>
+            <div class="param-value">4次/月</div>
+          </div>
+          <div class="param-item">
+            <div class="param-label">巡检点位</div>
+            <div class="param-value">12个(A区6+B区6)</div>
+          </div>
+          <div class="param-item">
+            <div class="param-label">覆盖率要求</div>
+            <div class="param-value">≥100%</div>
+          </div>
+          <div class="param-item">
+            <div class="param-label">报告截止</div>
+            <div class="param-value">每月5日</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模板2：重大危险源评估 -->
+  <div class="template-card" data-scene="hazard" data-trigger="condition" data-status="enabled">
+    <div class="card-header">
+      <div class="card-title-row">
+        <div class="card-icon">⚠️</div>
+        <div>
+          <div class="card-title">重大危险源评估模板</div>
+          <div class="card-meta">
+            <span class="tag tag-scene-hazard">重大危险源</span>
+            <span class="tag tag-trigger condition">⚡ 条件触发(GDS报警)</span>
+            <span class="tag tag-status">✅ 已启用</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <div class="btn-icon" title="编辑" onclick="location.href='template-create.html?id=1'">✏️</div>
+        <div class="btn-icon" title="复制">📋</div>
+        <div class="btn-icon btn-execute" title="立即执行">▶</div>
+      </div>
+    </div>
+    
+    <div class="card-kpis">
+      <div class="kpi-item"><span class="kpi-value">≤30min</span> 诊断</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">≤15min</span> 响应</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">≤24h</span> 报告</div>
+    </div>
+    
+    <div class="card-chain">
+      <span class="chain-label">子任务(2)</span>
+      <span class="chain-task"><span class="chain-num">1</span> 诊断分析</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-task"><span class="chain-num">2</span> 评估报告</span>
+    </div>
+    
+    <div class="card-executors">
+      <span class="chain-label">执行人</span>
+      <div class="executor-tag">小安 <span class="executor-type ai">AI</span></div>
+      <div class="executor-tag">小研 <span class="executor-type ai">AI</span></div>
+    </div>
+    
+    <div class="card-output">
+      <span class="output-icon">📄</span>
+      <span>最终产物：重大危险源评估报告</span>
+    </div>
+    
+    <div class="expand-btn" onclick="toggleDetail(this)">展开详情 ▼</div>
+    
+    <div class="card-detail">
+      <div class="detail-section">
+        <div class="detail-title">子任务详情</div>
+        <div class="subtask-list">
+          <div class="subtask-item">
+            <div class="subtask-num">1</div>
+            <div class="subtask-info">
+              <div class="subtask-name">诊断分析</div>
+              <div class="subtask-meta">执行人：小安(AI) · 前置条件：无 · 产出物：诊断结论</div>
+            </div>
+            <div class="subtask-pre">自动诊断</div>
+          </div>
+          <div class="subtask-item">
+            <div class="subtask-num">2</div>
+            <div class="subtask-info">
+              <div class="subtask-name">评估报告</div>
+              <div class="subtask-meta">执行人：小研(AI) · 前置条件：①完成 · 产出物：评估报告</div>
+            </div>
+            <div class="subtask-pre">自动生成</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模板3：应急事件处置 -->
+  <div class="template-card" data-scene="emergency" data-trigger="condition" data-status="enabled">
+    <div class="card-header">
+      <div class="card-title-row">
+        <div class="card-icon">🚨</div>
+        <div>
+          <div class="card-title">应急事件处置模板</div>
+          <div class="card-meta">
+            <span class="tag tag-scene-emergency">应急管理</span>
+            <span class="tag tag-trigger condition">⚡ 条件触发(报警升级)</span>
+            <span class="tag tag-status">✅ 已启用</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <div class="btn-icon" title="编辑" onclick="location.href='template-create.html?id=1'">✏️</div>
+        <div class="btn-icon" title="复制">📋</div>
+        <div class="btn-icon btn-execute" title="立即执行">▶</div>
+      </div>
+    </div>
+    
+    <div class="card-kpis">
+      <div class="kpi-item"><span class="kpi-value">≤5min</span> 响应</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">≤10min</span> 调度</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">≤30min</span> 上报</div>
+    </div>
+    
+    <div class="card-chain">
+      <span class="chain-label">子任务(4)</span>
+      <span class="chain-task"><span class="chain-num">1</span> 响应确认</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-task"><span class="chain-num">2</span> 现场评估</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-task"><span class="chain-num">3</span> 调度处置</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-task"><span class="chain-num">4</span> 上报归档</span>
+    </div>
+    
+    <div class="card-executors">
+      <span class="chain-label">执行人</span>
+      <div class="executor-tag">小安 <span class="executor-type ai">AI</span></div>
+      <div class="executor-tag">应急指挥 <span class="executor-type human">人</span></div>
+      <div class="executor-tag">安全总监 <span class="executor-type human">人</span></div>
+    </div>
+    
+    <div class="card-output">
+      <span class="output-icon">📄</span>
+      <span>最终产物：应急处置记录 + 事件分析报告</span>
+    </div>
+    
+    <div class="expand-btn" onclick="toggleDetail(this)">展开详情 ▼</div>
+    
+    <div class="card-detail">
+      <div class="detail-section">
+        <div class="detail-title">子任务详情</div>
+        <div class="subtask-list">
+          <div class="subtask-item">
+            <div class="subtask-num">1</div>
+            <div class="subtask-info">
+              <div class="subtask-name">响应确认</div>
+              <div class="subtask-meta">执行人：小安(AI) · 前置条件：无 · 产出物：响应记录</div>
+            </div>
+          </div>
+          <div class="subtask-item">
+            <div class="subtask-num">2</div>
+            <div class="subtask-info">
+              <div class="subtask-name">现场评估</div>
+              <div class="subtask-meta">执行人：应急指挥(人) · 前置条件：①完成 · 产出物：评估结论</div>
+            </div>
+          </div>
+          <div class="subtask-item">
+            <div class="subtask-num">3</div>
+            <div class="subtask-info">
+              <div class="subtask-name">调度处置</div>
+              <div class="subtask-meta">执行人：应急指挥(人) · 前置条件：②完成 · 产出物：处置记录</div>
+            </div>
+          </div>
+          <div class="subtask-item">
+            <div class="subtask-num">4</div>
+            <div class="subtask-info">
+              <div class="subtask-name">上报归档</div>
+              <div class="subtask-meta">执行人：安全总监(人) · 前置条件：③完成 · 产出物：归档文件</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模板4：封闭园区车辆管理 -->
+  <div class="template-card" data-scene="closed" data-trigger="cycle" data-status="enabled">
+    <div class="card-header">
+      <div class="card-title-row">
+        <div class="card-icon">🚗</div>
+        <div>
+          <div class="card-title">封闭园区车辆管理模板</div>
+          <div class="card-meta">
+            <span class="tag tag-scene-closed">封闭园区</span>
+            <span class="tag tag-trigger cycle">🔄 周期触发(每日)</span>
+            <span class="tag tag-status">✅ 已启用</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <div class="btn-icon" title="编辑" onclick="location.href='template-create.html?id=1'">✏️</div>
+        <div class="btn-icon" title="复制">📋</div>
+        <div class="btn-icon btn-execute" title="立即执行">▶</div>
+      </div>
+    </div>
+    
+    <div class="card-kpis">
+      <div class="kpi-item"><span class="kpi-value">100%</span> 覆盖率</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">≤2min</span> 通行</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">0</span> 异常滞留</div>
+    </div>
+    
+    <div class="card-chain">
+      <span class="chain-label">子任务(3)</span>
+      <span class="chain-task"><span class="chain-num">1</span> 车辆识别</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-task"><span class="chain-num">2</span> 风险检查</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-task"><span class="chain-num">3</span> 记录归档</span>
+    </div>
+    
+    <div class="card-executors">
+      <span class="chain-label">执行人</span>
+      <div class="executor-tag">小库 <span class="executor-type ai">AI</span></div>
+    </div>
+    
+    <div class="card-output">
+      <span class="output-icon">📄</span>
+      <span>最终产物：车辆通行日报</span>
+    </div>
+    
+    <div class="expand-btn" onclick="toggleDetail(this)">展开详情 ▼</div>
+    
+    <div class="card-detail">
+      <div class="detail-section">
+        <div class="detail-title">子任务详情</div>
+        <div class="subtask-list">
+          <div class="subtask-item">
+            <div class="subtask-num">1</div>
+            <div class="subtask-info">
+              <div class="subtask-name">车辆识别</div>
+              <div class="subtask-meta">执行人：小库(AI) · 前置条件：无 · 产出物：车辆记录</div>
+            </div>
+          </div>
+          <div class="subtask-item">
+            <div class="subtask-num">2</div>
+            <div class="subtask-info">
+              <div class="subtask-name">风险检查</div>
+              <div class="subtask-meta">执行人：小库(AI) · 前置条件：①完成 · 产出物：风险预警</div>
+            </div>
+          </div>
+          <div class="subtask-item">
+            <div class="subtask-num">3</div>
+            <div class="subtask-info">
+              <div class="subtask-name">记录归档</div>
+              <div class="subtask-meta">执行人：小库(AI) · 前置条件：②完成 · 产出物：日报</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模板5：数据治理服务 -->
+  <div class="template-card" data-scene="data" data-trigger="cycle" data-status="enabled">
+    <div class="card-header">
+      <div class="card-title-row">
+        <div class="card-icon">📊</div>
+        <div>
+          <div class="card-title">数据治理服务模板</div>
+          <div class="card-meta">
+            <span class="tag tag-scene-data">数据治理</span>
+            <span class="tag tag-trigger cycle">🔄 周期触发(每周)</span>
+            <span class="tag tag-status">✅ 已启用</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <div class="btn-icon" title="编辑" onclick="location.href='template-create.html?id=1'">✏️</div>
+        <div class="btn-icon" title="复制">📋</div>
+        <div class="btn-icon btn-execute" title="立即执行">▶</div>
+      </div>
+    </div>
+    
+    <div class="card-kpis">
+      <div class="kpi-item"><span class="kpi-value">≥95%</span> 完整率</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">≤1%</span> 脏数据</div>
+      <div class="kpi-sep"></div>
+      <div class="kpi-item"><span class="kpi-value">每周五</span> 报告</div>
+    </div>
+    
+    <div class="card-chain">
+      <span class="chain-label">子任务(2)</span>
+      <span class="chain-task"><span class="chain-num">1</span> 数据采集</span>
+      <span class="chain-arrow">→</span>
+      <span class="chain-task"><span class="chain-num">2</span> 质量报告</span>
+    </div>
+    
+    <div class="card-executors">
+      <span class="chain-label">执行人</span>
+      <div class="executor-tag">小库 <span class="executor-type ai">AI</span></div>
+    </div>
+    
+    <div class="card-output">
+      <span class="output-icon">📄</span>
+      <span>最终产物：数据质量周报</span>
+    </div>
+    
+    <div class="expand-btn" onclick="toggleDetail(this)">展开详情 ▼</div>
+    
+    <div class="card-detail">
+      <div class="detail-section">
+        <div class="detail-title">子任务详情</div>
+        <div class="subtask-list">
+          <div class="subtask-item">
+            <div class="subtask-num">1</div>
+            <div class="subtask-info">
+              <div class="subtask-name">数据采集</div>
+              <div class="subtask-meta">执行人：小库(AI) · 前置条件：无 · 产出物：原始数据</div>
+            </div>
+          </div>
+          <div class="subtask-item">
+            <div class="subtask-num">2</div>
+            <div class="subtask-info">
+              <div class="subtask-name">质量报告</div>
+              <div class="subtask-meta">执行人：小库(AI) · 前置条件：①完成 · 产出物：周报</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 创建模板模态框 -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">创建任务模板</div>
+      <div class="modal-close" onclick="hideCreateModal()">×</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">模板名称</label>
+        <input type="text" class="form-input" placeholder="请输入模板名称" id="templateName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">所属场景</label>
+        <select class="form-select" id="templateScene">
+          <option value="">请选择业务场景</option>
+          <option value="special">特殊作业</option>
+          <option value="hazard">重大危险源</option>
+          <option value="closed">封闭园区</option>
+          <option value="emergency">应急管理</option>
+          <option value="data">数据治理</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">触发方式</label>
+        <div class="trigger-options">
+          <label class="trigger-option selected">
+            <input type="radio" name="trigger" value="cycle" checked>
+            <div class="trigger-icon">🔄</div>
+            <div class="trigger-name">周期触发</div>
+            <div class="trigger-desc">定时自动执行</div>
+          </label>
+          <label class="trigger-option">
+            <input type="radio" name="trigger" value="condition">
+            <div class="trigger-icon">⚡</div>
+            <div class="trigger-name">条件触发</div>
+            <div class="trigger-desc">事件驱动执行</div>
+          </label>
+          <label class="trigger-option">
+            <input type="radio" name="trigger" value="manual">
+            <div class="trigger-icon">👆</div>
+            <div class="trigger-name">手动触发</div>
+            <div class="trigger-desc">人工一键执行</div>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">适用说明</label>
+        <textarea class="form-textarea" placeholder="请输入模板描述和适用说明" id="templateDesc"></textarea>
+        <div class="form-hint">描述模板的使用场景和注意事项</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="hideCreateModal()">取消</button>
+      <button class="btn-primary" onclick="createTemplate()">创建并配置 →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 展开/收起详情
+function toggleDetail(btn) {
+  const card = btn.closest('.template-card');
+  const detail = card.querySelector('.card-detail');
+  const isExpanded = detail.classList.contains('show');
+  
+  // 关闭所有其他展开的详情
+  document.querySelectorAll('.card-detail.show').forEach(d => {
+    d.classList.remove('show');
+    d.closest('.template-card').classList.remove('expanded');
+  });
+  document.querySelectorAll('.expand-btn').forEach(b => b.textContent = '展开详情 ▼');
+  
+  if (!isExpanded) {
+    detail.classList.add('show');
+    card.classList.add('expanded');
+    btn.textContent = '收起详情 ▲';
+  }
+}
+
+// 筛选模板
+function filterTemplates() {
+  const scene = document.getElementById('filterScene').value;
+  const trigger = document.getElementById('filterTrigger').value;
+  const status = document.getElementById('filterStatus').value;
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  
+  document.querySelectorAll('.template-card').forEach(card => {
+    let show = true;
+    
+    if (scene && card.dataset.scene !== scene) show = false;
+    if (trigger && card.dataset.trigger !== trigger) show = false;
+    if (status && card.dataset.status !== status) show = false;
+    
+    const title = card.querySelector('.card-title').textContent.toLowerCase();
+    if (search && !title.includes(search)) show = false;
+    
+    card.style.display = show ? 'block' : 'none';
+  });
+}
+
+// 绑定筛选事件
+document.getElementById('filterScene').addEventListener('change', filterTemplates);
+document.getElementById('filterTrigger').addEventListener('change', filterTemplates);
+document.getElementById('filterStatus').addEventListener('change', filterTemplates);
+
+// 显示创建模态框
+function showCreateModal() {
+  document.getElementById('createModal').classList.add('show');
+}
+
+// 隐藏创建模态框
+function hideCreateModal() {
+  document.getElementById('createModal').classList.remove('show');
+}
+
+// 创建模板
+function createTemplate() {
+  const name = document.getElementById('templateName').value.trim();
+  const scene = document.getElementById('templateScene').value;
+  
+  if (!name) {
+    alert('请输入模板名称');
+    return;
+  }
+  if (!scene) {
+    alert('请选择业务场景');
+    return;
+  }
+  
+  alert('模板创建成功！即将跳转到模板配置页...');
+  hideCreateModal();
+  
+  // 实际应该跳转到配置页
+  // location.href = 'template-config.html?name=' + encodeURIComponent(name) + '&scene=' + scene;
+}
+
+// 触发方式选项切换
+document.querySelectorAll('.trigger-option').forEach(opt => {
+  opt.addEventListener('click', function() {
+    document.querySelectorAll('.trigger-option').forEach(o => o.classList.remove('selected'));
+    this.classList.add('selected');
+  });
+});
+</script>
+
+</body>
+</html>

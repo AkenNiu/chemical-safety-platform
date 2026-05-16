@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>数字员工 - SMAP平台</title>
+<title>能力平台 - SMAP平台</title>
 <link rel="stylesheet" href="../css/variables.css">
 <link rel="stylesheet" href="../css/common.css">
 <link rel="stylesheet" href="../css/l2-frame.css">
@@ -12,28 +12,29 @@
 <div class="l2-container">
   <aside class="sidebar-l2" id="sidebarL2">
     <div class="l2-header">
-      <span id="l2Title">数字员工</span>
+      <span id="l2Title">能力平台</span>
       <span class="l2-toggle" id="l2Toggle" title="折叠">&#9664;</span>
     </div>
     <div class="l2-list" id="l2List"></div>
   </aside>
   <main class="l2-content">
-    <iframe id="l2Frame" src="ai-staff/market.html"></iframe>
+    <iframe id="l2Frame" src="builder/index.html"></iframe>
   </main>
 </div>
 <script>
 const menuData = [
-  { icon: "&#129302;", label: "智能体市场", page: "ai-staff/market.html" },
-  { icon: "&#128100;", label: "我的数字员工", page: "ai-staff/roster.html" },
+  { icon: "&#129302;", label: "能力广场", page: "builder/index.html" },
+  { icon: "&#129302;", label: "智能体开发", page: "builder/agent-dev.html" },
+  { icon: "&#128295;", label: "技能开发", page: "builder/skill-dev.html" },
+  { icon: "&#128202;", label: "数据集市", page: "builder/data-market.html" },
   { type: "divider" },
-  { icon: "📌", label: "常用", isHeader: true },
-  { icon: "🔔", label: "报警诊断", page: "ai-staff/profile.html?staff=an&from=roster" },
-  { icon: "⚠️", label: "异常工况诊断", page: "ai-staff/profile.html?staff=an&from=roster" },
-  { icon: "⚖️", label: "作业风险评估", page: "ai-staff/profile.html?staff=yan&from=roster" },
-  { icon: "🔧", label: "设备故障预测", page: "ai-staff/profile.html?staff=xun&from=roster" },
-  { icon: "💥", label: "泄漏扩散模拟", page: "ai-staff/profile.html?staff=xun&from=roster" },
-  { icon: "🚨", label: "应急辅助决策", page: "ai-staff/profile.html?staff=shen&from=roster" },
-  { icon: "📊", label: "报告生成", page: "ai-staff/profile.html?staff=bao&from=roster" }
+  { icon: "🧩", label: "组件与插件", page: "builder/plugins.html" },
+  { icon: "&#128196;", label: "API管理", page: "builder/api-manage.html" },
+  { icon: "&#128640;", label: "模型中心", page: "builder/model-center.html" },
+  { type: "divider" },
+  { icon: "&#128736;", label: "工具箱", page: "builder/toolkit.html" },
+  { icon: "&#128203;", label: "开发文档", page: "builder/docs.html" },
+  { icon: "&#128101;", label: "开发者社区", page: "builder/community.html" }
 ];
 
 let l2Collapsed = false;

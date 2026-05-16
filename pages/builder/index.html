@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>能力平台 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<link rel="stylesheet" href="../../css/layout.css">
+<style>
+/* ========== 能力平台页面 ========== */
+html, body { overflow: auto !important; height: auto !important; }
+.page-builder { padding: 16px; background: var(--bg-deep); min-height: 100vh; overflow-y: auto; }
+
+/* 顶部栏 */
+.builder-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.builder-title { font-size: 20px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+.builder-title-icon { font-size: 24px; }
+.builder-actions { display: flex; gap: 10px; align-items: center; }
+.builder-search { position: relative; width: 260px; }
+.builder-search input { width: 100%; padding: 8px 14px 8px 36px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 20px; color: var(--text-primary); font-size: 13px; outline: none; }
+.builder-search input:focus { border-color: var(--primary); }
+.builder-search input::placeholder { color: var(--text-muted); }
+.builder-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); }
+.builder-btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s; border: none; }
+.builder-btn-skill { background: linear-gradient(135deg, #06b6d4, #22d3ee); color: #fff; }
+.builder-btn-skill:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(6,182,212,0.4); }
+.builder-btn-agent { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: #fff; }
+.builder-btn-agent:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,92,246,0.4); }
+
+/* 主内容区：左侧分类 + 右侧内容 */
+.builder-main { display: flex; gap: 16px; }
+
+/* ========== 左侧分类导航 ========== */
+.builder-sidebar { width: 200px; flex-shrink: 0; }
+.builder-cat-list { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 12px 0; }
+.builder-cat-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; transition: all .2s; font-size: 13px; color: var(--text-secondary); }
+.builder-cat-item:hover { background: rgba(22,119,255,0.06); color: var(--text-primary); }
+.builder-cat-item.active { background: rgba(22,119,255,0.1); color: var(--primary); font-weight: 600; }
+.builder-cat-count { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+.builder-cat-item.active .builder-cat-count { color: var(--primary); }
+
+/* ========== 右侧内容区 ========== */
+.builder-content { flex: 1; min-width: 0; }
+
+/* Tab 切换 */
+.builder-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.builder-tab { padding: 8px 20px; border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap; transition: all .2s; color: var(--text-secondary); background: transparent; border: 1px solid var(--border-subtle); }
+.builder-tab:hover { color: var(--text-primary); border-color: var(--border-medium); }
+.builder-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* 内容标题 */
+.builder-section-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.builder-section-count { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+
+/* ========== 卡片网格 ========== */
+.builder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+
+/* 智能体卡片 */
+.agent-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 16px;
+  transition: all .2s;
+  position: relative;
+  cursor: pointer;
+}
+.agent-card:hover { border-color: rgba(139,92,246,0.5); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(139,92,246,0.1); }
+.agent-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.agent-avatar { width: 48px; height: 48px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+.agent-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.agent-info { flex: 1; min-width: 0; }
+.agent-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+.agent-intro { font-size: 12px; color: var(--text-muted); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.agent-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.agent-tag { padding: 2px 8px; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2); border-radius: 10px; font-size: 10px; color: #a78bfa; }
+.agent-stats { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); }
+.agent-usage { font-size: 11px; color: var(--text-muted); }
+.agent-rating { font-size: 11px; color: #fbbf24; }
+
+/* 技能卡片 */
+.skill-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 16px;
+  transition: all .2s;
+  position: relative;
+  cursor: pointer;
+}
+.skill-card:hover { border-color: rgba(6,182,212,0.5); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(6,182,212,0.1); }
+.skill-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.skill-icon-box { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #06b6d4, #22d3ee); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.skill-info { flex: 1; min-width: 0; }
+.skill-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+.skill-intro { font-size: 12px; color: var(--text-muted); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.skill-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.skill-tag { padding: 2px 8px; background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.2); border-radius: 10px; font-size: 10px; color: #22d3ee; }
+.skill-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); }
+.skill-ref-count { font-size: 11px; color: var(--text-muted); }
+.skill-use-btn { font-size: 11px; color: #22d3ee; display: flex; align-items: center; gap: 4px; }
+
+/* 空状态 */
+.builder-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.builder-empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+.builder-empty-text { font-size: 14px; }
+
+/* 分页 */
+.builder-pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
+.builder-page-info { font-size: 12px; color: var(--text-muted); }
+.builder-page-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-subtle); background: var(--bg-card); color: var(--text-secondary); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.builder-page-btn:hover { border-color: var(--primary); color: var(--primary); }
+.builder-page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+</style>
+</head>
+<body class="page-builder">
+
+<!-- 顶部栏 -->
+<div class="builder-header">
+  <div class="builder-title">
+    <span class="builder-title-icon">🛠️</span>
+    能力平台
+  </div>
+  <div class="builder-actions">
+    <div class="builder-search">
+      <span class="builder-search-icon">🔍</span>
+      <input type="text" placeholder="搜索智能体或技能...">
+    </div>
+    <button class="builder-btn builder-btn-skill">➕ 创建技能</button>
+    <button class="builder-btn builder-btn-agent">➕ 创建智能体</button>
+  </div>
+</div>
+
+<!-- 主内容区 -->
+<div class="builder-main">
+
+  <!-- 左侧分类导航 -->
+  <div class="builder-sidebar">
+    <div class="builder-cat-list">
+      <div class="builder-cat-item active" data-cat="all">
+        <span>全部</span>
+        <span class="builder-cat-count">22</span>
+      </div>
+      <div class="builder-cat-item" data-cat="safety">
+        <span>安全生产</span>
+        <span class="builder-cat-count">13</span>
+      </div>
+      <div class="builder-cat-item" data-cat="integration">
+        <span>集成与扩展</span>
+        <span class="builder-cat-count">3</span>
+      </div>
+      <div class="builder-cat-item" data-cat="support">
+        <span>职能支持</span>
+        <span class="builder-cat-count">2</span>
+      </div>
+      <div class="builder-cat-item" data-cat="analysis">
+        <span>数据分析与报告</span>
+        <span class="builder-cat-count">2</span>
+      </div>
+      <div class="builder-cat-item" data-cat="training">
+        <span>学习培训</span>
+        <span class="builder-cat-count">0</span>
+      </div>
+      <div class="builder-cat-item" data-cat="office">
+        <span>办公协同</span>
+        <span class="builder-cat-count">1</span>
+      </div>
+      <div class="builder-cat-item" data-cat="training2">
+        <span>学习培训</span>
+        <span class="builder-cat-count">1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧内容区 -->
+  <div class="builder-content">
+
+    <!-- Tab 切换 -->
+    <div class="builder-tabs">
+      <button class="builder-tab active" data-tab="agent">智能体</button>
+      <button class="builder-tab" data-tab="skill">技能</button>
+    </div>
+
+    <!-- 智能体列表 -->
+    <div class="builder-panel" id="panel-agent">
+      <div class="builder-section-title">
+        全部
+        <span class="builder-section-count">共 8 个智能体</span>
+      </div>
+      <div class="builder-grid">
+
+        <!-- 小安 -->
+        <div class="agent-card" onclick="location.href='../ai-staff/profile.html?staff=an&from=market'">
+          <div class="agent-card-header">
+            <div class="agent-avatar"><img src="../../assets/images/robot-1.png"></div>
+            <div class="agent-info">
+              <div class="agent-name">小安</div>
+              <div class="agent-intro">报警诊断专家，专注化工报警分析</div>
+            </div>
+          </div>
+          <div class="agent-tags">
+            <span class="agent-tag">报警诊断</span>
+            <span class="agent-tag">根因分析</span>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-usage">2,847 次使用</div>
+            <div class="agent-rating">⭐ 4.9</div>
+          </div>
+        </div>
+
+        <!-- 小研 -->
+        <div class="agent-card" onclick="location.href='../ai-staff/profile.html?staff=yan&from=market'">
+          <div class="agent-card-header">
+            <div class="agent-avatar"><img src="../../assets/images/robot-2.png"></div>
+            <div class="agent-info">
+              <div class="agent-name">小研</div>
+              <div class="agent-intro">风险评估师，AI安全风险评估</div>
+            </div>
+          </div>
+          <div class="agent-tags">
+            <span class="agent-tag">风险评估</span>
+            <span class="agent-tag">安全分析</span>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-usage">1,523 次使用</div>
+            <div class="agent-rating">⭐ 4.8</div>
+          </div>
+        </div>
+
+        <!-- 小报 -->
+        <div class="agent-card" onclick="location.href='../ai-staff/profile.html?staff=bao&from=market'">
+          <div class="agent-card-header">
+            <div class="agent-avatar"><img src="../../assets/images/robot-3.png"></div>
+            <div class="agent-info">
+              <div class="agent-name">小报</div>
+              <div class="agent-intro">报告生成专家，智能生成各类报告</div>
+            </div>
+          </div>
+          <div class="agent-tags">
+            <span class="agent-tag">报告生成</span>
+            <span class="agent-tag">可视化</span>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-usage">986 次使用</div>
+            <div class="agent-rating">⭐ 4.7</div>
+          </div>
+        </div>
+
+        <!-- 小巡 -->
+        <div class="agent-card" onclick="location.href='../ai-staff/profile.html?staff=xun&from=market'">
+          <div class="agent-card-header">
+            <div class="agent-avatar"><img src="../../assets/images/robot-4.png"></div>
+            <div class="agent-info">
+              <div class="agent-name">小巡</div>
+              <div class="agent-intro">智能巡检员，自动化点位巡检</div>
+            </div>
+          </div>
+          <div class="agent-tags">
+            <span class="agent-tag">智能巡检</span>
+            <span class="agent-tag">异常识别</span>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-usage">3,215 次使用</div>
+            <div class="agent-rating">⭐ 4.9</div>
+          </div>
+        </div>
+
+        <!-- 小库 -->
+        <div class="agent-card" onclick="location.href='../ai-staff/profile.html?staff=ku&from=market'">
+          <div class="agent-card-header">
+            <div class="agent-avatar"><img src="../../assets/images/robot-5.png"></div>
+            <div class="agent-info">
+              <div class="agent-name">小库</div>
+              <div class="agent-intro">知识检索员，智能匹配文档</div>
+            </div>
+          </div>
+          <div class="agent-tags">
+            <span class="agent-tag">知识检索</span>
+            <span class="agent-tag">法规库</span>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-usage">4,102 次使用</div>
+            <div class="agent-rating">⭐ 4.8</div>
+          </div>
+        </div>
+
+        <!-- 小识 -->
+        <div class="agent-card" onclick="location.href='../ai-staff/profile.html?staff=shi&from=market'">
+          <div class="agent-card-header">
+            <div class="agent-avatar"><img src="../../assets/images/robot-6.png"></div>
+            <div class="agent-info">
+              <div class="agent-name">小识</div>
+              <div class="agent-intro">智能问答助手，即时问答服务</div>
+            </div>
+          </div>
+          <div class="agent-tags">
+            <span class="agent-tag">智能问答</span>
+            <span class="agent-tag">对话</span>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-usage">5,678 次使用</div>
+            <div class="agent-rating">⭐ 4.9</div>
+          </div>
+        </div>
+
+        <!-- 小审 -->
+        <div class="agent-card" onclick="location.href='../ai-staff/profile.html?staff=shen&from=market'">
+          <div class="agent-card-header">
+            <div class="agent-avatar"><img src="../../assets/images/robot-7.png"></div>
+            <div class="agent-info">
+              <div class="agent-name">小审</div>
+              <div class="agent-intro">作业审批员，智能审核作业票</div>
+            </div>
+          </div>
+          <div class="agent-tags">
+            <span class="agent-tag">作业审批</span>
+            <span class="agent-tag">安全审核</span>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-usage">1,892 次使用</div>
+            <div class="agent-rating">⭐ 4.7</div>
+          </div>
+        </div>
+
+        <!-- 安全巡查助手 -->
+        <div class="agent-card" onclick="location.href='../ai-staff/profile.html?staff=patrol&from=market'">
+          <div class="agent-card-header">
+            <div class="agent-avatar"><img src="../../assets/images/robot-7.png"></div>
+            <div class="agent-info">
+              <div class="agent-name">安全巡查助手</div>
+              <div class="agent-intro">第三方开发的巡查助手</div>
+            </div>
+          </div>
+          <div class="agent-tags">
+            <span class="agent-tag">智能巡检</span>
+            <span class="agent-tag">第三方</span>
+          </div>
+          <div class="agent-stats">
+            <div class="agent-usage">156 次使用</div>
+            <div class="agent-rating">⭐ 4.5</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 技能列表 -->
+    <div class="builder-panel" id="panel-skill" style="display:none;">
+      <div class="builder-section-title">
+        全部
+        <span class="builder-section-count">共 14 个技能</span>
+      </div>
+      <div class="builder-grid">
+
+        <!-- 报警根因分析 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-ALARM-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">🔍</div>
+            <div class="skill-info">
+              <div class="skill-name">报警根因分析</div>
+              <div class="skill-intro">基于 DCS/GDS/SIS 实时数据诊断报警根因</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">报警诊断</span>
+            <span class="skill-tag">根因分析</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 18 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 天气查询 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-WEATHER-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">🌤️</div>
+            <div class="skill-info">
+              <div class="skill-name">天气查询</div>
+              <div class="skill-intro">用于天气查询，获取指定地点的天气信息</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">业务数据交互</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 6 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 产业结构判定 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-INDUSTRY-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">🏭</div>
+            <div class="skill-info">
+              <div class="skill-name">产业结构判定</div>
+              <div class="skill-intro">依据《产业结构调整指导目录》判定产业类别</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">安全顾问</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 4 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 风险评估 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-RISK-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">⚠️</div>
+            <div class="skill-info">
+              <div class="skill-name">风险评估</div>
+              <div class="skill-intro">化工装置安全风险等级自动评估</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">风险评估</span>
+            <span class="skill-tag">安全分析</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 12 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 报告生成 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-REPORT-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">📄</div>
+            <div class="skill-info">
+              <div class="skill-name">报告生成</div>
+              <div class="skill-intro">智能生成安全巡检报告与日报</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">报告生成</span>
+            <span class="skill-tag">可视化</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 9 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 知识检索 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-KNOWLEDGE-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">📚</div>
+            <div class="skill-info">
+              <div class="skill-name">知识检索</div>
+              <div class="skill-intro">企业知识库与法规文档智能检索</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">知识检索</span>
+            <span class="skill-tag">法规库</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 15 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 智能巡检 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-PATROL-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">🤖</div>
+            <div class="skill-info">
+              <div class="skill-name">智能巡检</div>
+              <div class="skill-intro">自动化点位巡检与异常识别</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">智能巡检</span>
+            <span class="skill-tag">异常识别</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 7 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 作业审批 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-APPROVE-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">✅</div>
+            <div class="skill-info">
+              <div class="skill-name">作业审批</div>
+              <div class="skill-intro">智能审核作业票与安全措施</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">作业审批</span>
+            <span class="skill-tag">安全审核</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 5 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 数据可视化 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-VISUAL-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">📊</div>
+            <div class="skill-info">
+              <div class="skill-name">数据可视化</div>
+              <div class="skill-intro">安全数据图表生成与趋势分析</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">数据分析</span>
+            <span class="skill-tag">可视化</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 3 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 法规匹配 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-LAW-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">⚖️</div>
+            <div class="skill-info">
+              <div class="skill-name">法规匹配</div>
+              <div class="skill-intro">自动匹配适用法规标准与条款</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">法规库</span>
+            <span class="skill-tag">合规</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 8 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 应急推演 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-EMERGENCY-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">🚨</div>
+            <div class="skill-info">
+              <div class="skill-name">应急推演</div>
+              <div class="skill-intro">事故场景模拟与应急预案生成</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">应急</span>
+            <span class="skill-tag">推演</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 2 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 设备诊断 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-DEVICE-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">🔧</div>
+            <div class="skill-info">
+              <div class="skill-name">设备诊断</div>
+              <div class="skill-intro">设备运行状态监测与故障预测</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">设备</span>
+            <span class="skill-tag">预测</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 6 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 培训生成 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-TRAIN-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">🎓</div>
+            <div class="skill-info">
+              <div class="skill-name">培训生成</div>
+              <div class="skill-intro">安全培训课程与考试题自动生成</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">培训</span>
+            <span class="skill-tag">教育</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 4 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+        <!-- 文档解析 -->
+        <div class="skill-card" onclick="location.href='../skills/skill-detail.html?id=SK-DOC-001'">
+          <div class="skill-card-header">
+            <div class="skill-icon-box">📑</div>
+            <div class="skill-info">
+              <div class="skill-name">文档解析</div>
+              <div class="skill-intro">安全文档结构化解析与摘要提取</div>
+            </div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">文档</span>
+            <span class="skill-tag">NLP</span>
+          </div>
+          <div class="skill-footer">
+            <div class="skill-ref-count">被引用 5 次</div>
+            <div class="skill-use-btn">立即使用 →</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 分页 -->
+    <div class="builder-pagination">
+      <span class="builder-page-info">显示第 1 到第 8 条记录，总共 8 条记录</span>
+      <button class="builder-page-btn active">1</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Tab 切换
+document.querySelectorAll('.builder-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.builder-tab').forEach(function(t) { t.classList.remove('active'); });
+    this.classList.add('active');
+    var target = this.dataset.tab;
+    document.getElementById('panel-agent').style.display = target === 'agent' ? 'block' : 'none';
+    document.getElementById('panel-skill').style.display = target === 'skill' ? 'block' : 'none';
+    var pageInfo = document.querySelector('.builder-page-info');
+    if (target === 'agent') {
+      pageInfo.textContent = '显示第 1 到第 8 条记录，总共 8 条记录';
+    } else {
+      pageInfo.textContent = '显示第 1 到第 14 条记录，总共 14 条记录';
+    }
+  });
+});
+
+// 左侧分类切换
+document.querySelectorAll('.builder-cat-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.builder-cat-item').forEach(function(i) { i.classList.remove('active'); });
+    this.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

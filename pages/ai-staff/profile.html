@@ -406,342 +406,307 @@ html, body { overflow: auto !important; height: auto !important; }
   border-radius: 0;
 }
 </style>
+<script>
+// ========== 数字员工数据配置 ==========
+const staffData = {
+  // 小安 - 报警诊断
+  an: {
+    id: 'an', name: '小安', role: '报警诊断专员', code: 'AI-STAFF-001 | V3.2.1',
+    avatar: 'robot-1.png', color: '#8b5cf6',
+    intro: '专注化工生产过程实时监控与异常分析，接入DCS/GDS/SIS数据，运用规则引擎+AI大模型混合技术自动识别报警根因。',
+    stats: { skills: 7, tasks: 47, rate: '96.8%', calls: '2,847' },
+    skills: ['报警根因分析', '多报警关联分析', 'SIS联锁诊断', '根因分析报告生成', '历史报警检索', '报警分频分析', '趋势预测'],
+    currentTask: { name: 'F-101温度异常诊断', from: 'GDS报警', time: '已运行 23秒', progress: 65 },
+    queue: ['T-2104 储罐液位高报分析', 'T-2105 SIS联锁触发诊断', 'T-2106 压力波动分析'],
+    outputs: [
+      { name: 'F-101诊断报告.docx', time: '14:20', size: '2.3MB', status: 'done' },
+      { name: '报警分析记录.xlsx', time: '11:45', size: '156KB', status: 'done' },
+      { name: '根因分析.pptx', time: '09:30', size: '4.1MB', status: 'doing' }
+    ],
+    collabs: [
+      { name: '小研', role: '风险评估师', color: '#06b6d4', icon: '🔬', collab: 23, done: 18 },
+      { name: '小巡', role: '智能巡检', color: '#f59e0b', icon: '🔧', collab: 15, done: 12 },
+      { name: '小库', role: '知识检索', color: '#ec4899', icon: '📚', collab: 31, done: 28 },
+      { name: '张工程师', role: '人工确认', color: '#64748b', icon: '👤', collab: 8, done: 5 }
+    ],
+    tech: { context: '128K', firstToken: '2.1s', accuracy: '98.2%' },
+    evolution: [
+      { ver: 'V3.2.1', date: '2026-05-10', type: 'major', desc: '新增多模态诊断能力，支持视频+图片输入；优化根因分析算法，推理速度提升40%。' },
+      { ver: 'V3.1.0', date: '2026-04-15', type: 'minor', desc: '接入SIS联锁诊断能力；新增报警关联分析；准确率从94.2%提升至96.8%。' },
+      { ver: 'V3.0.5', date: '2026-03-20', type: 'fix', desc: '修复GDS数据延迟问题；优化时序分析算法；新增报警分级显示。' },
+      { ver: 'V3.0.0', date: '2026-02-01', type: 'major', desc: '全新3.0架构上线，引入AI大模型能力替代规则引擎。' }
+    ]
+  },
+
+  // 小研 - 风险评估
+  yan: {
+    id: 'yan', name: '小研', role: '风险评估师', code: 'AI-STAFF-002 | V2.8.0',
+    avatar: 'robot-2.png', color: '#06b6d4',
+    intro: '化工装置安全风险评估专家，基于GB33000标准和行业规范，运用AI模型进行系统性风险分析与等级评定。',
+    stats: { skills: 5, tasks: 23, rate: '94.2%', calls: '1,523' },
+    skills: ['风险等级评估', 'LEC评价法', 'HAZOP分析辅助', '隐患辨识', '法规匹配'],
+    currentTask: { name: '储罐区较大风险复核', from: '定期评估', time: '已运行 45秒', progress: 40 },
+    queue: ['T-2104 动火作业风险评估', 'F-101检维修风险分析', '罐区防火堤合规性检查'],
+    outputs: [
+      { name: '储罐区风险评估报告.docx', time: '15:30', size: '3.1MB', status: 'done' },
+      { name: 'LEC评价记录表.xlsx', time: '10:20', size: '890KB', status: 'done' },
+      { name: '隐患整改建议.pptx', time: '08:45', size: '2.8MB', status: 'done' }
+    ],
+    collabs: [
+      { name: '小安', role: '报警诊断', color: '#8b5cf6', icon: '🤖', collab: 18, done: 15 },
+      { name: '小报', role: '报告生成', color: '#f59e0b', icon: '📄', collab: 12, done: 10 },
+      { name: '小审', role: '作业审批', color: '#ec4899', icon: '✅', collab: 9, done: 7 },
+      { name: '李安全员', role: '人工复核', color: '#64748b', icon: '👤', collab: 6, done: 4 }
+    ],
+    tech: { context: '64K', firstToken: '1.8s', accuracy: '94.2%' },
+    evolution: [
+      { ver: 'V2.8.0', date: '2026-05-01', type: 'major', desc: '新增GB33000最新标准支持；优化LEC评分算法。' },
+      { ver: 'V2.6.0', date: '2026-03-15', type: 'minor', desc: '新增HAZOP分析辅助模块；接入隐患数据库。' },
+      { ver: 'V2.5.0', date: '2026-01-20', type: 'fix', desc: '修复法规条款匹配错误；更新行业规范库。' }
+    ]
+  },
+
+  // 小报 - 报告生成
+  bao: {
+    id: 'bao', name: '小报', role: '报告生成专员', code: 'AI-STAFF-003 | V2.5.0',
+    avatar: 'robot-3.png', color: '#f59e0b',
+    intro: '智能生成各类安全报告，包括日报、周报、月报、专项报告等，支持可视化图表自动生成。',
+    stats: { skills: 4, tasks: 31, rate: '98.5%', calls: '986' },
+    skills: ['日报生成', '周报生成', '月报生成', '专项报告生成', '图表生成'],
+    currentTask: { name: '5月安全月报生成', from: '定期任务', time: '已运行 1分12秒', progress: 78 },
+    queue: ['重大危险源巡检月报', 'Q1安全工作总结', '应急演练记录'],
+    outputs: [
+      { name: '4月安全月报.docx', time: '16:00', size: '5.2MB', status: 'done' },
+      { name: '周报汇总.pptx', time: '11:30', size: '3.8MB', status: 'done' },
+      { name: '隐患分析报表.xlsx', time: '09:00', size: '1.2MB', status: 'done' }
+    ],
+    collabs: [
+      { name: '小研', role: '风险评估', color: '#06b6d4', icon: '🔬', collab: 12, done: 10 },
+      { name: '小安', role: '报警诊断', color: '#8b5cf6', icon: '🤖', collab: 8, done: 7 },
+      { name: '小巡', role: '智能巡检', color: '#f59e0b', icon: '🔧', collab: 5, done: 4 },
+      { name: '王经理', role: '报告审核', color: '#64748b', icon: '👤', collab: 15, done: 12 }
+    ],
+    tech: { context: '32K', firstToken: '0.8s', accuracy: '98.5%' },
+    evolution: [
+      { ver: 'V2.5.0', date: '2026-04-20', type: 'major', desc: '新增专项报告模板；支持多图表类型。' },
+      { ver: 'V2.3.0', date: '2026-02-10', type: 'minor', desc: '优化月报格式；新增数据可视化。' }
+    ]
+  },
+
+  // 小巡 - 智能巡检
+  xun: {
+    id: 'xun', name: '小巡', role: '智能巡检员', code: 'AI-STAFF-004 | V3.0.0',
+    avatar: 'robot-4.png', color: '#10b981',
+    intro: '自动化点位巡检与异常识别，基于计算机视觉和IoT数据实时监测设备运行状态，快速识别异常情况。',
+    stats: { skills: 6, tasks: 89, rate: '97.3%', calls: '3,215' },
+    skills: ['点位巡检', '异常识别', '设备状态监测', '巡检路线规划', '缺陷跟踪', '巡检报告'],
+    currentTask: { name: 'A区设备巡检中', from: '定时任务', time: '已运行 3分45秒', progress: 52 },
+    queue: ['B区储罐巡检', 'C区管道巡检', '公用工程巡检'],
+    outputs: [
+      { name: 'A区巡检记录.docx', time: '14:30', size: '1.8MB', status: 'done' },
+      { name: '异常点位清单.xlsx', time: '11:00', size: '456KB', status: 'done' },
+      { name: '巡检轨迹图.jpg', time: '09:30', size: '3.2MB', status: 'done' }
+    ],
+    collabs: [
+      { name: '小安', role: '报警诊断', color: '#8b5cf6', icon: '🤖', collab: 15, done: 12 },
+      { name: '小报', role: '报告生成', color: '#f59e0b', icon: '📄', collab: 8, done: 6 },
+      { name: '小识', role: '智能问答', color: '#ec4899', icon: '💬', collab: 4, done: 3 },
+      { name: '赵班长', role: '现场确认', color: '#64748b', icon: '👤', collab: 20, done: 18 }
+    ],
+    tech: { context: '32K', firstToken: '1.2s', accuracy: '97.3%' },
+    evolution: [
+      { ver: 'V3.0.0', date: '2026-05-01', type: 'major', desc: '全新3.0架构；新增AI视觉识别；支持无人机巡检。' },
+      { ver: 'V2.8.0', date: '2026-03-10', type: 'minor', desc: '��增缺陷自动分类；优化巡检路线算法。' }
+    ]
+  },
+
+  // 小库 - 知识检索
+  ku: {
+    id: 'ku', name: '小库', role: '知识检索员', code: 'AI-STAFF-005 | V2.2.0',
+    avatar: 'robot-5.png', color: '#ec4899',
+    intro: '企业知识库与法规文档智能检索助手，支持语义检索、文档解析和智能问答。',
+    stats: { skills: 3, tasks: 156, rate: '99.1%', calls: '4,102' },
+    skills: ['知识检索', '法规查询', '文档解析', '智能问答'],
+    currentTask: { name: '危化品存储规范查询', from: '人工检索', time: '已运行 5秒', progress: 90 },
+    queue: ['GB15603相关条款', '受限空间作业安全', '动火作业分级'],
+    outputs: [
+      { name: '法规检索结果.docx', time: '15:00', size: '856KB', status: 'done' },
+      { name: '标准查询索引.xlsx', time: '10:30', size: '234KB', status: 'done' },
+      { name: '知识图谱.pptx', time: '08:00', size: '2.1MB', status: 'done' }
+    ],
+    collabs: [
+      { name: '小研', role: '风险评估', color: '#06b6d4', icon: '🔬', collab: 31, done: 28 },
+      { name: '小审', role: '作业审批', color: '#ec4899', icon: '✅', collab: 22, done: 20 },
+      { name: '小识', role: '智能问答', color: '#ec4899', icon: '💬', collab: 45, done: 42 },
+      { name: '法规库', role: '数据源', color: '#64748b', icon: '📚', collab: 50, done: 48 }
+    ],
+    tech: { context: '256K', firstToken: '0.5s', accuracy: '99.1%' },
+    evolution: [
+      { ver: 'V2.2.0', date: '2026-04-15', type: 'major', desc: '新增知识图谱检索；支持PDF深度解析。' },
+      { ver: 'V2.0.0', date: '2026-02-01', type: 'minor', desc: '全新2.0搜索引擎；语义检索准确率提升。' }
+    ]
+  },
+
+  // 小识 - 智能问答
+  shi: {
+    id: 'shi', name: '小识', role: '智能问答助手', code: 'AI-STAFF-006 | V1.8.0',
+    avatar: 'robot-6.png', color: '#14b8a6',
+    intro: '即时问答服务，处理各类安全知识咨询、规程查询和操作指导。',
+    stats: { skills: 2, tasks: 234, rate: '98.8%', calls: '5,678' },
+    skills: ['知识问答', '规程咨询', '操作指导'],
+    currentTask: { name: '储罐清洗操作咨询', from: '在线问答', time: '响应中', progress: 100 },
+    queue: ['受限空间作业审批咨询', '安全阀开启压力', '应急预案启动条件'],
+    outputs: [
+      { name: '问答记录导出.xlsx', time: '16:00', size: '1.2MB', status: 'done' },
+      { name: '高频问题统计.pptx', time: '10:00', size: '2.5MB', status: 'done' }
+    ],
+    collabs: [
+      { name: '小库', role: '知识检索', color: '#ec4899', icon: '📚', collab: 45, done: 42 },
+      { name: '小安', role: '报警诊断', color: '#8b5cf6', icon: '🤖', collab: 12, done: 10 },
+      { name: '张操作工', role: '操作指导', color: '#64748b', icon: '👤', collab: 8, done: 7 }
+    ],
+    tech: { context: '128K', firstToken: '0.3s', accuracy: '98.8%' },
+    evolution: [
+      { ver: 'V1.8.0', date: '2026-05-05', type: 'major', desc: '新增多轮对话能力；支持上下文记忆。' }
+    ]
+  },
+
+  // 小审 - 作业审批
+  shen: {
+    id: 'shen', name: '小审', role: '作业审批员', code: 'AI-STAFF-007 | V2.0.0',
+    avatar: 'robot-7.png', color: '#f43f5e',
+    intro: '智能审核作业票与安全措施，辅助审批流程，提高效率并确保合规。',
+    stats: { skills: 4, tasks: 45, rate: '95.6%', calls: '1,892' },
+    skills: ['作业票审核', '安全措施检查', '合规性校验', '审批流转'],
+    currentTask: { name: '动火作业票审批', from: '人工提交', time: '已运行 18秒', progress: 85 },
+    queue: ['受限空间作业票', '高处作业票', '临时用电作业票'],
+    outputs: [
+      { name: '作业票审批记录.xlsx', time: '14:00', size: '890KB', status: 'done' },
+      { name: '安全措施检查表.docx', time: '10:30', size: '456KB', status: 'done' }
+    ],
+    collabs: [
+      { name: '小研', role: '风险评估', color: '#06b6d4', icon: '🔬', collab: 9, done: 7 },
+      { name: '小库', role: '知识检索', color: '#ec4899', icon: '📚', collab: 22, done: 20 },
+      { name: '李主任', role: '最终审批', color: '#64748b', icon: '👤', collab: 15, done: 12 }
+    ],
+    tech: { context: '64K', firstToken: '1.5s', accuracy: '95.6%' },
+    evolution: [
+      { ver: 'V2.0.0', date: '2026-04-25', type: 'major', desc: '全新作业票审核引擎；支持多类型作业票。' }
+    ]
+  },
+
+  // 安全巡查助手
+  patrol: {
+    id: 'patrol', name: '安全巡查助手', role: '第三方巡查', code: 'AI-STAFF-008 | V1.2.0',
+    avatar: 'robot-7.png', color: '#8b5cf6',
+    intro: '第三方开发的巡查助手，集成多种巡查标准，支持现场拍照和问题上报。',
+    stats: { skills: 3, tasks: 12, rate: '92.0%', calls: '156' },
+    skills: ['巡查点位', '问题拍照', '问题上报'],
+    currentTask: { name: '夜间巡查任务', from: '定时任务', time: '已运行 5分20秒', progress: 33 },
+    queue: ['办公楼巡查', '仓库巡查'],
+    outputs: [
+      { name: '巡查记录.docx', time: '22:00', size: '2.1MB', status: 'done' },
+      { name: '问题清单.xlsx', time: '21:00', size: '345KB', status: 'done' }
+    ],
+    collabs: [
+      { name: '小巡', role: '智能巡检', color: '#10b981', icon: '🤖', collab: 5, done: 4 }
+    ],
+    tech: { context: '16K', firstToken: '2.0s', accuracy: '92.0%' },
+    evolution: [
+      { ver: 'V1.2.0', date: '2026-04-01', type: 'minor', desc: '新增问题拍照上传功能。' }
+    ]
+  }
+};
+
+// 获取URL参数
+function getStaffId() {
+  var params = new URLSearchParams(window.location.search);
+  return params.get('staff') || 'an';
+}
+
+function getFrom() {
+  var params = new URLSearchParams(window.location.search);
+  return params.get('from') || 'roster';  // market | roster
+}
+
+function isInstalled() {
+  var params = new URLSearchParams(window.location.search);
+  return params.get('installed') === 'true';
+}
+
+// 渲染页面
+function renderProfile(staffId) {
+  var data = staffData[staffId];
+  if (!data) return;
+  document.title = data.name + ' - 数字员工 - SMAP平台';
+
+  var from = getFrom();
+  var installed = isInstalled();
+
+  // 根据来源显示不同按钮
+  var actionBtn = '';
+  if (from === 'market' && !installed) {
+    actionBtn = '<button class="staff-action-btn" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;padding:10px 24px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;" onclick="alert(\'添加成功！\')">➕ 添加到我的数字员工</button>';
+  } else {
+    actionBtn = '<button class="staff-action-btn" style="background:linear-gradient(135deg,#06b6d4,#22d3ee);color:#fff;padding:10px 24px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;" onclick="location.href=\'chat.html\'">💬 开始对话</button>';
+  }
+
+  var html = '<a class="l3-back-btn" href="' + (from === 'market' ? 'market.html' : 'roster.html') + '">' + (from === 'market' ? '← 返回智能体市场' : '← 返回我的员工') + '</a>';
+
+  html += '<div class="staff-detail-main">';
+
+  // Badge区域，按钮嵌入到stats下面
+  var badgeHtml = '<div class="staff-badge"><div class="staff-badge-left"><div class="staff-badge-avatar"><img src="../../assets/images/' + data.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:90px;"><div class="staff-badge-status-dot"></div></div><div class="staff-badge-name">' + data.name + '</div><div class="staff-badge-role">' + data.role + '</div><div class="staff-badge-code">' + data.code + '</div></div><div class="staff-badge-right"><div class="staff-badge-intro">' + data.intro + ' 累计处理<span style="color:' + data.color + ';font-weight:600;">' + data.stats.calls + '次</span>，准确率<span style="color:#22c55e;font-weight:600;">' + data.stats.rate + '</span>。</div><div class="staff-badge-stats"><div class="staff-badge-stat"><div class="staff-badge-stat-value" style="color:' + data.color + ';">' + data.stats.skills + '</div><div class="staff-badge-stat-label">技能</div></div><div class="staff-badge-stat"><div class="staff-badge-stat-value">' + data.stats.tasks + '</div><div class="staff-badge-stat-label">今日任务</div></div><div class="staff-badge-stat"><div class="staff-badge-stat-value">' + data.stats.rate + '</div><div class="staff-badge-stat-label">完成率</div></div></div>';
+  
+  // 按钮放在stats下面
+  badgeHtml += '<div style="margin-top:14px;">' + actionBtn + '</div>';
+  badgeHtml += '</div></div></div>';
+  
+  html += badgeHtml;
+
+  // TOC
+  html += '<div class="staff-toc"><a class="staff-toc-item active" href="#task">🎯 当前任务</a><a class="staff-toc-item" href="#skills">🛠️ 拥有的技能</a><a class="staff-toc-item" href="#queue">📋 等待队列</a><span class="staff-toc-divider"></span><a class="staff-toc-item" href="#output">📦 今日成果</a><a class="staff-toc-item" href="#collab">🤝 协作员工</a><a class="staff-toc-item" href="#stats">📊 任务数据</a><span class="staff-toc-divider"></span><a class="staff-toc-item" href="#evolution">🚀 升级迭代</a></div>';
+
+  // Current Task
+  html += '<div class="staff-current-task" id="task"><div class="section-title">🎯 当前任务</div><div class="current-task-main"><div class="current-task-icon" style="background: linear-gradient(135deg, ' + data.color + ', ' + data.color + 'aa);">' + (data.collabs && data.collabs[0] ? data.collabs[0].icon : '🤖') + '</div><div class="current-task-info"><div class="current-task-name">' + data.currentTask.name + '</div><div class="current-task-meta">来自：' + data.currentTask.from + ' · ' + data.currentTask.time + '</div></div><div class="current-task-progress"><div class="progress-bar"><div class="progress-fill" style="width:' + data.currentTask.progress + '%"></div></div><div class="progress-text">' + data.currentTask.progress + '%</div></div></div></div>';
+
+  // Skills
+  html += '<div class="staff-queue" id="skills"><div class="section-title">🛠️ 拥有的技能 <span>(' + data.skills.length + ')</span></div><div class="queue-grid">';
+  for (var i = 0; i < data.skills.length; i++) { html += '<div class="queue-item"><div class="queue-item-name" style="color:' + data.color + ';">' + data.skills[i] + '</div></div>'; }
+  html += '</div></div>';
+
+  // Queue
+  html += '<div class="staff-queue" id="queue"><div class="section-title">📋 等待队列 <span>(' + data.queue.length + ')</span></div><div class="queue-grid">';
+  for (var i = 0; i < data.queue.length; i++) { html += '<div class="queue-item"><div class="queue-item-name">' + data.queue[i] + '</div><div class="queue-item-time">等待中</div></div>'; }
+  html += '</div></div>';
+
+  // Outputs
+  html += '<div class="staff-output" id="output"><div class="section-title">📦 今日成果</div><div class="output-grid">';
+  for (var i = 0; i < data.outputs.length; i++) { var o = data.outputs[i]; html += '<div class="output-item"><div class="output-icon">📄</div><div class="output-info"><div class="output-name">' + o.name + '</div><div class="output-meta">' + o.time + ' · ' + o.size + '</div></div><span class="output-status ' + o.status + '">' + (o.status === 'done' ? '已完成' : '生成中') + '</span></div>'; }
+  html += '</div></div>';
+
+  // Collabs
+  html += '<div class="staff-collab" id="collab"><div class="section-title">🤝 协作员工</div><div class="collab-grid">';
+  if (data.collabs) { for (var i = 0; i < data.collabs.length; i++) { var c = data.collabs[i]; html += '<div class="collab-item"><div class="collab-avatar" style="background:linear-gradient(135deg,' + c.color + ',' + c.color + 'aaa)">' + c.icon + '</div><div class="collab-info"><div class="collab-name">' + c.name + '</div><div class="collab-role">' + c.role + '</div><div class="collab-metrics"><span class="collab-metric">合作 ' + c.collab + ' 次</span><span class="collab-metric">完成 ' + c.done + ' 项</span></div></div></div>'; } }
+  html += '</div></div>';
+
+  // Stats
+  html += '<div class="staff-task-data" id="stats"><div class="section-title">📊 任务数据（今日）</div><div class="task-data-grid"><div class="task-data-card"><div class="task-data-value green">' + data.stats.tasks + '</div><div class="task-data-label">任务总数</div></div><div class="task-data-card"><div class="task-data-value" style="color:' + data.color + '">' + data.stats.rate + '</div><div class="task-data-label">完成率</div></div><div class="task-data-card"><div class="task-data-value blue">' + data.tech.firstToken + '</div><div class="task-data-label">首字响应</div></div><div class="task-data-card"><div class="task-data-value orange">' + data.tech.context + '</div><div class="task-data-label">上下文</div></div></div></div>';
+
+  // Evolution
+  html += '<div class="staff-evolution" id="evolution"><div class="section-title">🚀 升级迭代记录</div><div class="evolution-timeline">';
+  for (var i = 0; i < data.evolution.length; i++) { var e = data.evolution[i]; html += '<div class="evolution-item"><div class="evolution-dot ' + (i === 0 ? 'current' : '') + '"></div><div class="evolution-version">' + e.ver + ' <span class="evolution-tag ' + e.type + '">' + (e.type === 'major' ? '重大更新' : e.type === 'fix' ? 'Bug修复' : '功能更新') + '</span></div><div class="evolution-date">' + e.date + '</div><div class="evolution-desc">' + e.desc + '</div></div>'; }
+  html += '</div></div></div></div>';
+
+  document.getElementById('profileContent').innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  renderProfile(getStaffId());
+});
+</script>
 </head>
 <body class="page-staff-detail">
-<div class="staff-detail-main">
-
-<!-- 1. 工牌 - 身份信息 -->
-<div class="staff-badge">
-  <div class="staff-badge-left">
-    <div class="staff-badge-avatar" style="background-size:cover;">
-      <img src="../../assets/images/robot-1.png" style="width:100%;height:100%;object-fit:cover;border-radius:90px;">
-      <div class="staff-badge-status-dot"></div>
-    </div>
-    <div class="staff-badge-name">小安</div>
-    <div class="staff-badge-role">报警诊断专员</div>
-    <div class="staff-badge-code">AI-STAFF-001 | V3.2.1</div>
-  </div>
-  <div class="staff-badge-right">
-    <div class="staff-badge-intro">
-      专注化工生产过程实时监控与异常分析，接入DCS/GDS/SIS数据，运用规则引擎+AI大模型混合技术自动识别报警根因。累计处理报警<span style="color:#8b5cf6;font-weight:600;">2,847次</span>，准确率<span style="color:#22c55e;font-weight:600;">96.8%</span>。
-    </div>
-    <div class="staff-badge-stats">
-      <div class="staff-badge-stat" onclick="location.href='../skills/skills-by-staff.html?staff=an'" style="cursor:pointer;">
-        <div class="staff-badge-stat-value" style="color:var(--primary);">7</div>
-        <div class="staff-badge-stat-label">技能<span style="color:var(--primary);">→</span></div>
-      </div>
-      <div class="staff-badge-stat">
-        <div class="staff-badge-stat-value">47</div>
-        <div class="staff-badge-stat-label">今日任务</div>
-      </div>
-      <div class="staff-badge-stat">
-        <div class="staff-badge-stat-value">96.8%</div>
-        <div class="staff-badge-stat-label">完成率</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 锚点导航 -->
-<div id="staffToc" class="staff-toc">
-  <a class="staff-toc-item active" href="#task">🎯 当前任务</a>
-  <a class="staff-toc-item" href="#skills">🛠️ 拥有的技能</a>
-  <a class="staff-toc-item" href="#queue">📋 等待队列</a>
-  <span class="staff-toc-divider"></span>
-  <a class="staff-toc-item" href="#output">📦 今日成果</a>
-  <a class="staff-toc-item" href="#collab">🤝 协作员工</a>
-  <a class="staff-toc-item" href="#stats">📊 任务数据</a>
-  <span class="staff-toc-divider"></span>
-  <a class="staff-toc-item" href="#evolution">🚀 升级迭代</a>
-  <a class="staff-toc-item" href="#tech">⚙️ 技术分析</a>
-</div>
-
-<script>
-// 数字员工详情页 - 滚动固定导航
-(function() {
-  var toc = document.getElementById('staffToc');
-  if (!toc) return;
-  var origTop = toc.offsetTop;
-  var fixedClass = 'staff-toc-fixed';
-  
-  window.addEventListener('scroll', function() {
-    if (window.scrollY > origTop) {
-      toc.classList.add(fixedClass);
-    } else {
-      toc.classList.remove(fixedClass);
-    }
-  });
-  
-  // 点击smooth scroll
-  toc.querySelectorAll('a').forEach(function(a) {
-    a.addEventListener('click', function(e) {
-      var href = this.getAttribute('href');
-      if (href && href.charAt(0) === '#') {
-        var el = document.querySelector(href);
-        if (el) {
-          e.preventDefault();
-          var top = el.offsetTop - 70;
-          window.scrollTo({top: top, behavior: 'smooth'});
-        }
-      }
-    });
-  });
-})();
-</script>
-
-<!-- 2. 当前任务 -->
-<div class="staff-current-task" id="task">
-  <div class="section-title">🎯 当前任务</div>
-  <div class="current-task-main">
-    <div class="current-task-icon">🔍</div>
-    <div class="current-task-info">
-      <div class="current-task-name">F-101温度异常诊断</div>
-      <div class="current-task-meta">来自：GDS报警 · 已运行 23秒</div>
-    </div>
-    <div class="current-task-progress">
-      <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
-      <div class="progress-text">65%</div>
-    </div>
-  </div>
-</div>
-
-<!-- 2.5 拥有的技能 -->
-<div class="staff-queue" id="skills">
-  <div class="section-title">🛠️ 拥有的技能 <span>(7)</span></div>
-  <div class="queue-grid">
-    <div class="queue-item" onclick="location.href='../skills/skill-detail.html'" style="cursor:pointer;">
-      <div class="queue-item-name" style="color:var(--primary);">报警根因分析</div>
-      <div class="queue-item-time">V2.3.0 · 被引用 18 次</div>
-    </div>
-    <div class="queue-item">
-      <div class="queue-item-name">多报警关联分析</div>
-      <div class="queue-item-time">V1.8.0</div>
-    </div>
-    <div class="queue-item">
-      <div class="queue-item-name">SIS联锁诊断</div>
-      <div class="queue-item-time">V1.5.2</div>
-    </div>
-    <div class="queue-item">
-      <div class="queue-item-name">根因分析报告生成</div>
-      <div class="queue-item-time">V1.2.0</div>
-    </div>
-    <div class="queue-item">
-      <div class="queue-item-name">历史报警检索</div>
-      <div class="queue-item-time">V1.0.5</div>
-    </div>
-    <div class="queue-item">
-      <div class="queue-item-name">报警分频分析</div>
-      <div class="queue-item-time">V1.0.0</div>
-    </div>
-  </div>
-</div>
-
-<!-- 3. 等待队列 -->
-<div class="staff-queue" id="queue">
-  <div class="section-title">📋 等待队列 <span>(3)</span></div>
-  <div class="queue-grid">
-    <div class="queue-item">
-      <div class="queue-item-name">T-2104 储罐液位高报分析</div>
-      <div class="queue-item-time">等待 2min</div>
-    </div>
-    <div class="queue-item">
-      <div class="queue-item-name">T-2105 SIS联锁触发诊断</div>
-      <div class="queue-item-time">等待 5min</div>
-    </div>
-    <div class="queue-item">
-      <div class="queue-item-name">T-2106 压力波动分析</div>
-      <div class="queue-item-time">等待 8min</div>
-    </div>
-  </div>
-</div>
-
-<!-- 4. 今日成果 -->
-<div class="staff-output" id="output">
-  <div class="section-title">📦 今日成果</div>
-  <div class="output-grid">
-    <div class="output-item">
-      <div class="output-icon">📄</div>
-      <div class="output-info">
-        <div class="output-name">F-101诊断报告.docx</div>
-        <div class="output-meta">14:20 · 2.3MB</div>
-      </div>
-      <span class="output-status done">已完成</span>
-    </div>
-    <div class="output-item">
-      <div class="output-icon">📄</div>
-      <div class="output-info">
-        <div class="output-name">报警分析记录.xlsx</div>
-        <div class="output-meta">11:45 · 156KB</div>
-      </div>
-      <span class="output-status done">已完成</span>
-    </div>
-    <div class="output-item">
-      <div class="output-icon">📄</div>
-      <div class="output-info">
-        <div class="output-name">根因分析.pptx</div>
-        <div class="output-meta">09:30 · 4.1MB</div>
-      </div>
-      <span class="output-status doing">生成中</span>
-    </div>
-  </div>
-</div>
-
-<!-- 5. 协作员工 -->
-<div class="staff-collab" id="collab">
-  <div class="section-title">🤝 协作员工</div>
-  <div class="collab-grid">
-    <div class="collab-item">
-      <div class="collab-avatar" style="background:linear-gradient(135deg,#06b6d4,#22d3ee)">🔬</div>
-      <div class="collab-info">
-        <div class="collab-name">小研</div>
-        <div class="collab-role">风险评估师</div>
-        <div class="collab-metrics">
-          <span class="collab-metric">合作 23 次</span>
-          <span class="collab-metric">完成 18 项</span>
-        </div>
-      </div>
-    </div>
-    <div class="collab-item">
-      <div class="collab-avatar" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">🔧</div>
-      <div class="collab-info">
-        <div class="collab-name">小巡</div>
-        <div class="collab-role">智能巡检</div>
-        <div class="collab-metrics">
-          <span class="collab-metric">合作 15 次</span>
-          <span class="collab-metric">完成 12 项</span>
-        </div>
-      </div>
-    </div>
-    <div class="collab-item">
-      <div class="collab-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6)">📚</div>
-      <div class="collab-info">
-        <div class="collab-name">小库</div>
-        <div class="collab-role">知识检索</div>
-        <div class="collab-metrics">
-          <span class="collab-metric">合作 31 次</span>
-          <span class="collab-metric">完成 28 项</span>
-        </div>
-      </div>
-    </div>
-    <div class="collab-item">
-      <div class="collab-avatar" style="background:linear-gradient(135deg,#64748b,#94a3b8)">👤</div>
-      <div class="collab-info">
-        <div class="collab-name">张工程师</div>
-        <div class="collab-role">人工确认</div>
-        <div class="collab-metrics">
-          <span class="collab-metric">合作 8 次</span>
-          <span class="collab-metric">完成 5 项</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 6. 任务数据 -->
-<div class="staff-task-data" id="stats">
-  <div class="section-title">📊 任务数据（今日）</div>
-  <div class="task-data-grid">
-    <div class="task-data-card">
-      <div class="task-data-value green">47</div>
-      <div class="task-data-label">任务总数</div>
-    </div>
-    <div class="task-data-card">
-      <div class="task-data-value purple">96.8%</div>
-      <div class="task-data-label">完成率</div>
-    </div>
-    <div class="task-data-card">
-      <div class="task-data-value blue">12s</div>
-      <div class="task-data-label">平均耗时</div>
-    </div>
-    <div class="task-data-card">
-      <div class="task-data-value orange">2.1K</div>
-      <div class="task-data-label">Token消耗</div>
-    </div>
-  </div>
-</div>
-
-<!-- 7. 升级迭代 -->
-<div class="staff-evolution" id="evolution">
-  <div class="section-title">🚀 升级迭代记录</div>
-  <div class="evolution-timeline">
-    <div class="evolution-item">
-      <div class="evolution-dot current"></div>
-      <div class="evolution-version">V3.2.1 <span class="evolution-tag major">重大更新</span></div>
-      <div class="evolution-date">2026-05-10</div>
-      <div class="evolution-desc">新增多模态诊断能力，支持视频+图片输入；优化根因分析算法，推理速度提升40%。</div>
-    </div>
-    <div class="evolution-item">
-      <div class="evolution-dot"></div>
-      <div class="evolution-version">V3.1.0</div>
-      <div class="evolution-date">2026-04-15</div>
-      <div class="evolution-desc">接入SIS联锁诊断能力；新增报警关联分析；准确率从94.2%提升至96.8%。</div>
-    </div>
-    <div class="evolution-item">
-      <div class="evolution-dot"></div>
-      <div class="evolution-version">V3.0.5 <span class="evolution-tag fix">Bug修复</span></div>
-      <div class="evolution-date">2026-03-20</div>
-      <div class="evolution-desc">修复GDS数据延迟问题；优化时序分析算法；新增报警分级显示。</div>
-    </div>
-    <div class="evolution-item">
-      <div class="evolution-dot"></div>
-      <div class="evolution-version">V3.0.0</div>
-      <div class="evolution-date">2026-02-01</div>
-      <div class="evolution-desc">全新3.0架构上线，引入AI大模型能力替代规则引擎。</div>
-    </div>
-  </div>
-</div>
-
-<!-- 8. 失败记录 -->
-<div class="staff-fail">
-  <div class="section-title fail-title">❌ 执行失败记录 (最近5条)</div>
-  <div class="fail-item">
-    <div class="fail-icon">⚠️</div>
-    <div class="fail-info">
-      <div class="fail-name">T-1087 报警诊断任务</div>
-      <div class="fail-reason">数据源超时：DCS连接中断超过30s</div>
-      <div class="fail-time">2026-05-13 14:23</div>
-    </div>
-  </div>
-  <div class="fail-item">
-    <div class="fail-icon">⚠️</div>
-    <div class="fail-info">
-      <div class="fail-name">T-0923 批量诊断任务</div>
-      <div class="fail-reason">Token超限：单次任务消耗超过限制</div>
-      <div class="fail-time">2026-05-12 09:15</div>
-    </div>
-  </div>
-  <div class="fail-item">
-    <div class="fail-icon">⚠️</div>
-    <div class="fail-info">
-      <div class="fail-name">T-0845 报警诊断任务</div>
-      <div class="fail-reason">模型推理失败：触发安全策略被拒绝</div>
-      <div class="fail-time">2026-05-10 16:45</div>
-    </div>
-  </div>
-</div>
-
-<!-- 9. 技术分析 -->
-<div class="staff-tech" id="tech">
-  <div class="section-title">⚙️ 技术分析</div>
-  <div class="tech-grid">
-    <div class="tech-item">
-      <div class="tech-value">128K</div>
-      <div class="tech-label">上下文窗口</div>
-      <div class="tech-bar"><div class="tech-fill" style="width:85%"></div></div>
-    </div>
-    <div class="tech-item">
-      <div class="tech-value">2.1s</div>
-      <div class="tech-label">首字响应</div>
-      <div class="tech-bar"><div class="tech-fill" style="width:72%"></div></div>
-    </div>
-    <div class="tech-item">
-      <div class="tech-value">98.2%</div>
-      <div class="tech-label">诊断准确率</div>
-      <div class="tech-bar"><div class="tech-fill" style="width:98%"></div></div>
-    </div>
-  </div>
-</div>
-
-</div>
+<div id="profileContent"></div>
 </body>
 </html>

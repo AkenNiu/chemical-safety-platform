@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户履约记录 - SMAP平台</title>
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/common.css">
+<style>
+html, body { overflow: auto !important; height: auto !important; background: var(--bg-dark); }
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: color .2s;
+}
+.back-btn:hover { color: var(--primary); }
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.page-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 筛选栏 */
+.filter-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.filter-select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
+/* 卡片 */
+.record-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.card-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.card-badge.blue { background: rgba(22,119,255,0.15); color: var(--primary); }
+.card-badge.orange { background: rgba(250,173,20,0.15); color: var(--warning); }
+.card-badge.green { background: rgba(34,197,94,0.15); color: var(--success); }
+
+/* 履约统计 */
+.perf-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.perf-stat {
+  text-align: center;
+  padding: 14px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+}
+.perf-stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.perf-stat-value.high { color: var(--success); }
+.perf-stat-value.mid { color: var(--warning); }
+.perf-stat-value.low { color: var(--danger); }
+.perf-stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 任务表格 */
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.task-table th,
+.task-table td {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 13px;
+}
+.task-table th {
+  color: var(--text-muted);
+  font-weight: 500;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.task-table td {
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.task-table tr:last-child td { border-bottom: none; }
+.task-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.status-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.status-tag.done { background: rgba(34,197,94,0.15); color: var(--success); }
+.status-tag.progress { background: rgba(250,173,20,0.15); color: var(--warning); }
+.status-tag.pending { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+
+.view-btn {
+  color: var(--primary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* 月份分组 */
+.month-group {
+  margin-bottom: 24px;
+}
+.month-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding-left: 4px;
+  border-left: 3px solid var(--primary);
+}
+
+/* 雷达图区域 */
+.radar-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.radar-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.radar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+.radar-placeholder {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.02);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.radar-placeholder::before {
+  content: '雷达图';
+  font-size: 12px;
+  color: var(--text-muted);
+}
+</style>
+</head>
+<body style="padding: 20px;">
+
+<!-- 返回按钮 -->
+<div class="back-btn" onclick="location.href='customer-detail.html?id=s001'">
+  ← 返回客户详情
+</div>
+
+<!-- 页面标题 -->
+<div class="page-header">
+  <div>
+    <div class="page-title">📋 客户履约记录</div>
+    <div class="page-subtitle">江阴临港化工园区 · 化工园区安全风险等级C升D合同</div>
+  </div>
+</div>
+
+<!-- 筛选栏 -->
+<div class="filter-bar">
+  <div class="filter-item">
+    <span class="filter-label">服务项</span>
+    <select class="filter-select">
+      <option value="">全部服务</option>
+      <option value="special">特殊作业服务</option>
+      <option value="hazard">重大危险源监控</option>
+      <option value="closed">封闭园区管理</option>
+      <option value="data">数据治理服务</option>
+    </select>
+  </div>
+  <div class="filter-item">
+    <span class="filter-label">时间范围</span>
+    <select class="filter-select">
+      <option value="">全部时间</option>
+      <option value="2025-05">2025年5月</option>
+      <option value="2025-04">2025年4月</option>
+      <option value="2025-03">2025年3月</option>
+    </select>
+  </div>
+  <div class="filter-item">
+    <span class="filter-label">状态</span>
+    <select class="filter-select">
+      <option value="">全部状态</option>
+      <option value="done">已完成</option>
+      <option value="progress">进行中</option>
+      <option value="pending">待启动</option>
+    </select>
+  </div>
+</div>
+
+<!-- 履约统计 -->
+<div class="perf-stats">
+  <div class="perf-stat">
+    <div class="perf-stat-value high">28</div>
+    <div class="perf-stat-label">已完成任务</div>
+  </div>
+  <div class="perf-stat">
+    <div class="perf-stat-value mid">5</div>
+    <div class="perf-stat-label">进行中</div>
+  </div>
+  <div class="perf-stat">
+    <div class="perf-stat-value">3</div>
+    <div class="perf-stat-label">待启动</div>
+  </div>
+  <div class="perf-stat">
+    <div class="perf-stat-value high">92%</div>
+    <div class="perf-stat-label">综合完成率</div>
+  </div>
+  <div class="perf-stat">
+    <div class="perf-stat-value">2025-05-31</div>
+    <div class="perf-stat-label">统计截止</div>
+  </div>
+</div>
+
+<!-- 关键任务 -->
+<div class="record-card">
+  <div class="card-header">
+    <div class="card-title">🔑 关键任务</div>
+  </div>
+  
+  <!-- 2025年5月 -->
+  <div class="month-group">
+    <div class="month-header">2025年5月</div>
+    <table class="task-table">
+      <thead>
+        <tr>
+          <th>任务名称</th>
+          <th>任务描述</th>
+          <th>状态</th>
+          <th>时间节点</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--text-primary);">应急系统接口开发</td>
+          <td>与政府应急平台数据对接</td>
+          <td><span class="status-tag done">已完成</span></td>
+          <td>2025-05-15</td>
+          <td><span class="view-btn">查看 →</span></td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary);">重大危险源监控模块开发</td>
+          <td>重大危险源实时监控模块开发</td>
+          <td><span class="status-tag progress">进行中</span></td>
+          <td>2025-05-20</td>
+          <td><span class="view-btn">查看 →</span></td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary);">Q1季度报告生成</td>
+          <td>完成Q1安全运营报告</td>
+          <td><span class="status-tag done">已完成</span></td>
+          <td>2025-05-10</td>
+          <td><span class="view-btn">查看 →</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- 2025年4月 -->
+  <div class="month-group">
+    <div class="month-header">2025年4月</div>
+    <table class="task-table">
+      <thead>
+        <tr>
+          <th>任务名称</th>
+          <th>任务描述</th>
+          <th>状态</th>
+          <th>时间节点</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--text-primary);">封闭园区系统升级</td>
+          <td>车辆识别系统升级优化</td>
+          <td><span class="status-tag done">已完成</span></td>
+          <td>2025-04-30</td>
+          <td><span class="view-btn">查看 →</span></td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary);">数据治理标准对接</td>
+          <td>对接园区数据治理标准体系</td>
+          <td><span class="status-tag progress">进行中</span></td>
+          <td>2025-04-25</td>
+          <td><span class="view-btn">查看 →</span></td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary);">安全培训模块上线</td>
+          <td>在线安全培训功能上线</td>
+          <td><span class="status-tag done">已完成</span></td>
+          <td>2025-04-15</td>
+          <td><span class="view-btn">查看 →</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 多维度评价 -->
+<div class="radar-section">
+  <div class="radar-card">
+    <div class="radar-title">📊 履约能力评价</div>
+    <div class="radar-placeholder"></div>
+  </div>
+  <div class="radar-card">
+    <div class="radar-title">🤖 服务满意度评价</div>
+    <div class="radar-placeholder"></div>
+  </div>
+</div>
+
+</body>
+</html>

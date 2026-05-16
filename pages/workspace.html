@@ -328,36 +328,42 @@
       </div>
     </div>
 
-    <!-- 数字员工工作台 -->
-    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:16px; flex:1;">
+    <!-- 履约对象 -->
+    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:16px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <span style="font-size:14px; font-weight:600; color:#fff;">🤖 数字员工工作台</span>
-        <div style="display:flex; background:rgba(255,255,255,0.05); border-radius:6px; padding:2px;">
-          <button onclick="toggleView('normal')" style="padding:4px 10px; font-size:11px; color:rgba(255,255,255,0.7); background:transparent; border:none; border-radius:4px; cursor:pointer;">标准视图</button>
-          <button onclick="toggleView('boss')" style="padding:4px 10px; font-size:11px; color:rgba(255,255,255,0.7); background:transparent; border:none; border-radius:4px; cursor:pointer;">老板视图</button>
+        <span style="font-size:14px; font-weight:600; color:#fff;">📊 履约对象</span>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:11px; color:rgba(255,255,255,0.5);">128 家客户</span>
+          <span style="font-size:12px; color:#8b5cf6; cursor:pointer;" onclick="location.href='performance.html'">进入中心 →</span>
         </div>
       </div>
       
-      <!-- 业务页签 -->
-      <div style="display:flex; gap:0; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.06);">
-        <div style="padding:8px 12px; font-size:12px; color:#8b5cf6; border-bottom:2px solid #8b5cf6; cursor:pointer;">报警管理</div>
-        <div style="padding:8px 12px; font-size:12px; color:rgba(255,255,255,0.5); cursor:pointer;">特殊作业</div>
-        <div style="padding:8px 12px; font-size:12px; color:rgba(255,255,255,0.5); cursor:pointer;">危化品储运</div>
-        <div style="padding:8px 12px; font-size:12px; color:rgba(255,255,255,0.5); cursor:pointer;">应急救援</div>
-      </div>
-
-      <!-- 业务描述 -->
-      <div style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.2); border-radius:8px; padding:10px 12px; margin-bottom:12px;">
-        <div style="font-size:12px; font-weight:600; color:#a78bfa; margin-bottom:4px;">📡 报警管理近期工作</div>
-        <div style="font-size:12px; color:rgba(255,255,255,0.7); line-height:1.5;">
-          今日共接收报警 <strong style="color:#a78bfa;">28</strong> 次，其中 <strong style="color:#ef4444;">3</strong> 条需重点关注。
-          小安正在分析F-101温度异常，小研等待补充储罐参数后输出风险评估报告。
+      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
+        <div style="text-align:center; padding:12px 8px; background:rgba(255,255,255,0.02); border-radius:8px; cursor:pointer;" onclick="location.href='performance/customers.html'">
+          <div style="font-size:20px; margin-bottom:4px;">🏭</div>
+          <div style="font-size:12px; color:#fff; margin-bottom:2px;">江阴临港化工园区</div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5);">S级 · 履约率 98%</div>
+        </div>
+        <div style="text-align:center; padding:12px 8px; background:rgba(255,255,255,0.02); border-radius:8px; cursor:pointer;" onclick="location.href='performance/customers.html'">
+          <div style="font-size:20px; margin-bottom:4px;">🔬</div>
+          <div style="font-size:12px; color:#fff; margin-bottom:2px;">南京江北新材料科技园</div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5);">S级 · 履约率 95%</div>
+        </div>
+        <div style="text-align:center; padding:12px 8px; background:rgba(255,255,255,0.02); border-radius:8px; cursor:pointer;" onclick="location.href='performance/customers.html'">
+          <div style="font-size:20px; margin-bottom:4px;">⚗️</div>
+          <div style="font-size:12px; color:#fff; margin-bottom:2px;">常州滨江经济开发区</div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5);">A级 · 履约率 82%</div>
+        </div>
+        <div style="text-align:center; padding:12px 8px; background:rgba(255,255,255,0.02); border-radius:8px; cursor:pointer;" onclick="location.href='performance/customers.html'">
+          <div style="font-size:20px; margin-bottom:4px;">🧪</div>
+          <div style="font-size:12px; color:#fff; margin-bottom:2px;">苏州工业园化工区</div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5);">A级 · 履约率 78%</div>
         </div>
       </div>
+    </div>
 
-      <!-- 数字员工网格 -->
-
-      <div class="section-block" style="flex:1;">
+    <!-- 数字员工工作台 -->
+    <div class="section-block" style="flex:1;">
         <div class="section-header">
           <span>🤖 数字员工工作台</span>
           <div class="section-header-actions">
@@ -388,6 +394,14 @@
 
         <!-- 数字员工网格 -->
         <div class="ai-grid" id="aiGrid">
+          <!-- 老板视图背景视频 -->
+          <video id="bossVideo" class="boss-bg-video" style="display:none;" preload="auto" muted loop playsinline>
+            <source src="../assets/videos/office.mp4" type="video/mp4">
+          </video>
+          <div id="bossVideoHint" class="boss-video-hint" style="display:none; position:absolute; bottom:20px; left:50%; transform:translateX(-50%); z-index:10; background:rgba(0,0,0,0.6); padding:8px 16px; border-radius:20px; color:#fff; cursor:pointer;" onclick="playBossVideo()">
+            ▶ 点击播放视频
+          </div>
+          
           <!-- 小安 - 工作中 -->
           <div class="ai-card working">
             <div class="ai-card-header">
@@ -525,7 +539,6 @@
           </div>
         </div>
       </div>
-    </div>
   </div>
 
   <!-- 右侧信息区 (sidebar) -->
@@ -612,10 +625,55 @@
 // 老板视图切换
   function toggleView(viewType) {
     var grid = document.getElementById('aiGrid');
+    var video = document.getElementById('bossVideo');
+    var hint = document.getElementById('bossVideoHint');
+    var bizDesc = document.querySelector('.biz-desc');
+    var aiTabs = document.querySelector('.ai-tabs');
+    var viewToggle = document.querySelector('.section-header-actions');
     if (viewType === 'boss') {
       grid.classList.add('boss-view');
+      // 隐藏其他元素
+      if (bizDesc) bizDesc.style.display = 'none';
+      if (aiTabs) aiTabs.style.display = 'none';
+      if (viewToggle) viewToggle.style.display = 'none';
+      // 播放视频
+      if (video) {
+        video.style.display = 'block';
+        hint.style.display = 'block';
+        video.play().then(function() {
+          hint.style.display = 'none';
+          video.classList.add('playing');
+        }).catch(function(e) { 
+          console.log('Auto-play blocked, showing hint');
+          hint.textContent = '▶ 点击播放视频';
+        });
+      }
     } else {
       grid.classList.remove('boss-view');
+      // 显示其他元素
+      if (bizDesc) bizDesc.style.display = 'block';
+      if (aiTabs) aiTabs.style.display = 'flex';
+      if (viewToggle) viewToggle.style.display = 'flex';
+      // 停止视频
+      if (video) {
+        video.pause();
+        video.classList.remove('playing');
+        video.style.display = 'none';
+        hint.style.display = 'none';
+      }
+    }
+  }
+  
+  function playBossVideo() {
+    var video = document.getElementById('bossVideo');
+    var hint = document.getElementById('bossVideoHint');
+    if (video) {
+      video.play().then(function() {
+        hint.style.display = 'none';
+        video.classList.add('playing');
+      }).catch(function(e) { 
+        console.log('Play failed:', e); 
+      });
     }
   }
 </script>
