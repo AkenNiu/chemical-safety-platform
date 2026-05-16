@@ -632,10 +632,11 @@
     var viewToggle = document.querySelector('.section-header-actions');
     if (viewType === 'boss') {
       grid.classList.add('boss-view');
-      // 隐藏其他元素
+      // 隐藏业务元素，保留切换按钮
       if (bizDesc) bizDesc.style.display = 'none';
       if (aiTabs) aiTabs.style.display = 'none';
-      if (viewToggle) viewToggle.style.display = 'none';
+      // 切换按钮保持显示，让用户可以返回
+      if (viewToggle) viewToggle.style.display = 'flex';
       // 播放视频
       if (video) {
         video.style.display = 'block';
@@ -650,7 +651,7 @@
       }
     } else {
       grid.classList.remove('boss-view');
-      // 显示其他元素
+      // 恢复显示
       if (bizDesc) bizDesc.style.display = 'block';
       if (aiTabs) aiTabs.style.display = 'flex';
       if (viewToggle) viewToggle.style.display = 'flex';
