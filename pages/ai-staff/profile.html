@@ -651,7 +651,7 @@ function renderProfile(staffId) {
     actionBtn = '<button class="staff-action-btn" style="background:linear-gradient(135deg,#06b6d4,#22d3ee);color:#fff;padding:10px 24px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;" onclick="location.href=\'chat.html\'">💬 开始对话</button>';
   }
 
-  var html = '<a class="l3-back-btn" href="' + (from === 'market' ? 'market.html' : 'roster.html') + '">' + (from === 'market' ? '← 返回智能体市场' : '← 返回我的员工') + '</a>';
+  var html = '<a class="l3-back-btn" href="' + (from === 'market' ? 'market.html' : from === 'workspace' ? '../workspace.html' : 'roster.html') + '">' + (from === 'market' ? '← 返回智能体市场' : from === 'workspace' ? '← 返回工作台' : '← 返回我的员工') + '</a>';
 
   html += '<div class="staff-detail-main">';
 
